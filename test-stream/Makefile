@@ -10,6 +10,6 @@ $(TARGET): $(CC_SOURCES)
 	$(VERBOSE) $(CXX) -o $@ $(CXXFLAGS) $^
 
 clean:
-	$(VERBOSE) rm -f $(TARGET)
+	$(VERBOSE) rm -f $(TARGET) bar.txt foo.txt
 
 .PHONY: all clean

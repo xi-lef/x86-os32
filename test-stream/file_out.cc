@@ -2,3 +2,4 @@
 
 #include "file_out.h"
 
+int FileOut::counter = 0;

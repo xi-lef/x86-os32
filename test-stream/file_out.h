@@ -7,6 +7,10 @@
 #pragma once
 
 #include "o_stream.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 /*! \brief Ausgabe in eine Datei
  *
@@ -19,30 +23,49 @@ class FileOut : public O_Stream
 	// Verhindere Kopien und Zuweisungen
 	FileOut(const FileOut&)            = delete;
 	FileOut& operator=(const FileOut&) = delete;
-public:
+    const char *path;
+    int file;
+
+    public:
 	/*! \brief Konstruktor
 	 *  Öffnet die Datei mittels Syscall `open()` zum schreiben.
 	 *  \param path Pfad zur Ausgabedatei
 	 */
-	FileOut(const char * path);
+	static int counter;
+
+    FileOut(const char * path) {
+        this->path = path;
+        file = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        counter++;
+    }
 
 	/*! \brief Destruktor
 	 *  Schließt die Datei (mittels `close()`)
 	 */
-	virtual ~FileOut();
+	virtual ~FileOut() {
+        close(file);
+        counter--;
+    }
 
 	/*! \brief Rückgabe des Pfades der Ausgabedatei
 	 *  \return Pfad der Ausgabedatei (wie im Konstruktor übergeben)
 	 */
-	const char * getPath();
+	const char * getPath() {
+        return path;
+    }
 
 	/*! \brief Auflisten aller derzeit (mittels dieser Klasse) geöffneten Dateien
 	 */
-	static int count();
+	static int count() {
+        return counter;
+    }
 
 	/*! \brief Schreiben der Zeichenkette in die geöffnete Datei.
 	 *  Die Implementierung soll ausschliesslich den Syscall `write()` verwenden.
 	 */
-	virtual void flush();
+	virtual void flush() {
+        write(file, buffer, pos);
+        pos = 0;
+    }
 };
 

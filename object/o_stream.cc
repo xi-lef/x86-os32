@@ -13,8 +13,8 @@ O_Stream& O_Stream::operator << (unsigned char c) {
 }
 
 O_Stream& O_Stream::operator << (const char* string) {
-	for (char c = string[0]; c != '\0'; c++) {
-		put(c);
+	for (const char *c = string; *c != '\0'; c++) {
+		put(*c);
 	}
 	return *this;
 }
@@ -324,6 +324,7 @@ O_Stream& flush(O_Stream& os) {
 
 O_Stream& endl(O_Stream& os) {
 	os << '\n';
+    os.flush();
 	return os;
 }
 

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "o_stream.h"
+#include <stdio.h>
 
 /*! \brief Ausgabe auf der Konsole
  *
@@ -22,11 +23,17 @@ public:
 	/*! \brief Konstruktor
 	 *
 	 */
-	ConsoleOut();
+	ConsoleOut() {}
 
 	/*! \brief Ausgabe der Zeichenkette auf dem Bildschirm.
 	 *  Die Implementierung soll ausschliesslich `putchar()` verwenden.
 	 */
-	virtual void flush();
+	virtual void flush() {
+        for (int i = 0; i < pos; i++) {
+            putchar(buffer[i]);
+        }
+        //printf("\npos: %d\n", pos);
+        pos = 0;
+    }
 };
 
