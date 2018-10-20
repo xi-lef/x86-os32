@@ -51,12 +51,10 @@ protected:
 	int pos;
 
 	/*! \brief Konstruktor; Markiert Puffer als leer.
-	 *
-	 *  \todo Konstruktor vervollständigen
 	 */
-	Stringbuffer()
-	//TODO: Hier muss noch Code vervollständigt werden.
-	{ }
+	Stringbuffer() {
+		pos = 0;
+	}
 
 	/*! \brief Fügt das Zeichen c in den Puffer ein.
 	 *

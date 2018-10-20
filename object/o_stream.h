@@ -66,9 +66,7 @@
  *  beschrieben sind.
  */
 
-class O_Stream
-	//TODO: Hier muss die Vererbungshierarchie vervollständigt werden.
-{
+class O_Stream : public Stringbuffer {
 	O_Stream(const O_Stream&)            = delete;
 	O_Stream& operator=(const O_Stream&) = delete;
 public:
@@ -79,12 +77,10 @@ public:
 
 	/*! \brief Konstruktor; Initale Zahlenbasis ist das Dezimalsystem.
 	 *
-	 *  \todo Konstruktor implementieren
-	 *
 	 */
-	O_Stream ()
-	//TODO: Hier muss noch Code vervollständigt werden.
-	{}
+	O_Stream() {
+		base = 10;
+	}
 
 	/*! \brief Destruktor
 	 */
