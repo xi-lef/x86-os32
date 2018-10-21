@@ -1,10 +1,6 @@
 MPStuBS - Multiprozessor Studenten Betriebssystem
 =================================================
 
-In diesem Git Quellcodeverzeichnis ist die Vorlage für die
-Übungsaufgaben der Veranstaltung Betriebssysteme für das Wintersemester
-2018/19 enthalten.
-
 Updaten der Vorlage
 -------------------
 
