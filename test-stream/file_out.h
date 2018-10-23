@@ -25,14 +25,14 @@ class FileOut : public O_Stream
 	FileOut& operator=(const FileOut&) = delete;
     const char *path;
     int file;
+    static int counter;
 
     public:
 	/*! \brief Konstruktor
 	 *  Öffnet die Datei mittels Syscall `open()` zum schreiben.
 	 *  \param path Pfad zur Ausgabedatei
 	 */
-	static int counter;
-
+	
     FileOut(const char * path) {
         this->path = path;
         file = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
