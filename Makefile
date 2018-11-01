@@ -63,17 +63,21 @@ INITRD_DEP =
 # 1MB Freier Speicher
 INITRD_FREE ?= 1048576
 
+# -----------------------------------------------------------------------------
+# Parameter:
+KERNEL = $(OBJDIR)/system
+ISOFILE = $(OBJDIR)/stubs.iso
+
 # --------------------------------------------------------------------------
 # Globale Variablen und Standard-Rezepte einbinden
 include common.mk
 
 # -----------------------------------------------------------------------------
-# Parameter:
-KERNEL = $(OBJDIR)/system
-ISOFILE = $(OBJDIR)/stubs.iso
+# Initiale Ramdisk
 ifneq ($(wildcard $(INITRD_DIR)*),)
 INITRD = $(OBJDIR)/initrd.img
 INITRD_DEP += $(shell find $(INITRD_DIR) -type f )
+# zusätzliche Abhängigkeit für Kernel definieren
 $(KERNEL): $(INITRD)
 endif
 

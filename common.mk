@@ -8,7 +8,7 @@
 #                  sollen.
 #    DEPDIR:       Verzeichnispräfix, in dem die Abhaengigkeitsdateien abgelegt
 #                  werden sollen
-#    ISOIR:        Verzeichnispräfix, in dem die Daten für das bootfähige
+#    ISODIR:       Verzeichnispräfix, in dem die Daten für das bootfähige
 #                  Medium angelegt werden sollen
 #    NOOPTTAG:     Endung, welche an die Verzeichnisse für Objekt- und
 #                  Abhängigkeitsdateien bei Debugversionen angehängt wird
