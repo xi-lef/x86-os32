@@ -26,7 +26,7 @@ O_Stream& O_Stream::operator << (bool b) {
 
 O_Stream& O_Stream::operator << (short ival) {
 	bool print = false;                // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
-	unsigned char log2;                // log_2 of base
+	unsigned char log2 = 1;            // log_2 of base; = 1 because g++
 	unsigned char bit_base = base - 1; // used for bitwise ANDs
     
 	switch (base) {
@@ -84,7 +84,7 @@ O_Stream& O_Stream::operator << (short ival) {
 
 O_Stream& O_Stream::operator << (unsigned short ival) {
 	bool print = false;                // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
-	unsigned char log2;                // log_2 of base
+	unsigned char log2 = 1;            // log_2 of base
 	unsigned char bit_base = base - 1; // used for bitwise ANDs
     
 	switch (base) {
@@ -134,10 +134,10 @@ O_Stream& O_Stream::operator << (unsigned short ival) {
     }
     return *this;
 }
-#include <stdio.h>
+
 O_Stream& O_Stream::operator << (int ival) {
 	bool print = false;                // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
-	unsigned char log2;                // log_2 of base
+	unsigned char log2 = 1;            // log_2 of base; = 1 because g++
 	unsigned char bit_base = base - 1; // used for bitwise ANDs
     
 	switch (base) {
@@ -157,8 +157,7 @@ O_Stream& O_Stream::operator << (int ival) {
                 if (print) {
                     put(cur + 48); // ascii stuff
                 }
-            }
-            return *this;
+            } return *this;
         case 10: 
             {
                 signed char r = ival % base;
@@ -195,7 +194,7 @@ O_Stream& O_Stream::operator << (int ival) {
 
 O_Stream& O_Stream::operator << (unsigned int ival) {
     bool print = false;                // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
-	unsigned char log2;                // log_2 of base
+	unsigned char log2 = 1;            // log_2 of base; = 1 because g++
 	unsigned char bit_base = base - 1; // used for bitwise ANDs
     
 	switch (base) {
@@ -248,7 +247,7 @@ O_Stream& O_Stream::operator << (unsigned int ival) {
 
 O_Stream& O_Stream::operator << (long ival) {
 	bool print = false;                // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
-	unsigned char log2;                // log_2 of base
+	unsigned char log2 = 1;            // log_2 of base; = 1 because g++
 	unsigned char bit_base = base - 1; // used for bitwise ANDs
     
 	switch (base) {
@@ -306,7 +305,7 @@ O_Stream& O_Stream::operator << (long ival) {
 
 O_Stream& O_Stream::operator << (unsigned long ival) {
 	bool print = false;                // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
-	unsigned char log2;                // log_2 of base
+	unsigned char log2 = 1;            // log_2 of base; = 1 because g++
 	unsigned char bit_base = base - 1; // used for bitwise ANDs
     
 	switch (base) {

@@ -27,6 +27,14 @@ private:
 	CGA_Screen(const CGA_Screen&)            = delete;
 	CGA_Screen& operator=(const CGA_Screen&) = delete;
 
+    int from_col;
+    int to_col;
+    int from_row;
+    int to_row;
+    bool use_cursor;
+	int cur_x;
+	int cur_y;
+
 public:
 	/*! \brief Konstruktor
 	 *
@@ -79,10 +87,9 @@ public:
 		 */
 		Attribute(color foreground = LIGHT_GREY, color background = BLACK, bool blink = false)
 			{
-				// Vermeiden von Übersetzerwarnung bzgl unbenutzten Parameter
-				(void) foreground;
-				(void) background;
-				(void) blink;
+				this->foreground = foreground;
+				this->background = background;
+				this->blink      = int(blink);
 			};
 	} __attribute__((packed)); // sorgt dafür, dass der Übersetzter keinen Speicher auffüllt
 
@@ -112,6 +119,9 @@ public:
 	 *  \param y Zeile im Fenster
 	 */
 	void getpos (int& x, int& y);
+
+    // helper function for print
+    void move_up_one_line(void);
 
 	/*! \brief Anzeige mehrerer Zeichen im Fenster ab der aktuellen Cursorposition
 	 *

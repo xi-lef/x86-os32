@@ -44,16 +44,23 @@
 #define assert(EXP) \
 	do { \
 		if (__builtin_expect(!(EXP), 0)) { \
-			DBG << "Assertion '" << STRINGIFY(EXP) << "' failed (" << __func__ \
-			    << " @ " << __FILE__ << ":" << __LINE__ << ") - CPU stopped." \
-			    << endl; \
-			CPU::die(); \
-			while(1); \
+			assertion_failed(STRINGIFY(EXP), __func__, __FILE__, __LINE__); \
 		} \
 	} while(0)
 
-// Includes am Ende, damit die Makros auch darin verwendet werden könnten
-#include "debug/output.h"
-#include "machine/cpu.h"
+/*! \brief Behandeln einer fehlgeschlagenen Zusicherung
+ *
+ *  Die Funktion gibt eine Nachricht mit weiteren Information zur
+ *  fehlgeschlagenen Zusicherung aus und stoppt den CPU Kern.
+ *
+ *  \note Diese Funktion sollte nicht direkt, sonder ausschließlich
+ *        vom Makro `assert` aufgerufen werden!
+ *
+ *  \param exp  Fehlgeschlagener Ausdruck
+ *  \param func Name der Funktion, in der die Zusicherung fehlschlug
+ *  \param file Name der Datei, in der die Zusicherung steht
+ *  \param line Zeile in der Datei, in der die Zusicherung steht
+ */
+[[noreturn]] void assertion_failed(const char * exp, const char * func, const char * file, int line);
 #endif
 
