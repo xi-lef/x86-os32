@@ -120,8 +120,9 @@ public:
 	 */
 	void getpos (int& x, int& y);
 
-    // helper function for print
+    // helper functions for print
     void move_up_one_line(void);
+    void LF(int& x, int& y);
 
 	/*! \brief Anzeige mehrerer Zeichen im Fenster ab der aktuellen Cursorposition
 	 *

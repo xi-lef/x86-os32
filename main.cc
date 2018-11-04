@@ -8,6 +8,7 @@
 /* INCLUDES */
 #include "machine/apicsystem.h"
 #include "machine/lapic.h"
+#include "debug/output.h" // TODO ???
 
 extern APICSystem system;
 

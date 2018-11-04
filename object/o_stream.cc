@@ -20,7 +20,11 @@ O_Stream& O_Stream::operator << (const char* string) {
 }
 
 O_Stream& O_Stream::operator << (bool b) {
-    put(b ? '1' : '0');
+    if (b) {
+        *this << "true";
+    } else {
+        *this << "false";
+    }
 	return *this;
 }
 
@@ -38,8 +42,8 @@ O_Stream& O_Stream::operator << (short ival) {
             put('0');
 			log2 = 3;
 
-            for (int i = 30; i >= 0; i -= log2) {
-                unsigned char cur = (ival >> i) & ((i == 30) ? 0x3 : bit_base); // to avoid sign extension on first digit
+            for (int i = 15; i >= 0; i -= log2) {
+                unsigned char cur = (ival >> i) & ((i == 15) ? 0x1 : bit_base); // to avoid sign extension on first digit
                 if (cur != 0) {
                     print = true;
                 }
@@ -69,7 +73,7 @@ O_Stream& O_Stream::operator << (short ival) {
     }
 
     // for binary or hexadecimal
-    for (int i = 32 - log2; i >= 0; i -= log2) { // could be "i = 32 - log2" to safe computing time TODO
+    for (int i = 16 - log2; i >= 0; i -= log2) { // could be "i = 32 - log2" to safe computing time TODO
         unsigned char cur = (ival >> i) & bit_base;
         //printf("ival = %d\ti = %d\tcur = %d\n", ival, i, cur);
         if (cur != 0) {
@@ -96,8 +100,8 @@ O_Stream& O_Stream::operator << (unsigned short ival) {
             put('0');
 			log2 = 3;
 
-            for (int i = 30; i >= 0; i -= log2) {
-                unsigned char cur = (ival >> i) & ((i == 30) ? 0x3 : bit_base); // to avoid sign extension on first digit
+            for (int i = 15; i >= 0; i -= log2) {
+                unsigned char cur = (ival >> i) & ((i == 15) ? 0x1 : bit_base); // to avoid sign extension on first digit
                 if (cur != 0) {
                     print = true;
                 }
@@ -122,7 +126,7 @@ O_Stream& O_Stream::operator << (unsigned short ival) {
     }
 
     // for binary or hexadecimal
-    for (int i = 32 - log2; i >= 0; i -= log2) { // could be "i = 32 - log2" to safe computing time TODO
+    for (int i = 16 - log2; i >= 0; i -= log2) { // could be "i = 32 - log2" to safe computing time TODO
         unsigned char cur = (ival >> i) & bit_base;
         //printf("ival = %d\ti = %d\tcur = %d\n", ival, i, cur);
         if (cur != 0) {
