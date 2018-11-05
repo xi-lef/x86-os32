@@ -71,8 +71,8 @@ void CGA_Screen::move_up_one_line(void) {
             base[(y * COLUMNS + x) * 2 + 1]  = base[((y + 1) * COLUMNS + x) * 2 + 1];
 		}
         // set last row to ' '
-        base[(to_row * COLUMNS + x) * 2]     = ' ';
-        base[(to_row * COLUMNS + x) * 2 + 1] = ' ';
+        base[(to_row * COLUMNS + x) * 2]     = ' '; // char
+        base[(to_row * COLUMNS + x) * 2 + 1] = 0; // color
 	}
 }
 
@@ -89,9 +89,15 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 	int y;
 	getpos(x, y);
 	
-	// check if string fits into current line (if its less than window width)
-	if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
-		LF(x, y);
+    // if string is shorter than window width (could fit into a single line),
+    // but doesnt fit into the current line anymore, go to next line
+	//if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
+    if (length <= to_col - from_col + 1) {
+        show(x + 3, y, 'x');
+        if (x + length - 1 > to_col) {
+            show(x + 4, y, 'y');
+		    LF(x, y);
+        }
 	}
 	
 	for (int i = 0; i < length; i++) {

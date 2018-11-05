@@ -46,6 +46,42 @@ extern "C" int main()
 		}
 	}
 
+    extern CGA_Stream kout;
+
+    DBG << "CPU " << (int) system.getCPUID()
+	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
+    DBG.reset();
+    DBG << "L" << endl;
+
+    kout.reset();
+    
+    /*
+	kout << "Test        <stream result> -> <expected>" << endl;
+	kout << "bool:       " << true << " -> true" << endl;
+	kout << "zero:       " << 0 << " -> 0" << endl;
+	kout << "ten:        " << (10) << " -> 10" << endl;
+	kout << "uint max:   " << ~((unsigned int)0) << " -> 4294967295" << endl;
+	kout << "int max:    " << ~(1<<31) << " -> 2147483647" << endl;
+	kout << "int min:    " << (1<<31) << " -> -2147483648" << endl;
+	kout << "some int:   " << (-123456789) << " -> -123456789" << endl;
+	kout << "some int:   " << (123456789) << " -> 123456789" << endl;
+	kout << "binary:     " << bin << 42 << dec << " -> 0b101010" << endl;
+	kout << "octal:      " << oct << 42 << dec << " -> 052" << endl;
+	kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
+	kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
+	kout << "smiley:     " << ((char)1) << endl; 
+    //*/
+    for (int i = 0; i < 20; i++) {
+        kout << "durchlauf " << i << endl;
+    }
+
+    CGA_Screen::Attribute a0(CGA_Screen::LIGHT_GREY, CGA_Screen::BLACK, false);
+    CGA_Screen::Attribute a1(CGA_Screen::WHITE, CGA_Screen::BLACK, true);
+    
+    kout.print("a", 1, a1);
+
+    while (1) {}
+
 	return 0;
 }
 
@@ -56,8 +92,10 @@ extern "C" int main()
  */
 extern "C" int main_ap()
 {
-	DBG_VERBOSE << "CPU " << (int) system.getCPUID()
+	DBG << "CPU " << (int) system.getCPUID()
 	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
+    DBG.reset();
+    DBG << "L" << endl;
 
 	return 0;
 }
