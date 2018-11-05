@@ -12,6 +12,7 @@ CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool 
     cur_x(from_col), cur_y(from_row) {}
 
 void CGA_Screen::setpos(int x, int y) {
+    /* use this once it works xdd
 	if (x > to_col - from_col + 1 || x < from_col - to_col - 1) { // to account for negative x
 		x %= to_col - from_col + 1;
 	}
@@ -33,6 +34,10 @@ void CGA_Screen::setpos(int x, int y) {
 	} else {
 		new_y = from_row + y;
 	}
+    //*/
+    
+    int new_x = x;
+    int new_y = y;
 
 	if (use_cursor) {
 		int new_cursor = new_y * COLUMNS + new_x;
@@ -63,15 +68,18 @@ void CGA_Screen::getpos(int& x, int& y) {
 
 void CGA_Screen::move_up_one_line(void) {
     char *base = (char *) 0xb8000;
+    //uint16_t *base = (uint16_t *) 0xb8000;
 
     for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row - 1; y++) {
             base[(y * COLUMNS + x) * 2]      = base[((y + 1) * COLUMNS + x) * 2];
             base[(y * COLUMNS + x) * 2 + 1]  = base[((y + 1) * COLUMNS + x) * 2 + 1];
-		}
+		    //base[y * COLUMNS + x] = base[(y + 1) * COLUMNS + x];
+        }
         // set last row to ' ' without color
-        base[(to_row * COLUMNS + x) * 2]     = ' '; // char
+        base[(to_row * COLUMNS + x) * 2]     = 0; // char
         base[(to_row * COLUMNS + x) * 2 + 1] = 0; // color
+        //base[to_row * COLUMNS + x] = 0;
 	}
 }
 
@@ -91,14 +99,14 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
     // if string is shorter than window width (could fit into a single line),
     // but doesnt fit into the current line anymore, go to next line
     // TODO why necessary?
-	if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
+	//if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
     //if (length <= to_col - from_col + 1) {
         //show(x + 1, y, 'x');
         //if (x + length - 1 > to_col) {
             //show(x + 2, y, 'y');
-		    LF(x, y);
+		    //LF(x, y);
         
-	}
+	//}
 
 	for (int i = 0; i < length; i++) {
 		if (string[i] == '\n') {

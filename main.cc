@@ -53,7 +53,9 @@ extern "C" int main()
 
     kout.reset();
     
-    /*
+    kout << "hallooo " << ((char) 1) << endl;
+
+    //*
 	kout << "Test        <stream result> -> <expected>" << endl;
 	kout << "bool:       " << true << " -> true" << endl;
 	kout << "zero:       " << 0 << " -> 0" << endl;
@@ -70,7 +72,7 @@ extern "C" int main()
 	kout << "smiley:     " << ((char)1) << endl; 
     //*/
     for (int i = 0; i < 20; i++) {
-        //kout << "durchlauf " << i << endl;
+        kout << "durchlauf " << i << endl;
     }
 
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
@@ -93,7 +95,7 @@ extern "C" int main_ap()
 	DBG << "CPU " << (int) system.getCPUID()
 	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
     DBG << "L" << endl;
-    //DBG << "W" << endl;
+    DBG << "W" << endl;
 
 	return 0;
 }
