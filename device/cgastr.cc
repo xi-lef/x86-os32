@@ -10,5 +10,10 @@ CGA_Stream dout_CPU3(40, 79, 20, 24, false);
 
 void CGA_Stream::flush() {
     print(buffer, pos);
+
+    // for better debugging
+    for (int i = 0; i < 80; i++) {
+        buffer[i] = 0;
+    }
     pos = 0;
 }

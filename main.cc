@@ -10,6 +10,7 @@
 #include "machine/lapic.h"
 #include "debug/output.h" // TODO ???
 
+extern CGA_Stream kout;
 extern APICSystem system;
 
 static const unsigned long CPU_STACK_SIZE = 4096;
@@ -46,11 +47,8 @@ extern "C" int main()
 		}
 	}
 
-    extern CGA_Stream kout;
-
     DBG << "CPU " << (int) system.getCPUID()
 	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
-    DBG.reset();
     DBG << "L" << endl;
 
     kout.reset();
@@ -72,15 +70,15 @@ extern "C" int main()
 	kout << "smiley:     " << ((char)1) << endl; 
     //*/
     for (int i = 0; i < 20; i++) {
-        kout << "durchlauf " << i << endl;
+        //kout << "durchlauf " << i << endl;
     }
 
-    CGA_Screen::Attribute a0(CGA_Screen::LIGHT_GREY, CGA_Screen::BLACK, false);
+    CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
     CGA_Screen::Attribute a1(CGA_Screen::WHITE, CGA_Screen::BLACK, true);
     
-    kout.print("a", 1, a1);
+    kout.print("abc", 3, a0);
 
-    while (1) {}
+    //while (1) {}
 
 	return 0;
 }
@@ -94,8 +92,8 @@ extern "C" int main_ap()
 {
 	DBG << "CPU " << (int) system.getCPUID()
 	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
-    DBG.reset();
     DBG << "L" << endl;
+    //DBG << "W" << endl;
 
 	return 0;
 }

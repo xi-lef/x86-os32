@@ -12,7 +12,6 @@ CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool 
     cur_x(from_col), cur_y(from_row) {}
 
 void CGA_Screen::setpos(int x, int y) {
-	// TODO? check if coordinates are outside of window // done?
 	if (x > to_col - from_col + 1 || x < from_col - to_col - 1) { // to account for negative x
 		x %= to_col - from_col + 1;
 	}
@@ -52,7 +51,7 @@ void CGA_Screen::getpos(int& x, int& y) {
 		index.outb(15);
 		uint16_t cursor = data.inb();
 		index.outb(14);
-		cursor += data.inb() << 8;
+		cursor |= data.inb() << 8;
 		
 		x = cursor % COLUMNS;
 		y = int(cursor / COLUMNS);
@@ -63,14 +62,14 @@ void CGA_Screen::getpos(int& x, int& y) {
 }
 
 void CGA_Screen::move_up_one_line(void) {
-    char *base = (char *) 0xb8000; // uint16_t * for less code?
+    char *base = (char *) 0xb8000;
 
     for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row - 1; y++) {
             base[(y * COLUMNS + x) * 2]      = base[((y + 1) * COLUMNS + x) * 2];
             base[(y * COLUMNS + x) * 2 + 1]  = base[((y + 1) * COLUMNS + x) * 2 + 1];
 		}
-        // set last row to ' '
+        // set last row to ' ' without color
         base[(to_row * COLUMNS + x) * 2]     = ' '; // char
         base[(to_row * COLUMNS + x) * 2 + 1] = 0; // color
 	}
@@ -91,15 +90,16 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 	
     // if string is shorter than window width (could fit into a single line),
     // but doesnt fit into the current line anymore, go to next line
-	//if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
-    if (length <= to_col - from_col + 1) {
-        show(x + 3, y, 'x');
-        if (x + length - 1 > to_col) {
-            show(x + 4, y, 'y');
+    // TODO why necessary?
+	if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
+    //if (length <= to_col - from_col + 1) {
+        //show(x + 1, y, 'x');
+        //if (x + length - 1 > to_col) {
+            //show(x + 2, y, 'y');
 		    LF(x, y);
-        }
+        
 	}
-	
+
 	for (int i = 0; i < length; i++) {
 		if (string[i] == '\n') {
 			LF(x, y);
