@@ -8,7 +8,8 @@
 /* INCLUDES */
 #include "machine/apicsystem.h"
 #include "machine/lapic.h"
-#include "debug/output.h" // TODO ???
+#include "debug/output.h"
+#include "machine/keyctrl.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
@@ -49,7 +50,7 @@ extern "C" int main()
 
     DBG << "CPU " << (int) system.getCPUID()
 	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
-    DBG << "L" << endl;
+    DBG << "b" << ((char) 1) << "ss" << endl;
 
     kout.reset();
     
@@ -70,17 +71,26 @@ extern "C" int main()
 	kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
 	kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
 	kout << "smiley:     " << ((char)1) << endl; 
+    kout << "boolean:    " << true << " -> true" << endl;
+    kout << "boolean:    " << false << " -> false" << endl;
     //*/
-    for (int i = 0; i < 20; i++) {
-        kout << "durchlauf " << i << endl;
-    }
 
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
-    CGA_Screen::Attribute a1(CGA_Screen::WHITE, CGA_Screen::BLACK, true);
+    CGA_Screen::Attribute a1(CGA_Screen::RED, CGA_Screen::GREEN, false);
     
+    // TODO fix blinking
     kout.print("abc", 3, a0);
 
-    //while (1) {}
+    Keyboard_Controller keyboard;
+    keyboard.set_repeat_rate(31, 3);
+
+    for (;;) {
+        Key k = keyboard.key_hit();
+        if (k.valid()) {
+            kout << k.ascii();
+            kout.flush();
+        }
+    }
 
 	return 0;
 }
@@ -94,8 +104,7 @@ extern "C" int main_ap()
 {
 	DBG << "CPU " << (int) system.getCPUID()
 	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
-    DBG << "L" << endl;
-    DBG << "W" << endl;
+    DBG << "hiii " << ((char) 1) << endl;
 
 	return 0;
 }

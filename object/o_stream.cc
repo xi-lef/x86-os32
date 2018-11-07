@@ -20,11 +20,7 @@ O_Stream& O_Stream::operator << (const char* string) {
 }
 
 O_Stream& O_Stream::operator << (bool b) {
-    if (b) {
-        *this << "true";
-    } else {
-        *this << "false";
-    }
+    *this << (b ? "true" : "false");
 	return *this;
 }
 

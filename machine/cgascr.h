@@ -120,8 +120,28 @@ public:
 	 */
 	void getpos (int& x, int& y);
 
-    // helper functions for print
+    /*! \brief Bewegt den Bildschirminhalt eine Zeile nach oben
+     *
+     * Bewegt den Bildschirminhalt eine Zeile nach oben.
+     *
+     * Hilfsmethode für print.
+     */
     void move_up_one_line(void);
+    
+    /*! \brief Line Feed.
+     *
+     * Bewegt den Cursor in die linkeste Spalte der nächsten Zeile.
+     * Dies Berücksichtigt auch den Fall, in der letzten Zeile zu sein,
+     * in welchem move_up_one_line verwendet wird.
+     *
+     * Hierfür wird die Cursorposition in den Argumenten übergeben,
+     * um setpos() nicht so häufig aufrufen zu müssen.
+     *
+     * Hilfsmethode für print.
+     *
+     * \param x x-Position des Cursors
+     * \param y y-Position des Cursors
+     */
     void LF(int& x, int& y);
 
 	/*! \brief Anzeige mehrerer Zeichen im Fenster ab der aktuellen Cursorposition
