@@ -69,6 +69,7 @@
 class O_Stream : public Stringbuffer {
 	O_Stream(const O_Stream&)            = delete;
 	O_Stream& operator=(const O_Stream&) = delete;
+
 public:
 	/*! \brief Basis des zur Anzeige verwendeten Zahlensystems (z.B. 2, 8, 10 oder 16)
 	 *
@@ -159,6 +160,13 @@ public:
 	 */
 	O_Stream& operator << (O_Stream& (*f) (O_Stream&));
 
+private:
+    /*!
+     * Hilfsmethoden für die Ausgabe.
+     */
+    void put_signed(long ival);
+
+    void put_unsigned(unsigned long ival);
 };
 
 /*! \brief Löst explizit ein Leeren (Flush) des Puffers aus.

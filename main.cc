@@ -80,19 +80,69 @@ extern "C" int main()
     
     // TODO fix blinking
     kout.print("abc", 3, a0);
+    kout << endl;
 
     Keyboard_Controller keyboard;
-    keyboard.set_repeat_rate(31, 3);
+
+    kout << "press any key to continue..." << endl;
+    keyboard.key_hit();
+
+    short a          = -123;
+    unsigned short b =  234;
+    int c            =  345;
+    unsigned int d   =  456;
+    long e           =  567;
+    unsigned long f  =  678;
+    
+    kout << "Testing data types" << endl;
+    kout << "short:          " << a << " -> -123" << endl;
+    kout << "unsigned short: " << b << " ->  234" << endl;
+    kout << "int:            " << c << " ->  345" << endl;
+    kout << "unsigned int:   " << d << " ->  456" << endl;
+    kout << "long:           " << e << " ->  567" << endl;
+    kout << "unsigned long:  " << f << " ->  678" << endl;
+
+    kout << "press any key to continue..." << endl;
+    keyboard.key_hit();
+
+    int cur_speed = 31;
+    int cur_delay = 3;
+    keyboard.set_repeat_rate(cur_speed, cur_delay);
 
     for (;;) {
         Key k = keyboard.key_hit();
-        if (k.valid()) {
+        if (!k.valid()) {
+            continue;
+        }
+
+        //DBG << int(k.scancode()) << endl;
+
+        if (k.ctrl()) {
+            switch (k.scancode()) {
+                case Key::scan::up:
+                    keyboard.set_repeat_rate((cur_speed == 31) ? 31 : ++cur_speed, cur_delay);
+                    break;
+                case Key::scan::down:
+                    keyboard.set_repeat_rate((cur_speed == 0)  ?  0 : --cur_speed, cur_delay);
+                    break;
+            }
+        } else if (k.alt()) {
+            switch (k.scancode()) {
+                case Key::scan::up:
+                    keyboard.set_repeat_rate(cur_speed, (cur_delay == 3) ? 3 : ++cur_delay);
+                    break;
+                case Key::scan::down:
+                    keyboard.set_repeat_rate(cur_speed, (cur_delay == 0) ? 0 : --cur_delay);
+                    break;
+            }
+        } else {
             kout << k.ascii();
-            kout.flush();
+            kout << flush;
+
         }
     }
 
-	return 0;
+    return 0;
 }
 
 /*! \brief Einsprungpunkt für Applikationsprozessoren
