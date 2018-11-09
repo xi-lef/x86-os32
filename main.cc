@@ -105,8 +105,8 @@ extern "C" int main()
     kout << "press any key to continue..." << endl;
     keyboard.key_hit();
 
-    int cur_speed = 31;
-    int cur_delay = 3;
+    int cur_speed = 0;
+    int cur_delay = 0;
     keyboard.set_repeat_rate(cur_speed, cur_delay);
 
     for (;;) {
@@ -118,6 +118,9 @@ extern "C" int main()
         //DBG << int(k.scancode()) << endl;
 
         if (k.ctrl()) {
+            if (k.alt() && k.ascii() == 't') {
+                
+            }
             switch (k.scancode()) {
                 case Key::scan::up:
                     keyboard.set_repeat_rate((cur_speed == 31) ? 31 : ++cur_speed, cur_delay);
