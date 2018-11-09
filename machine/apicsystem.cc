@@ -4,6 +4,7 @@
 #include "device/cgastr.h"
 #include "machine/io_port.h"
 #include "machine/lapic.h"
+#include "machine/ioapic.h"
 #include "debug/output.h"
 #include "machine/acpi.h"
 
@@ -61,17 +62,17 @@ void APICSystem::detectSystemType()
 #endif
 
 	if (acpi_conf.cpu_count >= mps_conf.cpu_count) {
-		sys_conf = acpi_conf;
+		sys_conf = &acpi_conf;
 	} else {
-		sys_conf = mps_conf;
+		sys_conf = &mps_conf;
 	}
-	if (sys_conf.disablePICs) {
+	if (sys_conf->disablePICs) {
 		disablePICs();
 	}
-	if (sys_conf.cpu_count > 1) {
+	if (sys_conf->cpu_count > 1) {
 		system_type = MP_APIC;
 	} else {
-		if (sys_conf.ioapic_id < 0) {
+		if (sys_conf->ioapic_id < 0) {
 			system_type = UNDETECTED;
 		}
 		system_type = UP_APIC;
@@ -81,7 +82,7 @@ void APICSystem::detectSystemType()
 		DBG << "SMP Detection using ACPI: FAIL" << endl
 		    << "Did not detect SMP system." << endl;
 #endif
-		sys_conf.cpu_count = 1;
+		sys_conf->cpu_count = 1;
 		onlineCPUs = 1;
 	}
 	return;
@@ -283,7 +284,7 @@ void APICSystem::generateIRQMap(char ioapic_irqs[], char slot_map[])
 
 unsigned char APICSystem::getIOAPICSlot(APICSystem::Device device)
 {
-	return sys_conf.slot_map[device];
+	return sys_conf->slot_map[device];
 }
 
 int APICSystem::getCPUID()
@@ -591,11 +592,11 @@ extern "C" void setup_ap(void);
 /* aktiviert die CPU mit der ID id, gibt bei erfolg true, ansonsten false zurück */
 bool APICSystem::bootCPU(unsigned int cpu_id, void *top_of_stack)
 {
-	if (cpu_id >= sys_conf.cpu_count) {
+	if (cpu_id >= sys_conf->cpu_count) {
 		//return false;
 	}
 
-	unsigned int id = sys_conf.lapic_id[cpu_id];
+	unsigned int id = sys_conf->lapic_id[cpu_id];
 
 //	if (id == bspID) {
 //		// don't start the BSP, just set the LAPIC's logical destination address
