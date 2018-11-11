@@ -28,11 +28,13 @@ class CGA_Stream : public O_Stream, public CGA_Screen {
 	// Verhindere Kopien und Zuweisungen
 	CGA_Stream(const CGA_Stream&)            = delete;
 	CGA_Stream& operator=(const CGA_Stream&) = delete;
+
 public:
-	/// \copydoc CGA_Screen::CGA_Screen(int, int, int, int, bool)
+    const Attribute default_attr;
+    /// \copydoc CGA_Screen::CGA_Screen(int, int, int, int, bool)
 	CGA_Stream(int from_col, int to_col, int from_row, int to_row,
-			   bool use_cursor = false) : CGA_Screen(from_col, to_col,
-               from_row, to_row, use_cursor) {}
+			   bool use_cursor = false, Attribute attr = Attribute()) : CGA_Screen(from_col, to_col,
+               from_row, to_row, use_cursor), default_attr(attr) {}
 
 	/*! \brief Methode zur Ausgabe des Pufferinhalts der Basisklasse Stringbuffer.
 	 *

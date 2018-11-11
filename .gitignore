@@ -1,5 +1,8 @@
 build/
 build-noopt/
 build-iso/
+build-verbose/
 dep/
-dep-noopt
+dep-noopt/
+dep-verbose/
+*.swp

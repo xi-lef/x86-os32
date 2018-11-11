@@ -10,6 +10,8 @@
 #include "machine/lapic.h"
 #include "debug/output.h"
 #include "machine/keyctrl.h"
+#include "user/shell/shell.h"
+#include "user/time/time.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
@@ -49,41 +51,39 @@ extern "C" int main()
 	}
 
     DBG << "CPU " << (int) system.getCPUID()
-	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
-    DBG << "b" << ((char) 1) << "ss" << endl;
-
-    kout.reset();
+        << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
     
-    kout << "hallooo " << ((char) 1) << endl;
+    //char *bla = (char *) 0xb8000;
+    //bla[3999] = 0b01110000;
 
     //*
 	kout << "Test        <stream result> -> <expected>" << endl;
 	kout << "bool:       " << true << " -> true" << endl;
-	kout << "zero:       " << 0 << " -> 0" << endl;
+    kout << "bool:       " << false << " -> false" << endl;
+    kout << "zero:       " << 0 << " -> 0" << endl;
 	kout << "ten:        " << (10) << " -> 10" << endl;
 	kout << "uint max:   " << ~((unsigned int)0) << " -> 4294967295" << endl;
 	kout << "int max:    " << ~(1<<31) << " -> 2147483647" << endl;
 	kout << "int min:    " << (1<<31) << " -> -2147483648" << endl;
-	kout << "some int:   " << (-123456789) << " -> -123456789" << endl;
+	sleep(3);
+    kout << "some int:   " << (-123456789) << " -> -123456789" << endl;
 	kout << "some int:   " << (123456789) << " -> 123456789" << endl;
 	kout << "binary:     " << bin << 42 << dec << " -> 0b101010" << endl;
 	kout << "octal:      " << oct << 42 << dec << " -> 052" << endl;
 	kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
 	kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
 	kout << "smiley:     " << ((char)1) << endl; 
-    kout << "boolean:    " << true << " -> true" << endl;
-    kout << "boolean:    " << false << " -> false" << endl;
     //*/
 
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
     CGA_Screen::Attribute a1(CGA_Screen::RED, CGA_Screen::GREEN, false);
     
-    // TODO fix blinking
-    kout.print("abc", 3, a0);
+    kout.print("bling bling", 11, a0);
     kout << endl;
 
     Keyboard_Controller keyboard;
 
+    /*
     kout << "press any key to continue..." << endl;
     keyboard.key_hit();
 
@@ -103,7 +103,7 @@ extern "C" int main()
     kout << "unsigned long:  " << f << " ->  678" << endl;
 
     kout << "press any key to continue..." << endl;
-    keyboard.key_hit();
+    keyboard.key_hit();//*/
 
     int cur_speed = 0;
     int cur_delay = 0;
@@ -118,8 +118,9 @@ extern "C" int main()
         //DBG << int(k.scancode()) << endl;
 
         if (k.ctrl()) {
-            if (k.alt() && k.ascii() == 't') {
-                
+            if (k.ascii() == 't') {
+                Shell shell(kout, keyboard);
+                shell.start();
             }
             switch (k.scancode()) {
                 case Key::scan::up:
@@ -156,8 +157,20 @@ extern "C" int main()
 extern "C" int main_ap()
 {
 	DBG << "CPU " << (int) system.getCPUID()
-	            << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
+	    << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
     DBG << "hiii " << ((char) 1) << endl;
+
+    switch (system.getCPUID()) {
+        case 1:
+            break;
+        case 2: 
+            dout_status.reset(' ', dout_status.default_attr);
+            dout_status << "coming soon^TM" << flush;
+            break;
+        case 3:
+            clock(dout_clock);
+            break;
+    }
 
 	return 0;
 }

@@ -56,7 +56,7 @@ O_Stream& O_Stream::operator << (unsigned long ival) {
 }
 
 void O_Stream::put_signed(long ival) {
-    bool print       = false;    // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
+    bool    print    = false;    // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
 	uint8_t log2     = 1;        // log_2 of base; = 1 because g++
 	uint8_t bit_base = base - 1; // used for bitwise ANDs
     
@@ -111,7 +111,7 @@ void O_Stream::put_signed(long ival) {
 }
 
 void O_Stream::put_unsigned(unsigned long ival) {
-    bool print       = false;    // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
+    bool    print    = false;    // set to true when the first character thats not equal to '0' appears, so that leading 0s dont get printed
 	uint8_t log2     = 1;        // log_2 of base; = 1 because g++
 	uint8_t bit_base = base - 1; // used for bitwise ANDs
     
@@ -138,7 +138,7 @@ void O_Stream::put_unsigned(unsigned long ival) {
             uint8_t r = ival % base;
             if (ival / base != 0) {
                 *this << (ival / base);
-            }	
+            }
 
             put(r + 48); // ascii stuff
         } return;
@@ -173,6 +173,41 @@ O_Stream& O_Stream::operator << (const void* ptr) {
 
 O_Stream& O_Stream::operator << (O_Stream& (*f) (O_Stream&)) {
 	return f(*this);
+}
+
+O_Stream& O_Stream::operator << (Time t) {
+    switch (t.weekday) {
+        case 2: *this << "Mon"; break;
+        case 3: *this << "Tue"; break;
+        case 4: *this << "Wed"; break;
+        case 5: *this << "Thu"; break;
+        case 6: *this << "Fri"; break;
+        case 7: *this << "Sat"; break;
+        case 1: *this << "Sun"; break;
+
+    }
+    *this << " ";
+    switch (t.month) {
+        case 1:  *this << "Jan"; break;
+        case 2:  *this << "Feb"; break;
+        case 3:  *this << "Mar"; break;
+        case 4:  *this << "Apr"; break;
+        case 5:  *this << "May"; break;
+        case 6:  *this << "Jun"; break;
+        case 7:  *this << "Jul"; break;
+        case 8:  *this << "Aug"; break;
+        case 9:  *this << "Sep"; break;
+        case 10: *this << "Oct"; break;
+        case 11: *this << "Nov"; break;
+        case 12: *this << "Dec"; break;
+    }
+    *this << ((t.day  < 10) ? "  " : " ") << t.day
+        << " " << t.century << t.year << ","
+        << ((t.hour   < 10) ? " 0" : " ") << (t.hour + TIMEZONE)
+        << ((t.minute < 10) ? ":0" : ":") << t.minute
+        << ((t.second < 10) ? ":0" : ":") << t.second;
+
+    return *this;
 }
 
 O_Stream& flush(O_Stream& os) {

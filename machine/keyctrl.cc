@@ -44,7 +44,7 @@ void Keyboard_Controller::reboot() {
 }
 
 void Keyboard_Controller::set_repeat_rate(int speed, int delay) {
-    uint8_t config = (speed & 0b11111) | ((delay << 5) & 0b1100000);
+    uint8_t config = (speed & 0b11111) | ((delay << 5) & 0b1100000); // TODO simplify
 
     DBG << "set repeat rate (" << "speed: " << speed << ", delay: " << delay << ")" << endl;
 
@@ -61,32 +61,32 @@ void Keyboard_Controller::set_led(led_t led, bool on) {
 }
 
 void Keyboard_Controller::drainKeyboardBuffer() {
-    DBG_VERBOSE << "draining keyboard buffer... contents:" << endl;
+    DBG_VERBOSE << "drain keyboard buffer. contents:" << endl;
 
     while ((ctrl_port.inb() & outb) == 1) {
         DBG_VERBOSE << keydecoder.decode(data_port.inb());
     }
 
     DBG_VERBOSE << endl;
-    DBG_VERBOSE << "draining done!" << endl;
+    DBG_VERBOSE << "draining done" << endl;
 }
 
 void Keyboard_Controller::send_command(unsigned char cmd, unsigned char data) {
     // TODO avoid waiting for an ACK forever ?
     send_byte(cmd);
     while (data_port.inb() != kbd_reply::ack) {
-        DBG_VERBOSE << "waiting for ACK (command)..." << endl;
+        DBG_VERBOSE << "wait for ACK (command)" << endl;
     }
 
     send_byte(data);
     while (data_port.inb() != kbd_reply::ack) {
-        DBG_VERBOSE << "waiting for ACK (config)..." << endl;
+        DBG_VERBOSE << "wait for ACK (config)" << endl;
     }
 }
 
 void Keyboard_Controller::send_byte(unsigned char byte) {
     while ((ctrl_port.inb() & inpb) != 0) {
-        DBG_VERBOSE << "waiting for controller to read data..." << endl;
+        DBG_VERBOSE << "wait for controller to read data" << endl;
     }
     data_port.outb(byte);
 }

@@ -100,3 +100,12 @@ extern CGA_Stream dout_CPU2;
  */
 extern CGA_Stream dout_CPU3;
 
+/*!
+ * Ausgabefenster für einen Status
+ */
+extern CGA_Stream dout_status;
+
+/*!
+ * Ausgabefenster für eine Uhr
+ */
+extern CGA_Stream dout_clock;

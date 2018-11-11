@@ -35,6 +35,8 @@
 #pragma once
 
 #include "strbuf.h"
+#include "user/time/time.h" // TODO circular
+#include "types.h"
 
 /*! \brief Die Aufgaben der Klasse O_Stream entsprechen im Wesentlichen denen der
  *  Klasse ostream der bekannten C++ IO-Streams-Bibliothek.
@@ -103,8 +105,10 @@ public:
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
 	O_Stream& operator << (char c);
+    //
 	/// \copydoc O_Stream::operator<<(char)
 	O_Stream& operator << (unsigned char c);
+
 	/*! \brief Darstellung einer nullterminierten Zeichenkette
 	 *
 	 *  \todo Operator implementieren
@@ -113,6 +117,7 @@ public:
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
 	O_Stream& operator << (const char* string);
+
 	/*! \brief Stellt ein Boolean dar
 	 *
 	 *  \todo Operator implementieren
@@ -121,6 +126,7 @@ public:
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
 	O_Stream& operator << (bool b);
+
 	/*! \brief Darstellung ganzer Zahlen im Zahlensystem zur Basis base
 	 *
 	 *  \todo Operator implementieren
@@ -129,16 +135,22 @@ public:
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
 	O_Stream& operator << (short ival);
+
 	/// \copydoc O_Stream::operator<<(short)
 	O_Stream& operator << (unsigned short ival);
+
 	/// \copydoc O_Stream::operator<<(short)
 	O_Stream& operator << (int ival);
+
 	/// \copydoc O_Stream::operator<<(short)
 	O_Stream& operator << (unsigned int ival);
+
 	/// \copydoc O_Stream::operator<<(short)
 	O_Stream& operator << (long ival);
+
 	/// \copydoc O_Stream::operator<<(short)
 	O_Stream& operator << (unsigned long ival);
+
 	/*! \brief Darstellung eines Zeigers als hexadezimale ganze Zahl
 	 *
 	 *  \todo Operator implementieren
@@ -147,6 +159,7 @@ public:
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
 	O_Stream& operator << (const void* ptr);
+
 	/*! \brief Aufruf einer Manipulatorfunktion
 	 *
 	 *  Methode sorgt dafür, dass Manipulatorfunktionen aufgerufen werden,
@@ -159,6 +172,14 @@ public:
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
 	O_Stream& operator << (O_Stream& (*f) (O_Stream&));
+
+#define TIME_DISPLAY_LENGTH 25
+
+    /*!
+     * Darstellung der Uhrzeit und des Datums.
+     * Beansprucht TIME_DISPLAY_LENGTH viele Zeichen.
+     */
+    O_Stream& operator << (Time t);
 
 private:
     /*!

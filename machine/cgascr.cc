@@ -3,13 +3,14 @@
 #include "machine/cgascr.h"
 // Verwendung der Klasse IO_Port für Zugriff auf die Register
 #include "machine/io_port.h"
+#include "debug/output.h"
 
 static IO_Port index(0x3d4);
 static IO_Port data(0x3d5);
 
 CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool use_cursor) :
-    from_col(from_col), to_col(to_col), from_row(from_row), to_row(to_row), use_cursor(use_cursor),
-    cur_x(from_col), cur_y(from_row) {}
+    cur_x(from_col), cur_y(from_row), from_col(from_col), to_col(to_col), from_row(from_row),
+    to_row(to_row), use_cursor(use_cursor) {}
 
 void CGA_Screen::setpos(int x, int y) {
     // to account for negative x and y
@@ -99,6 +100,8 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 }
 
 void CGA_Screen::reset(char character, Attribute attrib) {
+    DBG << "reset " << from_col << " to " << to_col << " and " << from_row << " to " << to_row << endl;
+    DBG << "last adress: " << (to_row * COLUMNS + to_col) * 2 + 1 << endl;
     setpos(from_col, from_row);
 	for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row; y++) {

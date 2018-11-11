@@ -27,15 +27,16 @@ private:
 	CGA_Screen(const CGA_Screen&)            = delete;
 	CGA_Screen& operator=(const CGA_Screen&) = delete;
 
-    int from_col;
-    int to_col;
-    int from_row;
-    int to_row;
-    bool use_cursor;
-	int cur_x;
+    int cur_x;
 	int cur_y;
 
 public:
+    const int from_col;
+    const int to_col;
+    const int from_row;
+    const int to_row;
+    const bool use_cursor;
+
 	/*! \brief Konstruktor
 	 *
 	 *  Der CGA_Screen spannt ein Fenster auf der CGA-Bildschirmfläche auf, dass
