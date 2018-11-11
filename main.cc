@@ -53,8 +53,8 @@ extern "C" int main()
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
     
-    //char *bla = (char *) 0xb8000;
-    //bla[3999] = 0b01110000;
+    char *bla = (char *) 0xb8000;
+    bla[3999] = 0b01110000;
 
     //*
 	kout << "Test        <stream result> -> <expected>" << endl;
@@ -65,7 +65,7 @@ extern "C" int main()
 	kout << "uint max:   " << ~((unsigned int)0) << " -> 4294967295" << endl;
 	kout << "int max:    " << ~(1<<31) << " -> 2147483647" << endl;
 	kout << "int min:    " << (1<<31) << " -> -2147483648" << endl;
-	sleep(3);
+	//sleep(3);
     kout << "some int:   " << (-123456789) << " -> -123456789" << endl;
 	kout << "some int:   " << (123456789) << " -> 123456789" << endl;
 	kout << "binary:     " << bin << 42 << dec << " -> 0b101010" << endl;
@@ -164,11 +164,11 @@ extern "C" int main_ap()
         case 1:
             break;
         case 2: 
-            dout_status.reset(' ', dout_status.default_attr);
-            dout_status << "coming soon^TM" << flush;
+            //dout_status.reset(' ', dout_status.attrib);
+            //dout_status << "coming soon^TM" << flush;
             break;
         case 3:
-            clock(dout_clock);
+            //clock(dout_clock);
             break;
     }
 

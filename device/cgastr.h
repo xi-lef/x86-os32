@@ -13,7 +13,7 @@
 
 #include "object/o_stream.h"
 #include "machine/cgascr.h"
-
+extern CGA_Stream dout_CPU1;
 /*! \brief Darstellung verschiedener Datentypen auf dem Bildschrim
  *  \ingroup io
  *
@@ -30,11 +30,14 @@ class CGA_Stream : public O_Stream, public CGA_Screen {
 	CGA_Stream& operator=(const CGA_Stream&) = delete;
 
 public:
-    const Attribute default_attr;
+    const Attribute attrib;
     /// \copydoc CGA_Screen::CGA_Screen(int, int, int, int, bool)
 	CGA_Stream(int from_col, int to_col, int from_row, int to_row,
-			   bool use_cursor = false, Attribute attr = Attribute()) : CGA_Screen(from_col, to_col,
-               from_row, to_row, use_cursor), default_attr(attr) {}
+            bool use_cursor = false, Attribute attr = Attribute()) : CGA_Screen(from_col, to_col,
+            from_row, to_row, use_cursor), attrib(attr) {
+                //dout_CPU1 << int(char(attr)) << " ";
+                //dout_CPU1.flush();
+            }
 
 	/*! \brief Methode zur Ausgabe des Pufferinhalts der Basisklasse Stringbuffer.
 	 *

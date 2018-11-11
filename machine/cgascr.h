@@ -86,12 +86,12 @@ public:
 		 *  \param background Hintergrundfarbe (Standard BLACK)
 		 *  \param blink blinkend oder nicht (Standard kein blinken)
 		 */
-		Attribute(color foreground = LIGHT_GREY, color background = BLACK, bool blink = false)
-			{
-				this->foreground = foreground;
-				this->background = background;
-				this->blink      = int(blink);
-			};
+		Attribute(color foreground = LIGHT_GREY, color background = BLACK, bool blink = false) :
+            foreground(foreground & 0xf), background(background & 0x7), blink(int(blink) & 0x1) {}
+
+        operator char() const {
+            return (foreground | (background << 4) | (blink << 7));
+        }
 	} __attribute__((packed)); // sorgt dafür, dass der Übersetzter keinen Speicher auffüllt
 
 	/*! \brief Setzen des Cursors im Fenster auf Spalte \p x und Zeile \p y.

@@ -122,7 +122,12 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 	char *base = (char *) 0xb8000;
 	int offset = (y * COLUMNS + x) * 2;
 	char *pos  = &(base[offset]);
-	
+
+    if (attrib.blink) {
+        //dout_CPU1 << character << " " << (attrib.foreground | (attrib.background << 4) | (attrib.blink << 7)) << "|" 
+        //    << ((((attrib.foreground) & 0xf) | ((attrib.background << 4) & 0x70) | ((attrib.blink << 7) & 0x80)) & 0xff) << flush;
+        dout_CPU1 << character << " " << (int) char(attrib) << flush;
+    }	
 	pos[0] = character;
-	pos[1] = (attrib.foreground) | (attrib.background << 4) | (attrib.blink << 7);
+	pos[1] = char(attrib); //(attrib.foreground) | (attrib.background << 4) | (attrib.blink << 7);
 }
