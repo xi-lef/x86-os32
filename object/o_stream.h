@@ -35,7 +35,7 @@
 #pragma once
 
 #include "strbuf.h"
-#include "user/time/time.h" // TODO circular
+#include "user/time/time.h"
 #include "types.h"
 
 /*! \brief Die Aufgaben der Klasse O_Stream entsprechen im Wesentlichen denen der

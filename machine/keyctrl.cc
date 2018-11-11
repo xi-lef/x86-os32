@@ -44,7 +44,7 @@ void Keyboard_Controller::reboot() {
 }
 
 void Keyboard_Controller::set_repeat_rate(int speed, int delay) {
-    uint8_t config = (speed & 0b11111) | ((delay << 5) & 0b1100000); // TODO simplify
+    uint8_t config = speed | (delay << 5);
 
     DBG << "set repeat rate (" << "speed: " << speed << ", delay: " << delay << ")" << endl;
 
@@ -72,7 +72,6 @@ void Keyboard_Controller::drainKeyboardBuffer() {
 }
 
 void Keyboard_Controller::send_command(unsigned char cmd, unsigned char data) {
-    // TODO avoid waiting for an ACK forever ?
     send_byte(cmd);
     while (data_port.inb() != kbd_reply::ack) {
         DBG_VERBOSE << "wait for ACK (command)" << endl;
