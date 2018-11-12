@@ -10,6 +10,7 @@
 #include "machine/lapic.h"
 #include "debug/output.h"
 #include "machine/keyctrl.h"
+#include "device/console.h"
 #include "user/shell/shell.h"
 #include "user/time/time.h"
 
@@ -79,7 +80,7 @@ extern "C" int main()
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
     CGA_Screen::Attribute a1(CGA_Screen::RED, CGA_Screen::GREEN, false);
     
-    kout.print("bling bling", 11, a1);
+    kout.print("bling bling", 11, a0);
     kout << endl;
 
     Keyboard_Controller keyboard;
@@ -108,7 +109,6 @@ extern "C" int main()
 
     int cur_speed = 0;
     int cur_delay = 0;
-    keyboard.set_repeat_rate(cur_speed, cur_delay);
 
     for (;;) {
         Key k = keyboard.key_hit();
@@ -118,6 +118,9 @@ extern "C" int main()
 
         //DBG << int(k.scancode()) << endl;
         if (k.ctrl()) {
+            if (k.alt() && k.scancode() == Key::scan::del) {
+                keyboard.reboot();
+            }
             if (k.ascii() == 't') {
                 Shell shell(kout, keyboard);
                 shell.start();
@@ -161,14 +164,15 @@ extern "C" int main_ap()
     DBG << "hiii " << ((char) 1) << endl;
 
     switch (system.getCPUID()) {
-        case 1:
-            break;
+        case 1: {
+            //Console serial;
+            } break;
         case 2: 
             dout_status.reset(' ', dout_status.attrib);
             dout_status << "coming soon^TM" << flush;
             break;
         case 3:
-            clock(dout_clock);
+            //clock(dout_clock);
             break;
     }
 

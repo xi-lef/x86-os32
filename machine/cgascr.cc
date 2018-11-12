@@ -49,19 +49,19 @@ void CGA_Screen::getpos(int& x, int& y) {
 }
 
 void CGA_Screen::move_up_one_line(void) {
-    uint8_t *base = (uint8_t *) 0xb8000;
-    //uint16_t *base = (uint16_t *) 0xb8000;
+    //uint8_t *base = (uint8_t *) 0xb8000;
+    uint16_t *base = (uint16_t *) 0xb8000;
 
     for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row - 1; y++) {
-            base[(y * COLUMNS + x) * 2]      = base[((y + 1) * COLUMNS + x) * 2];
-            base[(y * COLUMNS + x) * 2 + 1]  = base[((y + 1) * COLUMNS + x) * 2 + 1];
-		    //base[y * COLUMNS + x] = base[(y + 1) * COLUMNS + x];
+            //base[(y * COLUMNS + x) * 2]      = base[((y + 1) * COLUMNS + x) * 2];
+            //base[(y * COLUMNS + x) * 2 + 1]  = base[((y + 1) * COLUMNS + x) * 2 + 1];
+		    base[y * COLUMNS + x] = base[(y + 1) * COLUMNS + x];
         }
         // set last row to nothing with no color
-        base[(to_row * COLUMNS + x) * 2]     = 0; // char
-        base[(to_row * COLUMNS + x) * 2 + 1] = 0; // color
-        //base[to_row * COLUMNS + x] = 0;
+        //base[(to_row * COLUMNS + x) * 2]     = 0; // char
+        //base[(to_row * COLUMNS + x) * 2 + 1] = 0; // color
+        base[to_row * COLUMNS + x] = 0;
 	}
 }
 
@@ -112,7 +112,7 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 	if (y < 0) {
 		y += ROWS;
 	}
-	
+
 	char *base = (char *) 0xb8000;
 	char *pos  = &(base[(y * COLUMNS + x) * 2]);
 
