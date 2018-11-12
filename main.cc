@@ -56,6 +56,7 @@ extern "C" int main()
     //char *bla = (char *) 0xb8000;
     //bla[3999] = 0b01110000;
 
+    kout.reset();
     //*
 	kout << "Test        <stream result> -> <expected>" << endl;
 	kout << "bool:       " << true << " -> true" << endl;
@@ -116,11 +117,10 @@ extern "C" int main()
         }
 
         //DBG << int(k.scancode()) << endl;
-
         if (k.ctrl()) {
             if (k.ascii() == 't') {
-                //Shell shell(kout, keyboard);
-                //shell.start();
+                Shell shell(kout, keyboard);
+                shell.start();
             }
             switch (k.scancode()) {
                 case Key::scan::up:
@@ -164,11 +164,11 @@ extern "C" int main_ap()
         case 1:
             break;
         case 2: 
-            //dout_status.reset(' ', dout_status.attrib);
-            //dout_status << "coming soon^TM" << flush;
+            dout_status.reset(' ', dout_status.attrib);
+            dout_status << "coming soon^TM" << flush;
             break;
         case 3:
-            //clock(dout_clock);
+            clock(dout_clock);
             break;
     }
 

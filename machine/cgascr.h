@@ -132,8 +132,8 @@ public:
     /*! \brief Line Feed.
      *
      * Bewegt den Cursor in die linkeste Spalte der nächsten Zeile.
-     * Dies Berücksichtigt auch den Fall, in der letzten Zeile zu sein,
-     * in welchem move_up_one_line verwendet wird.
+     * Dies berücksichtigt auch den Fall, in der letzten Zeile zu sein,
+     * in welchem move_up_one_line aufgerufen wird.
      *
      * Hierfür wird die Cursorposition in den Argumenten übergeben,
      * um setpos() nicht so häufig aufrufen zu müssen.

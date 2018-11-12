@@ -97,9 +97,9 @@ void Shell::start() {
         } else if (streq(s, "cpu3")) {
             dout_CPU3 << "sup bitch" << endl;
         } else if (streq(s, "status")) {
-            //dout_status << "sup bitch";
+            dout_status << "sup bitch" << flush;
         } else if (streq(s, "clock")) {
-            //dout_clock << "sup bitch";
+            dout_clock << "sup bitch" << flush;
         } else {
             //DBG << s << " didnt match anything!" << endl;
         }
