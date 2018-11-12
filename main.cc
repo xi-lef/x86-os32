@@ -53,8 +53,8 @@ extern "C" int main()
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
     
-    char *bla = (char *) 0xb8000;
-    bla[3999] = 0b01110000;
+    //char *bla = (char *) 0xb8000;
+    //bla[3999] = 0b01110000;
 
     //*
 	kout << "Test        <stream result> -> <expected>" << endl;
@@ -78,7 +78,7 @@ extern "C" int main()
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
     CGA_Screen::Attribute a1(CGA_Screen::RED, CGA_Screen::GREEN, false);
     
-    kout.print("bling bling", 11, a0);
+    kout.print("bling bling", 11, a1);
     kout << endl;
 
     Keyboard_Controller keyboard;
@@ -119,8 +119,8 @@ extern "C" int main()
 
         if (k.ctrl()) {
             if (k.ascii() == 't') {
-                Shell shell(kout, keyboard);
-                shell.start();
+                //Shell shell(kout, keyboard);
+                //shell.start();
             }
             switch (k.scancode()) {
                 case Key::scan::up:

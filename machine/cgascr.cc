@@ -78,12 +78,6 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 	int y;
 	getpos(x, y);
 	
-    // if string is shorter than window width (could fit into a single line),
-    /* but doesnt fit into the current line anymore, go to next line
-	if (length <= to_col - from_col + 1 && x + length - 1 > to_col) {
-        LF(x, y);
-	}//*/
-
 	for (int i = 0; i < length; i++) {
 		if (string[i] == '\n') {
 			LF(x, y);
@@ -100,8 +94,8 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 }
 
 void CGA_Screen::reset(char character, Attribute attrib) {
-    DBG << "reset " << from_col << " to " << to_col << " and " << from_row << " to " << to_row << endl;
-    DBG << "last adress: " << (to_row * COLUMNS + to_col) * 2 + 1 << endl;
+    //DBG << "reset " << from_col << " to " << to_col << " and " << from_row << " to " << to_row << endl;
+    //DBG << "last adress: " << (to_row * COLUMNS + to_col) * 2 + 1 << endl;
     setpos(from_col, from_row);
 	for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row; y++) {
@@ -120,13 +114,12 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 	}
 	
 	char *base = (char *) 0xb8000;
-	int offset = (y * COLUMNS + x) * 2;
-	char *pos  = &(base[offset]);
+	char *pos  = &(base[(y * COLUMNS + x) * 2]);
 
     if (attrib.blink) {
         //dout_CPU1 << character << " " << (attrib.foreground | (attrib.background << 4) | (attrib.blink << 7)) << "|" 
         //    << ((((attrib.foreground) & 0xf) | ((attrib.background << 4) & 0x70) | ((attrib.blink << 7) & 0x80)) & 0xff) << flush;
-        dout_CPU1 << character << " " << (int) char(attrib) << flush;
+        //dout_CPU1 << character << " " << (int) char(attrib) << flush;
     }	
 	pos[0] = character;
 	pos[1] = char(attrib); //(attrib.foreground) | (attrib.background << 4) | (attrib.blink << 7);

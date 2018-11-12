@@ -90,7 +90,7 @@ public:
             foreground(foreground & 0xf), background(background & 0x7), blink(int(blink) & 0x1) {}
 
         operator char() const {
-            return (foreground | (background << 4) | (blink << 7));
+            return ((foreground & 0xf) | ((background & 0x7) << 4) | ((blink & 0x1) << 7));
         }
 	} __attribute__((packed)); // sorgt dafür, dass der Übersetzter keinen Speicher auffüllt
 
