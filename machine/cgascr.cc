@@ -49,8 +49,8 @@ void CGA_Screen::getpos(int& x, int& y) {
 }
 
 void CGA_Screen::move_up_one_line(void) {
-    //uint8_t *base = (uint8_t *) 0xb8000;
-    uint16_t *base = (uint16_t *) 0xb8000;
+    //uint8_t *base = (uint8_t *) BASE_ADDRESS;
+    uint16_t *base = (uint16_t *) BASE_ADDRESS;
 
     for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row - 1; y++) {
@@ -113,7 +113,7 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 		y += ROWS;
 	}
 
-	char *base = (char *) 0xb8000;
+	char *base = BASE_ADDRESS;
 	char *pos  = &(base[(y * COLUMNS + x) * 2]);
 
     if (attrib.blink) {

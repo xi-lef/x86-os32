@@ -172,7 +172,7 @@ extern "C" int main_ap()
             dout_status << "coming soon^TM" << flush;
             break;
         case 3:
-            //clock(dout_clock);
+            clock(dout_clock);
             break;
     }
 
