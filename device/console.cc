@@ -5,12 +5,11 @@
 
 Console::Console(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits databits, Serial::stopBits stopbits, Serial::parity parity) :
     Console::Serial(port, baudrate, databits, stopbits, parity) {
-    DBG << "start" << endl;
     setpos(0, 0);
     setForeground(WHITE);
     setBackground(BLACK);
     setAttribute(RESET);
-    DBG << "done" << endl;
+    DBG << "console: finished init" << endl;
 }
 
 void Console::write_number(int x) {
@@ -80,8 +79,14 @@ bool Console::getpos(int& x, int& y) {
 
 void Console::print(char* string, int length) {
     for (int i = 0; i < length; i++) {
+        //DBG << string[i] << ::flush;
         if (string[i] == '\n') {
+            DBG << "nl" << ::flush;
             write('\r', true);
+            int x;
+            int y;
+            getpos(x, y);
+            setpos(x, ++y);
         }
         write(string[i], true);
     }

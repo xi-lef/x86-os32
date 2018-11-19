@@ -1,4 +1,5 @@
 #include "serial.h"
+#include "debug/output.h"
 
 Serial::Serial(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits databits, Serial::stopBits stopbits, Serial::parity parity) :
     port(port), io_port_buffer(port), io_port_lcr(port + lcr), io_port_ier(port + ier), io_port_lsr(port + lsr) {
@@ -12,13 +13,14 @@ Serial::Serial(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits
     io_port_ier.outb((baudrate >> 8) & 0xff);
 
     // unset DLAB bit
-    io_port_lcr.outb(0 << 6);
+    io_port_lcr.outb(0 << 7);
 
     /// databits + stopbits + parity
     io_port_lcr.outb(databits | stopbits | parity);
 
     // prepare ier for reading
     io_port_ier.outb(0x00);
+    //DBG << "serial: finished init" << endl;
 }
 
 void Serial::writeReg(Serial::regIndex reg, char out){
@@ -32,10 +34,11 @@ char Serial::readReg(Serial::regIndex reg){
 }
 
 int Serial::write(char out, bool blocking){
-    if ((!blocking && io_port_lsr.inb() & (1 << 4)) == 0) {
+    if (!blocking && !(io_port_lsr.inb() & (1 << 5))) {
+        DBG << "serial: bad write" << endl;
         return -1;
     }
-    while ((io_port_lsr.inb() & (1 << 4)) == 0);
+    while (!(io_port_lsr.inb() & (1 << 5)));
 
     io_port_buffer.outb(out);
 
@@ -43,10 +46,11 @@ int Serial::write(char out, bool blocking){
 }
 
 int Serial::read(bool blocking){
-    if ((!blocking && io_port_lsr.inb() & 1) == 0) {
+    if (!blocking && !(io_port_lsr.inb() & 1)) {
+        DBG << "serial: bad read" << endl;
         return -1;
     }
-    while ((io_port_lsr.inb() & 1) == 0);
+    while (!(io_port_lsr.inb() & 1));
 
     return io_port_buffer.inb();
 }

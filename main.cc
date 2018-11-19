@@ -165,8 +165,17 @@ extern "C" int main_ap()
 
     switch (system.getCPUID()) {
         case 1: {
-            //Console serial;
-            } break;
+            Console serial;
+            for (;;) {
+                int in = serial.read(true);
+                if (in == -1) {
+                    DBG << "console: invalid char" << endl;
+                    continue;
+                }
+                //serial.write(in, true);
+                serial << char(in) << flush;
+            }
+        } break;
         case 2: 
             dout_status.reset(' ', dout_status.attrib);
             dout_status << "coming soon^TM" << flush;
