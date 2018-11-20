@@ -77,7 +77,7 @@ private:
 	void *relocatedSetupAP; ///< Zeiger auf den Setupcode für die Applikation
 	SystemConfig mps_conf;
 	SystemConfig acpi_conf;
-	SystemConfig sys_conf;
+	SystemConfig* sys_conf;
 public:
 	APICSystem() : system_type(UNDETECTED), onlineCPUs(1),
 		callout_cpu_number(0), // The boot processor has an waiting callout with id = 0
@@ -141,7 +141,7 @@ public:
 	 *
 	 */
 	unsigned int getNumberOfCPUs() {
-		return sys_conf.cpu_count;
+		return sys_conf->cpu_count;
 	}
 	/*! \brief Gibt die Anzahl der erfolgreich gebooteten CPUs zurück
 	 *
@@ -153,11 +153,11 @@ public:
 	 *
 	 */
 	unsigned char getIOAPICID() {
-		return sys_conf.ioapic_id;
+		return sys_conf->ioapic_id;
 	}
 	/// Liefert die ID des Bootprozessors (BSP)
 	unsigned char getBSPID() {
-		return sys_conf.bsp_id;
+		return sys_conf->bsp_id;
 	}
 
 	void setupThisProcessor();
