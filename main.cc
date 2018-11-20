@@ -56,8 +56,8 @@ extern "C" int main()
     
     //char *bla = (char *) 0xb8000;
     //bla[3999] = 0b01110000;
-
     kout.reset();
+
     //*
 	kout << "Test        <stream result> -> <expected>" << endl;
 	kout << "bool:       " << true << " -> true" << endl;
@@ -75,14 +75,10 @@ extern "C" int main()
 	kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
 	kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
 	kout << "smiley:     " << ((char)1) << endl; 
-    //*/
-
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
-    CGA_Screen::Attribute a1(CGA_Screen::RED, CGA_Screen::GREEN, false);
-    
     kout.print("bling bling", 11, a0);
     kout << endl;
-
+    //*/
     Keyboard_Controller keyboard;
 
     /*
@@ -178,7 +174,7 @@ extern "C" int main_ap()
         } break;
         case 2: 
             dout_status.reset(' ', dout_status.attrib);
-            dout_status << "coming soon^TM" << flush;
+            dout_status << "bernhard lied, there is no ^TM :(" << flush;
             break;
         case 3:
             clock(dout_clock);

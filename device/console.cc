@@ -79,14 +79,9 @@ bool Console::getpos(int& x, int& y) {
 
 void Console::print(char* string, int length) {
     for (int i = 0; i < length; i++) {
-        //DBG << string[i] << ::flush;
-        if (string[i] == '\n') {
-            DBG << "nl" << ::flush;
-            write('\r', true);
-            int x;
-            int y;
-            getpos(x, y);
-            setpos(x, ++y);
+        DBG << int(string[i]) << ::flush;
+        if (string[i] == '\r') { // harald lied, too :(
+            write('\n', true);
         }
         write(string[i], true);
     }
