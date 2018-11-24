@@ -35,7 +35,8 @@ public:
 		timer = 32,         ///< Interruptvektornummer für den Timerinterrupt.
 		keyboard = 33,      ///< Interruptvektornummer für den Keyboardinterrupt.
 		assassin = 100,     ///< Interruptvektornummer für den Assassin; nur in MPStuBS benötigt.
-		wakeup = 101        ///< Interruptvektornummer zum Aufwecken von schlafenden CPUs; nur in MPStubs benötigt.
+		wakeup = 101,       ///< Interruptvektornummer zum Aufwecken von schlafenden CPUs; nur in MPStubs benötigt.
+        panic = 255         // panic!!1
 	};
 	/*! \brief Initialisierung der Gate map mit einem Default Gate.
 	 *
@@ -68,3 +69,4 @@ public:
 	Gate* report(unsigned int vector);
 };
 
+extern Plugbox plugbox;

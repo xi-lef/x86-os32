@@ -34,7 +34,7 @@ public:
     /// \copydoc CGA_Screen::CGA_Screen(int, int, int, int, bool)
 	CGA_Stream(int from_col, int to_col, int from_row, int to_row,
         bool use_cursor = false, Attribute attr = Attribute()) : CGA_Screen(from_col, to_col,
-        from_row, to_row, use_cursor), attrib(attr) {reset();}
+        from_row, to_row, use_cursor), attrib(attr) {}
 
 	/*! \brief Methode zur Ausgabe des Pufferinhalts der Basisklasse Stringbuffer.
 	 *

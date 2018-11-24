@@ -58,7 +58,7 @@ protected:
 	 *
 	 *  \todo Methode implementieren
 	 */
-	void drainKeyboardBuffer();
+    void drainKeyboardBuffer();
 
 private:
 	Key_Decoder keydecoder;

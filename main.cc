@@ -13,6 +13,9 @@
 #include "device/console.h"
 #include "user/shell/shell.h"
 #include "user/time/time.h"
+#include "machine/ioapic.h"
+#include "machine/cpu.h"
+#include "device/keyboard.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
@@ -79,7 +82,18 @@ extern "C" int main()
     kout.print("bling bling", 11, a0);
     kout << endl;
     //*/
-    Keyboard_Controller keyboard;
+
+    //Keyboard_Controller keyboard;
+    //ioapic.config(system.getIOAPICSlot(APICSystem::keyboard), Plugbox::keyboard);
+    
+    ioapic.init();
+    keyboard.plugin();
+    CPU::enable_int();
+    DBG << "interrupts enabled" << endl;
+    for (;;) { // dont die
+        CPU::idle();
+        //DBG << "ui" << flush;
+    }
 
     /*
     kout << "press any key to continue..." << endl;
@@ -103,6 +117,7 @@ extern "C" int main()
     kout << "press any key to continue..." << endl;
     keyboard.key_hit();//*/
 
+    /*
     int cur_speed = 0;
     int cur_delay = 0;
 
@@ -144,6 +159,7 @@ extern "C" int main()
 
         }
     }
+    //*/
 
     return 0;
 }
@@ -158,6 +174,9 @@ extern "C" int main_ap()
 	DBG << "CPU " << (int) system.getCPUID()
 	    << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
     DBG << "hiii " << ((char) 1) << endl;
+
+    for (;;) // dont die
+        ;
 
     switch (system.getCPUID()) {
         case 1: {
@@ -174,7 +193,7 @@ extern "C" int main_ap()
         } break;
         case 2: 
             dout_status.reset(' ', dout_status.attrib);
-            dout_status << "bernhard lied, there is no ^TM :(" << flush;
+            //dout_status << "bernhard lied, there is no ^TM :(" << flush;
             break;
         case 3:
             clock(dout_clock);

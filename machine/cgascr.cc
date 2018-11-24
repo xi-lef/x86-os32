@@ -15,6 +15,10 @@ CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool 
     }
 
 void CGA_Screen::setpos(int x, int y) {
+    if (x < from_col || x > to_col || y < from_row || y > to_row) {
+        DBG << "invalid setpos (" << x << "," << y << ")" << endl;
+        return;
+    }
     // to account for negative x and y
 	if (x < 0) {
 		x += COLUMNS;

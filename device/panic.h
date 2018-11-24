@@ -34,3 +34,4 @@ public:
 	void trigger();
 };
 
+extern Panic panic;

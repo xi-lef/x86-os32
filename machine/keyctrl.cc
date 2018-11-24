@@ -26,14 +26,12 @@ Keyboard_Controller::Keyboard_Controller() :
 }
 
 Key Keyboard_Controller::key_hit() {
-    uint8_t control_status;
-    while (((control_status = ctrl_port.inb()) & outb) == 0) ;
-    
-    uint8_t code = data_port.inb();
-    if (control_status & auxb) {
+    if (ctrl_port.inb() & auxb) {
         return Key();
     }
-    //drainKeyboardBuffer();
+
+    uint8_t code = data_port.inb();
+    drainKeyboardBuffer();
     return keydecoder.decode(code);
 }
 
