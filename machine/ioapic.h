@@ -27,6 +27,15 @@ class IOAPIC
 	// Verhindere Kopien und Zuweisungen
 	IOAPIC(const IOAPIC&)            = delete;
 	IOAPIC& operator=(const IOAPIC&) = delete;
+    
+    void write_reg(uint32_t reg, IOREDTBL_L values);
+    void write_reg(uint32_t reg, IOREDTBL_H values);
+    void write_reg(uint32_t reg, IOAPICID values);
+
+    IOREDTBL_L read_rte_l(uint32_t reg);
+    IOREDTBL_H read_rte_h(uint32_t reg);
+    IOAPICID read_rte_id(uint32_t reg);
+
 public:
 
 	/*! \brief Memory-Mapped Register des IO-APIC im Adressraum der %CPU.

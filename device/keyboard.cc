@@ -11,7 +11,6 @@ void Keyboard::plugin() {
     Plugbox::Vector kb_vector = Plugbox::Vector::keyboard;
     unsigned char   kb_slot   = system.getIOAPICSlot(APICSystem::Device::keyboard);
 
-    drainKeyboardBuffer(); // TODO necessary?
     plugbox.assign(kb_vector, &keyboard);
     ioapic.config(kb_slot, kb_vector);
     ioapic.allow(kb_slot);

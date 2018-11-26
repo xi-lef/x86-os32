@@ -22,16 +22,15 @@ Keyboard_Controller::Keyboard_Controller() :
 
 	// maximale Geschwindigkeit, minimale Verzoegerung
 	set_repeat_rate(0, 0);
-    drainKeyboardBuffer();
+    //drainKeyboardBuffer();
 }
 
 Key Keyboard_Controller::key_hit() {
-    if (ctrl_port.inb() & auxb) {
-        return Key();
-    }
+    //if (ctrl_port.inb() & auxb) {
+    //    return Key();
+    //}
 
     uint8_t code = data_port.inb();
-    drainKeyboardBuffer();
     return keydecoder.decode(code);
 }
 
