@@ -40,13 +40,13 @@ public:
 	 *  115200 Hz.
 	 */
 	typedef enum {
-		BAUD_300 = 10,
-		BAUD_600 = 9,
-		BAUD_1200 = 8,
-		BAUD_2400 = 7,
-		BAUD_4800 = 6,
-		BAUD_9600 = 5,
-		BAUD_19200 = 4,
+		BAUD_300 = 384,
+		BAUD_600 = 192,
+		BAUD_1200 = 96,
+		BAUD_2400 = 48,
+		BAUD_4800 = 24,
+		BAUD_9600 = 12,
+		BAUD_19200 = 6,
 		BAUD_38400 = 3,
 		BAUD_57600 = 2,
 		BAUD_115200 = 1,
