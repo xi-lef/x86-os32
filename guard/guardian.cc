@@ -19,7 +19,7 @@ extern "C" void guardian(uint32_t vector, irq_context *context) {
             DBG << "interrupt: unknown vector???" << endl;
             break;
     }*/
-    //DBG << "interrupt!!1" << endl;
+    //DBG << "interrupt!!1" << flush;
     (plugbox.report(vector))->trigger();
     lapic.ackIRQ();
 }

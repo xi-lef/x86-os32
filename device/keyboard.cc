@@ -4,6 +4,7 @@
 #include "machine/ioapic.h"
 #include "machine/apicsystem.h"
 #include "debug/output.h"
+#include "user/time/time.h"
 
 Keyboard keyboard;
 
@@ -20,12 +21,13 @@ void Keyboard::plugin() {
 void Keyboard::trigger() {
     Key k = key_hit();
     if (!k.valid()) {
-        //DBG << "invalid key" << endl;
+        //DBG << "invalid key" << flush;
         return;
     }
 
     if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
-        DBG << "rebooting..." << endl;
+        DBG << endl << "REBOOTING..." << endl;
+        sleep(2);
         reboot();
     }
 

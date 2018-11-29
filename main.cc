@@ -88,6 +88,7 @@ extern "C" int main()
     
     ioapic.init();
     keyboard.plugin();
+    sleep(3);
     CPU::enable_int();
     DBG << "interrupts enabled" << endl;
     for (;;) { // dont die
@@ -175,8 +176,9 @@ extern "C" int main_ap()
 	    << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
     DBG << "hiii " << ((char) 1) << endl;
 
-    for (;;) // dont die
-        ;
+    for (;;) { // dont die
+        CPU::idle();
+    }
 
     switch (system.getCPUID()) {
         case 1: {
