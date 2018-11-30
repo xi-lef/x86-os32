@@ -55,7 +55,7 @@ void IOAPIC::config(unsigned char slot, Plugbox::Vector vector) {
     IOAPICRegister_t cur_l = read_reg(reg);
     cur_l.IOREDTBL_L.vector = vector;
     write_reg(reg, cur_l);
-    DBG << "config done for slot " << int(slot) << endl;
+    //DBG << "config done for slot " << int(slot) << endl;
 }
 
 void IOAPIC::allow(unsigned char slot) {

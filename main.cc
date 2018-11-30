@@ -13,6 +13,7 @@
 #include "device/console.h"
 #include "user/shell/shell.h"
 #include "user/time/time.h"
+#include "user/time/rtc.h"
 #include "machine/ioapic.h"
 #include "machine/cpu.h"
 #include "device/keyboard.h"
@@ -28,7 +29,8 @@ static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
-static void bla() {
+//*
+static void test() {
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
         CPU::disable_int();
@@ -44,6 +46,7 @@ static void bla() {
         CPU::enable_int();
     }
 }
+//*/
 
 /*! \brief Einsprungpunkt ins System
  *
@@ -80,8 +83,8 @@ extern "C" int main() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
 
-    //char *bla = (char *) 0xb8000;
-    //bla[3999] = 0b01110000;
+    //char *test = (char *) 0xb8000;
+    //test[3999] = 0b01110000;
 
     /*
     kout << "Test        <stream result> -> <expected>" << endl;
@@ -106,12 +109,13 @@ extern "C" int main() {
     //*/
 
     ioapic.init();
+    //RTC rtc;
     keyboard.plugin();
-    //sleep(2);
+    rtc.init();
     CPU::enable_int();
     //DBG << "interrupts enabled" << endl;
 
-    bla();
+    test();
 
     for (;;) { // dont die
         CPU::idle();
@@ -201,13 +205,16 @@ extern "C" int main_ap() {
     DBG << "hiii " << ((char) 1) << endl;
 
     CPU::enable_int();
-    bla();
+    test();
 
-    for (;;) { // dont die
-        CPU::idle();
-        //CPU::disable_int();
-        //sleep(2);
-    }
+    //*
+    //if (system.getCPUID() != 3) {
+        for (;;) { // dont die
+            CPU::idle();
+            //CPU::disable_int();
+            //sleep(2);
+        }
+    //}//*/
 
     switch (system.getCPUID()) {
         case 1: {
