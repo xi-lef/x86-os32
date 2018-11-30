@@ -5,6 +5,8 @@
 #include "machine/apicsystem.h"
 #include "debug/output.h"
 #include "user/time/time.h"
+#include "machine/cpu.h"
+#include "machine/ticketlock.h"
 
 Keyboard keyboard;
 
@@ -19,22 +21,22 @@ void Keyboard::plugin() {
 }
 
 extern CGA_Stream kout;
+extern Ticketlock ticket;
 
 void Keyboard::trigger() {
-    for (;;) {
-        Key k = key_hit();
-        if (!k.valid()) {
-            DBG << "invalid key" << flush;
-            return;
-        }
-
-        if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
-            DBG << endl << "REBOOTING..." << endl;
-            sleep(2);
-            reboot();
-        }
-
-        //sleep(1);
-        dout_status << k.ascii() << flush;
+    Key k = key_hit();
+    if (!k.valid()) {
+        //DBG << "invalid key" << flush;
+        return;
     }
+
+    if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
+        DBG << endl << "REBOOTING..." << endl;
+        sleep(2);
+        reboot();
+    }
+
+    ticket.lock();
+    kout << k.ascii() << flush;
+    ticket.unlock();
 }

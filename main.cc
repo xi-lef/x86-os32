@@ -22,90 +22,96 @@
 extern CGA_Stream kout;
 extern APICSystem system;
 
-static Spinlock spin;
-static Ticketlock ticket;
+Ticketlock ticket;
 
 static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
+
+static void bla() {
+    int id = system.getCPUID();
+    for (uint32_t i = 0; ; i++) {
+        CPU::disable_int();
+        ticket.lock();
+
+        int x, y;
+        kout.getpos(x, y);
+        kout.setpos(id * 40 % 80, id + 2);
+        kout << i << flush;
+        kout.setpos(x, y);
+
+        ticket.unlock();
+        CPU::enable_int();
+    }
+}
 
 /*! \brief Einsprungpunkt ins System
  *
  *  Dieser Code wird nur auf der Boot-CPU (diejenige mit der ID 0) ausgeführt.
  */
 
-extern "C" int main()
-{
-	// Startmeldung ausgeben
+extern "C" int main() {
+    // Startmeldung ausgeben
 
-	APICSystem::SystemType type = system.getSystemType();
-	unsigned int numCPUs = system.getNumberOfCPUs();
-	DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
-	            << "Number of CPUs: " << numCPUs << endl;
-	switch (type) {
-		case APICSystem::MP_APIC: {
-			//Startet die AP-Prozessoren
-			for (unsigned int i = 1; i < numCPUs; i++) {
-				void* startup_stack = (void *) &(cpu_stack[(i) * CPU_STACK_SIZE]);
-				DBG_VERBOSE << "Booting CPU " << i << ", Stack: " << startup_stack << endl;
-				system.bootCPU(i, startup_stack);
-			}
-			break;
-		}
-		case APICSystem::UP_APIC: {
-			break;
-		}
-		case APICSystem::UNDETECTED: {
-		}
-	}
+    APICSystem::SystemType type = system.getSystemType();
+    unsigned int numCPUs = system.getNumberOfCPUs();
+    DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
+        << "Number of CPUs: " << numCPUs << endl;
+
+    kout.reset();
+
+    switch (type) {
+        case APICSystem::MP_APIC: {
+                                      //Startet die AP-Prozessoren
+                                      for (unsigned int i = 1; i < numCPUs; i++) {
+                                          void* startup_stack = (void *) &(cpu_stack[(i) * CPU_STACK_SIZE]);
+                                          DBG_VERBOSE << "Booting CPU " << i << ", Stack: " << startup_stack << endl;
+                                          system.bootCPU(i, startup_stack);
+                                      }
+                                      break;
+                                  }
+        case APICSystem::UP_APIC: {
+                                      break;
+                                  }
+        case APICSystem::UNDETECTED: {
+                                     }
+    }
 
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
-    
+
     //char *bla = (char *) 0xb8000;
     //bla[3999] = 0b01110000;
-    kout.reset();
 
     /*
-	kout << "Test        <stream result> -> <expected>" << endl;
-	kout << "bool:       " << true << " -> true" << endl;
+    kout << "Test        <stream result> -> <expected>" << endl;
+    kout << "bool:       " << true << " -> true" << endl;
     kout << "bool:       " << false << " -> false" << endl;
     kout << "zero:       " << 0 << " -> 0" << endl;
-	kout << "ten:        " << (10) << " -> 10" << endl;
-	kout << "uint max:   " << ~((unsigned int)0) << " -> 4294967295" << endl;
-	kout << "int max:    " << ~(1<<31) << " -> 2147483647" << endl;
-	kout << "int min:    " << (1<<31) << " -> -2147483648" << endl;
-	//sleep(3);
+    kout << "ten:        " << (10) << " -> 10" << endl;
+    kout << "uint max:   " << ~((unsigned int)0) << " -> 4294967295" << endl;
+    kout << "int max:    " << ~(1<<31) << " -> 2147483647" << endl;
+    kout << "int min:    " << (1<<31) << " -> -2147483648" << endl;
+    //sleep(3);
     kout << "some int:   " << (-123456789) << " -> -123456789" << endl;
-	kout << "some int:   " << (123456789) << " -> 123456789" << endl;
-	kout << "binary:     " << bin << 42 << dec << " -> 0b101010" << endl;
-	kout << "octal:      " << oct << 42 << dec << " -> 052" << endl;
-	kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
-	kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
-	kout << "smiley:     " << ((char)1) << endl; 
+    kout << "some int:   " << (123456789) << " -> 123456789" << endl;
+    kout << "binary:     " << bin << 42 << dec << " -> 0b101010" << endl;
+    kout << "octal:      " << oct << 42 << dec << " -> 052" << endl;
+    kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
+    kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
+    kout << "smiley:     " << ((char)1) << endl; 
     CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
     kout.print("bling bling", 11, a0);
     kout << endl;
     //*/
 
-    //Keyboard_Controller keyboard;
-    //ioapic.config(system.getIOAPICSlot(APICSystem::keyboard), Plugbox::keyboard);
-    
     ioapic.init();
     keyboard.plugin();
     //sleep(2);
     CPU::enable_int();
-    DBG << "interrupts enabled" << endl;
+    //DBG << "interrupts enabled" << endl;
 
-    //*
-    for (int i = 0; ; i++) {
-        ticket.lock();
-        CPU::disable_int(); // TODO ????????????????????????
-        kout.setpos(0, 2);
-        kout << i << flush;
-        CPU::enable_int();
-        ticket.unlock();
-    }//*/
+    bla();
 
     for (;;) { // dont die
         CPU::idle();
@@ -124,7 +130,7 @@ extern "C" int main()
     unsigned int d   =  456;
     long e           =  567;
     unsigned long f  =  678;
-    
+
     kout << "Testing data types" << endl;
     kout << "short:          " << a << " -> -123" << endl;
     kout << "unsigned short: " << b << " ->  234" << endl;
@@ -134,7 +140,8 @@ extern "C" int main()
     kout << "unsigned long:  " << f << " ->  678" << endl;
 
     kout << "press any key to continue..." << endl;
-    keyboard.key_hit();//*/
+    keyboard.key_hit();
+    //*/
 
     /*
     int cur_speed = 0;
@@ -188,22 +195,13 @@ extern "C" int main()
  *  Code in dieser Funktion wird auf allen Applikationsprozessoren ausgeführt
  *  (entspricht allen CPUs außer derjenigen mit der ID 0).
  */
-extern "C" int main_ap()
-{
-	DBG << "CPU " << (int) system.getCPUID()
-	    << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
+extern "C" int main_ap() {
+    DBG << "CPU " << (int) system.getCPUID()
+        << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
     DBG << "hiii " << ((char) 1) << endl;
 
-    //*
-    int id = system.getCPUID();
-    for (int i = 0; ; i++) {
-        ticket.lock();
-        CPU::disable_int();
-        kout.setpos(id * 40 % 80, id + 2);
-        kout << i << flush;
-        CPU::enable_int();
-        ticket.unlock();
-    }//*/
+    CPU::enable_int();
+    bla();
 
     for (;;) { // dont die
         CPU::idle();
@@ -213,25 +211,25 @@ extern "C" int main_ap()
 
     switch (system.getCPUID()) {
         case 1: {
-            Console serial;
-            for (;;) {
-                int in = serial.read(true);
-                if (in == -1) {
-                    DBG << "console: invalid char" << endl;
-                    continue;
-                }
-                //serial.write(in, true);
-                serial << char(in) << flush;
-            }
-        } break;
+                    Console serial;
+                    for (;;) {
+                        int in = serial.read(true);
+                        if (in == -1) {
+                            DBG << "console: invalid char" << endl;
+                            continue;
+                        }
+                        //serial.write(in, true);
+                        serial << char(in) << flush;
+                    }
+                } break;
         case 2: 
-            dout_status.reset(' ', dout_status.attrib);
-            //dout_status << "bernhard lied, there is no ^TM :(" << flush;
-            break;
+                dout_status.reset(' ', dout_status.attrib);
+                //dout_status << "bernhard lied, there is no ^TM :(" << flush;
+                break;
         case 3:
-            clock(dout_clock);
-            break;
+                clock(dout_clock);
+                break;
     }
 
-	return 0;
+    return 0;
 }

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "types.h"
+#include "machine/apicsystem.h"
 
 /*! \brief Mit Hilfe eines Ticketlocks kann man Codeabschnitte serialisieren,
  *  die echt nebenläufig auf mehreren CPUs laufen.
@@ -18,12 +19,17 @@
  *  kritischen Abschnitt, so erhöht er die Sperr-Variable und der nächste ist
  *  an der Reihe.
  *
+ *  Dieses Lock ist rekursiv. Es ist nicht geeignet für mehrere Threads auf
+ *  einer einzelnen CPU.
+ *
  *  <a href="http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html">Eintrag im GCC Manual über Atomic Builtins</a>
  */
 class Ticketlock {
 private:
 	Ticketlock(const Ticketlock& copy); //verhindert Kopieren
 
+    int cur_owner;
+    int cur_amount; // how often has the current owner locked?
     volatile uint8_t l;
     uint8_t t;
 
@@ -33,7 +39,7 @@ public:
 	 *
 	 * \opt Konstruktor vervollständigen
 	 */
-	Ticketlock() : l(0), t(0) {}
+	Ticketlock() : cur_owner(-1), cur_amount(0), l(0), t(0) {}
 
 	/*! \brief Betritt den gesperrten Abschnitt. Ist dieser besetzt, so wird
 	 *  solange aktiv gewartet, bis er betreten werden kann.
@@ -41,8 +47,11 @@ public:
 	 * \opt Methode implementieren
 	 */
 	void lock() {
+        int id = system.getCPUID();
         uint8_t old = __sync_fetch_and_add(&t, 1);
-        while (l != old) ;
+        while (l != old && cur_owner != id) ;
+        cur_owner = id;
+        cur_amount++;
 	}
 
 	/*! \brief Gibt den gesperrten Abschnitt wieder frei.
@@ -50,6 +59,9 @@ public:
 	 * \opt Methode implementieren
 	 */
 	void unlock() {
+        if (--cur_amount == 0) {
+            cur_owner = -1;
+        }
         __sync_fetch_and_add(&l, 1);
 	}
 };

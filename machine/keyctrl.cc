@@ -34,10 +34,8 @@ Key Keyboard_Controller::key_hit() {
     uint8_t code = data_port.inb();
     if (control_status & auxb) {
         DBG << "lol mouse" << flush;
-        //drainKeyboardBuffer();
         return Key();
     }
-    //drainKeyboardBuffer();
 
     return keydecoder.decode(code);
 }
