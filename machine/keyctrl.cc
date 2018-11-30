@@ -27,16 +27,19 @@ Keyboard_Controller::Keyboard_Controller() :
 
 Key Keyboard_Controller::key_hit() {
     uint8_t control_status = ctrl_port.inb();
-    if (!(control_status & outb)) {
-        return Key();
-    }
-    if (control_status & auxb) {
-        DBG << "lol mouse" << flush;
-        data_port.inb();
+    if ((control_status & outb) == 0) {
         return Key();
     }
 
-    return keydecoder.decode(data_port.inb());
+    uint8_t code = data_port.inb();
+    if (control_status & auxb) {
+        DBG << "lol mouse" << flush;
+        //drainKeyboardBuffer();
+        return Key();
+    }
+    //drainKeyboardBuffer();
+
+    return keydecoder.decode(code);
 }
 
 void Keyboard_Controller::reboot() {

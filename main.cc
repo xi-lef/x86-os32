@@ -16,9 +16,14 @@
 #include "machine/ioapic.h"
 #include "machine/cpu.h"
 #include "device/keyboard.h"
+#include "machine/spinlock.h"
+#include "machine/ticketlock.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
+
+static Spinlock spin;
+static Ticketlock ticket;
 
 static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
@@ -61,7 +66,7 @@ extern "C" int main()
     //bla[3999] = 0b01110000;
     kout.reset();
 
-    //*
+    /*
 	kout << "Test        <stream result> -> <expected>" << endl;
 	kout << "bool:       " << true << " -> true" << endl;
     kout << "bool:       " << false << " -> false" << endl;
@@ -88,11 +93,24 @@ extern "C" int main()
     
     ioapic.init();
     keyboard.plugin();
-    sleep(3);
+    //sleep(2);
     CPU::enable_int();
     DBG << "interrupts enabled" << endl;
+
+    //*
+    for (int i = 0; ; i++) {
+        ticket.lock();
+        CPU::disable_int(); // TODO ????????????????????????
+        kout.setpos(0, 2);
+        kout << i << flush;
+        CPU::enable_int();
+        ticket.unlock();
+    }//*/
+
     for (;;) { // dont die
         CPU::idle();
+        //CPU::disable_int();
+        //sleep(2);
         //DBG << "ui" << flush;
     }
 
@@ -176,8 +194,21 @@ extern "C" int main_ap()
 	    << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
     DBG << "hiii " << ((char) 1) << endl;
 
+    //*
+    int id = system.getCPUID();
+    for (int i = 0; ; i++) {
+        ticket.lock();
+        CPU::disable_int();
+        kout.setpos(id * 40 % 80, id + 2);
+        kout << i << flush;
+        CPU::enable_int();
+        ticket.unlock();
+    }//*/
+
     for (;;) { // dont die
         CPU::idle();
+        //CPU::disable_int();
+        //sleep(2);
     }
 
     switch (system.getCPUID()) {

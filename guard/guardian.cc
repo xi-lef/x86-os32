@@ -11,14 +11,6 @@
 
 extern "C" void guardian(uint32_t vector, irq_context *context) {
     (void) context;
-    /*switch (vector) {
-        case Plugbox::keyboard:
-            DBG << "interrupt: vector " << vector << endl;
-            break;
-        default:
-            DBG << "interrupt: unknown vector???" << endl;
-            break;
-    }*/
     //DBG << "interrupt!!1" << flush;
     (plugbox.report(vector))->trigger();
     lapic.ackIRQ();

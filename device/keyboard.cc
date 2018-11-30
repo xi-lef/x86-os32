@@ -18,18 +18,23 @@ void Keyboard::plugin() {
     drainKeyboardBuffer();
 }
 
+extern CGA_Stream kout;
+
 void Keyboard::trigger() {
-    Key k = key_hit();
-    if (!k.valid()) {
-        //DBG << "invalid key" << flush;
-        return;
-    }
+    for (;;) {
+        Key k = key_hit();
+        if (!k.valid()) {
+            DBG << "invalid key" << flush;
+            return;
+        }
 
-    if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
-        DBG << endl << "REBOOTING..." << endl;
-        sleep(2);
-        reboot();
-    }
+        if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
+            DBG << endl << "REBOOTING..." << endl;
+            sleep(2);
+            reboot();
+        }
 
-    dout_status << k.ascii() << flush;
+        //sleep(1);
+        dout_status << k.ascii() << flush;
+    }
 }
