@@ -1,39 +1,63 @@
 #include "user/time/time.h"
 #include "debug/output.h"
 
+static const IO_Port cmos_ctrl_port(0x70);
+static const IO_Port cmos_data_port(0x71);
+
+static bool initialized = false;
 static Time current_time(get_time());
-static volatile bool clock_active = false; // is clock() running right now?
+static volatile bool is_clock_active = false; // is clock() running right now?
+
+void init_cmos() {
+    if (initialized) {
+        DBG << "cmos is init'd already" << flush;
+        return;
+    }
+
+    // set frequency of periodic interrupt to 128Hz
+    // frequency is the result of this --> 65536 / (2 ^ |)
+    uint8_t statusA_old = read_port(offset_statusA); // v
+    write_port(offset_statusA, (statusA_old & 0xf0) | 0b0110);
+
+    // enable periodic interrupt & set data mode to binary
+    uint8_t statusB_old = read_port(offset_statusB);
+    write_port(offset_statusB, statusB_old | (1 << 6) | (1 << 2) | (1 << 4));
+                                         // p interrupt  binary   u interrupt
+
+    DBG_VERBOSE << "a: " << int(read_port(offset_statusA)) << " b: "
+        << int(read_port(offset_statusB)) << " cmos initialized" << endl;
+    initialized = true;
+}
+
+uint8_t read_port(cmos_offset offset) {
+    // bit 7 (MSB) must NOT be changed (NMI)
+    uint8_t ctrl_orig = cmos_ctrl_port.inb();
+    uint8_t ctrl_new = (ctrl_orig & 0x80) | offset;
+
+    cmos_ctrl_port.outb(ctrl_new);
+    return cmos_data_port.inb();
+}
+
+uint8_t write_port(cmos_offset offset, uint8_t value) {
+    uint8_t ctrl_orig = cmos_ctrl_port.inb();
+    uint8_t ctrl_new = (ctrl_orig & 0x80) | offset;
+
+    cmos_ctrl_port.outb(ctrl_new);
+    uint8_t data_old = cmos_data_port.inb();
+    cmos_data_port.outb(value);
+
+    return data_old;
+}
+
+void clear_statusC() {
+    read_port(offset_statusC);
+}
 
 uint16_t bcd_to_int(uint8_t bcd) {
     return (bcd >> 4) * 10 + (bcd & 0xf);
 }
 
 void sleep(unsigned int time, bool from_clock) {
-    /*for (unsigned int i = 0; i < time; i++) {
-		unsigned int curr_count, prev_count = ~0;
-		int delta;
-
-		IO_Port port1(0x43);
-		IO_Port port2(0x40);
-		port1.outb(0x00);
-		curr_count = port2.inb();
-		curr_count |= port2.inb() << 8;
-
-		do {
-			prev_count = curr_count;
-			port1.outb(0x00);
-			curr_count = port2.inb();
-			curr_count |= port2.inb() << 8;
-			delta = curr_count - prev_count;
-
-			// Comment from the Linux source code:
-
-			// This limit for delta seems arbitrary, but it isn't, it's
-			// slightly above the level of error a buggy Mercury/Neptune
-			// chipset timer can cause.
-
-		} while (delta < 300);
-	}*/
     //DBG << "sleep for " << time - 1 << "s to " << time << "s" << endl;
     uint8_t start = get_second(from_clock);
     while (get_second(from_clock) < (start + time) % 60);
@@ -54,8 +78,8 @@ Time get_time(bool from_clock) {
     return t;
 }
 
-static uint8_t get_value(time_offset offset, bool from_clock) {
-    if (!from_clock && clock_active) {
+static uint8_t get_value(cmos_offset offset, bool from_clock) {
+    if (!from_clock && is_clock_active) {
         switch (offset) {
             case offset_second:  return current_time.second;
             case offset_minute:  return current_time.minute;
@@ -65,10 +89,11 @@ static uint8_t get_value(time_offset offset, bool from_clock) {
             case offset_year:    return current_time.year;
             case offset_weekday: return current_time.weekday;
             case offset_century: return current_time.century;
+            default:             return 0;
         }
     }
-    cmos_ctrl_port.outb(offset);
-    return bcd_to_int(cmos_data_port.inb());
+    while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
+    return initialized ? read_port(offset) : bcd_to_int(read_port(offset));
 }
 
 uint8_t get_second (bool from_clock) {
@@ -104,7 +129,7 @@ uint8_t get_century(bool from_clock) {
 }
 
 void clock(CGA_Stream& stream) {
-    clock_active = true;
+    is_clock_active = true;
     stream.reset();
     for (;;) {
         stream.setpos(stream.from_col, stream.from_row);
@@ -112,4 +137,9 @@ void clock(CGA_Stream& stream) {
         stream << current_time << flush;
         //sleep(1, true);
     }
+}
+
+void update_clock(CGA_Stream& stream) {
+    current_time = get_time(is_clock_active);
+    stream << current_time << flush;
 }
