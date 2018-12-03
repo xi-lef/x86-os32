@@ -109,7 +109,6 @@ extern "C" int main() {
     //*/
 
     ioapic.init();
-    //RTC rtc;
     keyboard.plugin();
     rtc.init();
     CPU::enable_int();
@@ -207,15 +206,6 @@ extern "C" int main_ap() {
     CPU::enable_int();
     test();
 
-    //*
-    //if (system.getCPUID() != 3) {
-        for (;;) { // dont die
-            CPU::idle();
-            //CPU::disable_int();
-            //sleep(2);
-        }
-    //}//*/
-
     switch (system.getCPUID()) {
         case 1: {
                     Console serial;
@@ -230,12 +220,17 @@ extern "C" int main_ap() {
                     }
                 } break;
         case 2: 
-                dout_status.reset(' ', dout_status.attrib);
-                //dout_status << "bernhard lied, there is no ^TM :(" << flush;
-                break;
+            dout_status.reset(' ', dout_status.attrib);
+            //dout_status << "bernhard lied, there is no ^TM :(" << flush;
+            break;
         case 3:
-                clock(dout_clock);
-                break;
+            //clock(dout_clock);
+            break;
+    }
+
+    // dont die
+    for (;;) {
+        CPU::idle();
     }
 
     return 0;

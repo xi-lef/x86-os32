@@ -14,17 +14,18 @@ void init_cmos() {
         return;
     }
 
+    /* CURRENTLY UNUSED
     // set frequency of periodic interrupt to 128Hz
     // frequency is the result of this --> 65536 / (2 ^ |)
     uint8_t statusA_old = read_port(offset_statusA); // v
-    write_port(offset_statusA, (statusA_old & 0xf0) | 0b0110);
+    write_port(offset_statusA, (statusA_old & 0xf0) | 0b0110);*/
 
-    // enable periodic interrupt & set data mode to binary
+    // enable update interrupt & set data mode to binary
     uint8_t statusB_old = read_port(offset_statusB);
-    write_port(offset_statusB, statusB_old | (1 << 6) | (1 << 2) | (1 << 4));
-                                         // p interrupt  binary   u interrupt
+    write_port(offset_statusB, statusB_old | (1 << 4) | (1 << 2)); // | (1 << 6) p interrupt
+                                          // interrupt   binary
 
-    DBG_VERBOSE << "a: " << int(read_port(offset_statusA)) << " b: "
+    DBG_VERBOSE << "A: " << int(read_port(offset_statusA)) << " B: "
         << int(read_port(offset_statusB)) << " cmos initialized" << endl;
     initialized = true;
 }
@@ -32,18 +33,19 @@ void init_cmos() {
 uint8_t read_port(cmos_offset offset) {
     // bit 7 (MSB) must NOT be changed (NMI)
     uint8_t ctrl_orig = cmos_ctrl_port.inb();
-    uint8_t ctrl_new = (ctrl_orig & 0x80) | offset;
+    uint8_t ctrl_new = (ctrl_orig & (1 << 7)) | offset;
 
     cmos_ctrl_port.outb(ctrl_new);
     return cmos_data_port.inb();
 }
 
 uint8_t write_port(cmos_offset offset, uint8_t value) {
-    uint8_t ctrl_orig = cmos_ctrl_port.inb();
-    uint8_t ctrl_new = (ctrl_orig & 0x80) | offset;
+    /*uint8_t ctrl_orig = cmos_ctrl_port.inb();
+    uint8_t ctrl_new = (ctrl_orig & (1 << 7)) | offset;
 
     cmos_ctrl_port.outb(ctrl_new);
-    uint8_t data_old = cmos_data_port.inb();
+    uint8_t data_old = cmos_data_port.inb();*/
+    uint8_t data_old = read_port(offset);
     cmos_data_port.outb(value);
 
     return data_old;
@@ -140,6 +142,7 @@ void clock(CGA_Stream& stream) {
 }
 
 void update_clock(CGA_Stream& stream) {
+    stream.setpos(stream.from_col, stream.from_row);
     current_time = get_time(is_clock_active);
     stream << current_time << flush;
 }

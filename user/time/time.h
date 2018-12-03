@@ -46,7 +46,6 @@ typedef enum {
 
 /*!
  * Initializes the CMOS with fitting values. This includes:
- * * enabling the periodic interrupt
  * * enabling the update interrupt
  * * setting frequency of periodic interrupt to 128Hz
  * * setting data mode to binary instead of BCD

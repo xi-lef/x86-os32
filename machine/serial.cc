@@ -29,17 +29,17 @@ Serial::Serial(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits
     //DBG << "serial: finished init" << endl;
 }
 
-void Serial::writeReg(Serial::regIndex reg, char out){
+void Serial::writeReg(Serial::regIndex reg, char out) {
     IO_Port p(port + reg);
     p.outb(out);
 }
 
-char Serial::readReg(Serial::regIndex reg){
+char Serial::readReg(Serial::regIndex reg) {
     IO_Port p(port + reg);
 	return p.inb();
 }
 
-int Serial::write(char out, bool blocking){
+int Serial::write(char out, bool blocking) {
     if (!blocking && !(readReg(lsr) & (1 << 5))) {
         DBG << "serial: bad write" << endl;
         return -1;
@@ -52,7 +52,7 @@ int Serial::write(char out, bool blocking){
 	return out;
 }
 
-int Serial::read(bool blocking){
+int Serial::read(bool blocking) {
     if (!blocking && !(readReg(lsr) & 1)) {
         DBG << "serial: bad read" << endl;
         return -1;

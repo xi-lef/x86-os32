@@ -22,7 +22,7 @@ void RTC::init() {
 extern CGA_Stream dout_clock;
 
 void RTC::trigger() {
-    DBG << "RTC says hi" << flush;
+    //DBG << "RTC says hi" << flush;
     update_clock(dout_clock);
     clear_statusC();
 }

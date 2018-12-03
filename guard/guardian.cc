@@ -11,7 +11,7 @@
 
 extern "C" void guardian(uint32_t vector, irq_context *context) {
     (void) context;
-    DBG << "interrupt!!1" << flush;
+    //DBG << "interrupt!!1" << flush;
     (plugbox.report(vector))->trigger();
     lapic.ackIRQ();
 }
