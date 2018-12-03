@@ -250,7 +250,6 @@ void APICSystem::queryACPI(SystemConfig& conf)
 					DBG_VERBOSE << "source override: remapping IRQ" << (int) override->getSource()
 					            << " to IRQ" << (int) override->getGlobalSystemInterrupt() << endl;
 					conf.ioapic_irqs[override->getGlobalSystemInterrupt()] = override->getSource();
-					conf.ioapic_irqs[override->getSource()]--;
 					break;
 				}
 			}
