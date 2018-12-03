@@ -1,5 +1,6 @@
 #include "user/time/time.h"
 #include "debug/output.h"
+#include "machine/cpu.h"
 
 static const IO_Port cmos_ctrl_port(0x70);
 static const IO_Port cmos_data_port(0x71);
@@ -12,7 +13,7 @@ void init_cmos() {
     // set frequency of periodic interrupt to 128Hz
     // frequency is the result of this --> 65536 / (2 ^ |)
     uint8_t statusA_old = read_port(offset_statusA); // v
-    write_port(offset_statusA, (statusA_old & 0xf0) | 0b0110);*/
+    write_port(offset_statusA, (statusA_old & 0xf0) | 0b0110);//*/
 
     // enable update interrupt
     uint8_t statusB_old = read_port(offset_statusB);
@@ -32,11 +33,6 @@ uint8_t read_port(cmos_offset offset) {
 }
 
 uint8_t write_port(cmos_offset offset, uint8_t value) {
-    /*uint8_t ctrl_orig = cmos_ctrl_port.inb();
-    uint8_t ctrl_new = (ctrl_orig & (1 << 7)) | offset;
-
-    cmos_ctrl_port.outb(ctrl_new);
-    uint8_t data_old = cmos_data_port.inb();*/
     uint8_t data_old = read_port(offset);
     cmos_data_port.outb(value);
 
@@ -54,7 +50,9 @@ uint16_t bcd_to_int(uint8_t bcd) {
 void sleep(unsigned int time, bool from_clock) {
     //DBG << "sleep for " << time - 1 << "s to " << time << "s" << endl;
     uint8_t start = get_second(from_clock);
-    while (get_second(from_clock) < (start + time) % 60);
+    while (get_second(from_clock) < (start + time) % 60) {
+        //CPU::idle();
+    }
 }
 
 Time get_time(bool from_clock) {

@@ -54,7 +54,7 @@ public:
 	 *
 	 *  \todo Konstruktor implementieren
 	 */
-	IOAPIC() { }//init(); } // TODO ?
+	IOAPIC() {}
 	/*! \brief Initialisierung der IOAPICs
 	 *
 	 *  Dabei werden alle Einträge in der IO-Redirection Table mit einem

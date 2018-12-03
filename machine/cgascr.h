@@ -56,7 +56,7 @@ public:
 	/// Groesse des kompletten CGA-Bildschirms
 	static const int ROWS = 25;    // 25 Zeilen
 	static const int COLUMNS = 80; // 80 Spalten
-
+    
 #define BASE_ADDRESS (char *) 0xb8000
 
 	/*! \brief CGA-Farben

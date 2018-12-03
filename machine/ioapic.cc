@@ -29,6 +29,9 @@ void IOAPIC::init() {
     id.IOAPICID.ID = system.getIOAPICID();
     write_reg(0x00, id);
 
+    // create bitmask for logical_destination
+    uint8_t cpu_bitmask = (1 << system.getNumberOfCPUs()) - 1;
+
     //set redirection table entries
     for (int i = 0x10; i <= 0x3e; i += 0x02) {
         IOAPICRegister_t rte_l = read_reg(i);
@@ -40,7 +43,7 @@ void IOAPIC::init() {
         rte_l.IOREDTBL_L.mask             = MASK_DISABLED;
 
         IOAPICRegister_t rte_h = read_reg(i);
-        rte_h.IOREDTBL_H.logical_destination = 0x0f;
+        rte_h.IOREDTBL_H.logical_destination = cpu_bitmask;
 
         write_reg(i, rte_l);
         write_reg(i + 1, rte_h);

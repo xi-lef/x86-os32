@@ -26,28 +26,35 @@ Keyboard_Controller::Keyboard_Controller() :
 }
 
 Key Keyboard_Controller::key_hit() {
-    uint8_t control_status = ctrl_port.inb();
-    if ((control_status & outb) == 0) {
-        return Key();
-    }
+    for (;;) {
+        uint8_t control_status = ctrl_port.inb();
+        if ((control_status & outb) == 0) {
+            return Key();
+        }
 
-    uint8_t code = data_port.inb();
-    if (control_status & auxb) {
-        DBG << "lol mouse" << flush;
-        return Key();
-    }
+        uint8_t code = data_port.inb();
+        if (control_status & auxb) {
+            DBG << "lol mouse" << flush;
+            continue;
+        }
 
-    return keydecoder.decode(code);
+        Key k = keydecoder.decode(code);
+        if (!k.valid()) {
+            continue;
+        }
+
+        return k;
+    }
 }
 
 void Keyboard_Controller::reboot() {
-	const IO_Port CMOS_ctrl(0x70);
-	const IO_Port CMOS_data(0x71);
-	const IO_Port system_control_portA(0x92);
-	DBG_VERBOSE << "rebooting smp" << endl;
-	CMOS_ctrl.outb(0xe + 1);
-	CMOS_data.outb(0);
-	system_control_portA.outb(0x3);
+    const IO_Port CMOS_ctrl(0x70);
+    const IO_Port CMOS_data(0x71);
+    const IO_Port system_control_portA(0x92);
+    DBG_VERBOSE << "rebooting smp" << endl;
+    CMOS_ctrl.outb(0xe + 1);
+    CMOS_data.outb(0);
+    system_control_portA.outb(0x3);
 }
 
 void Keyboard_Controller::set_repeat_rate(int speed, int delay) {

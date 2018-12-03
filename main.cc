@@ -30,7 +30,7 @@ static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
 //*
-static void test() {
+static void test_irq() {
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
         CPU::disable_int();
@@ -61,8 +61,6 @@ extern "C" int main() {
     DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
         << "Number of CPUs: " << numCPUs << endl;
 
-    kout.reset();
-
     switch (type) {
         case APICSystem::MP_APIC: {
                                       //Startet die AP-Prozessoren
@@ -82,9 +80,6 @@ extern "C" int main() {
 
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
-
-    //char *test = (char *) 0xb8000;
-    //test[3999] = 0b01110000;
 
     /*
     kout << "Test        <stream result> -> <expected>" << endl;
@@ -114,43 +109,10 @@ extern "C" int main() {
     CPU::enable_int();
     //DBG << "interrupts enabled" << endl;
 
-    test();
-
-    for (;;) { // dont die
-        CPU::idle();
-        //CPU::disable_int();
-        //sleep(2);
-        //DBG << "ui" << flush;
-    }
+    //test_irq();
 
     /*
-    kout << "press any key to continue..." << endl;
-    keyboard.key_hit();
-
-    short a          = -123;
-    unsigned short b =  234;
-    int c            =  345;
-    unsigned int d   =  456;
-    long e           =  567;
-    unsigned long f  =  678;
-
-    kout << "Testing data types" << endl;
-    kout << "short:          " << a << " -> -123" << endl;
-    kout << "unsigned short: " << b << " ->  234" << endl;
-    kout << "int:            " << c << " ->  345" << endl;
-    kout << "unsigned int:   " << d << " ->  456" << endl;
-    kout << "long:           " << e << " ->  567" << endl;
-    kout << "unsigned long:  " << f << " ->  678" << endl;
-
-    kout << "press any key to continue..." << endl;
-    keyboard.key_hit();
-    //*/
-
-    /*
-    int cur_speed = 0;
-    int cur_delay = 0;
-
-    for (;;) {
+    for (int cur_speed = 0, cur_delay = 0; ; ) {
         Key k = keyboard.key_hit();
         if (!k.valid()) {
             continue;
@@ -158,9 +120,6 @@ extern "C" int main() {
 
         //DBG << int(k.scancode()) << endl;
         if (k.ctrl()) {
-            if (k.alt() && k.scancode() == Key::scan::del) {
-                keyboard.reboot();
-            }
             if (k.ascii() == 't') {
                 Shell shell(kout, keyboard);
                 shell.start();
@@ -185,10 +144,14 @@ extern "C" int main() {
         } else {
             kout << k.ascii();
             kout << flush;
-
         }
     }
     //*/
+
+    for (;;) { // dont die
+        CPU::idle();
+    }
+    test_irq(); // fuck g++
 
     return 0;
 }
@@ -204,7 +167,8 @@ extern "C" int main_ap() {
     DBG << "hiii " << ((char) 1) << endl;
 
     CPU::enable_int();
-    test();
+
+    //test_irq();
 
     switch (system.getCPUID()) {
         case 1: {
@@ -220,11 +184,8 @@ extern "C" int main_ap() {
                     }
                 } break;
         case 2: 
-            dout_status.reset(' ', dout_status.attrib);
-            //dout_status << "bernhard lied, there is no ^TM :(" << flush;
             break;
         case 3:
-            //clock(dout_clock);
             break;
     }
 

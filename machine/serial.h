@@ -116,7 +116,7 @@ private:
 	 *  \param reg Registerindex
 	 *  \param out zu schreibender Wert
 	 */
-	void writeReg(Serial::regIndex reg, char out);
+	void writeReg(Serial::regIndex reg, uint8_t out);
 
 public:
 	/*! \brief Konstruktor
