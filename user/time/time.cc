@@ -4,30 +4,22 @@
 static const IO_Port cmos_ctrl_port(0x70);
 static const IO_Port cmos_data_port(0x71);
 
-static bool initialized = false;
 static Time current_time(get_time());
 static volatile bool is_clock_active = false; // is clock() running right now?
 
 void init_cmos() {
-    if (initialized) {
-        DBG << "cmos is init'd already" << flush;
-        return;
-    }
-
     /* CURRENTLY UNUSED
     // set frequency of periodic interrupt to 128Hz
     // frequency is the result of this --> 65536 / (2 ^ |)
     uint8_t statusA_old = read_port(offset_statusA); // v
     write_port(offset_statusA, (statusA_old & 0xf0) | 0b0110);*/
 
-    // enable update interrupt & set data mode to binary
+    // enable update interrupt
     uint8_t statusB_old = read_port(offset_statusB);
-    write_port(offset_statusB, statusB_old | (1 << 4) | (1 << 2)); // | (1 << 6) p interrupt
-                                          // interrupt   binary
+    write_port(offset_statusB, statusB_old | (1 << 4)); // | (1 << 6) periodic interrupt
 
     DBG_VERBOSE << "A: " << int(read_port(offset_statusA)) << " B: "
         << int(read_port(offset_statusB)) << " cmos initialized" << endl;
-    initialized = true;
 }
 
 uint8_t read_port(cmos_offset offset) {
@@ -91,11 +83,11 @@ static uint8_t get_value(cmos_offset offset, bool from_clock) {
             case offset_year:    return current_time.year;
             case offset_weekday: return current_time.weekday;
             case offset_century: return current_time.century;
-            default:             return 0;
+            default:             return 255;
         }
     }
     while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
-    return initialized ? read_port(offset) : bcd_to_int(read_port(offset));
+    return bcd_to_int(read_port(offset));
 }
 
 uint8_t get_second (bool from_clock) {
