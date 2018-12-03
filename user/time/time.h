@@ -14,19 +14,6 @@ struct Time {
     volatile uint16_t year;
     volatile uint16_t weekday;
     volatile uint16_t century;
-
-    /*
-    Time& operator=(const Time& t) {
-        this->second = t.second;
-        this->minute = t.minute;
-        this->hour = t.hour;
-        this->day = t.day;
-        this->month= t.month;
-        this->year= t.year;
-        this->weekday= t.weekday;
-        this->century= t.century;
-        return *this;
-    }*/
 };
 
 typedef enum {
@@ -73,12 +60,22 @@ void clear_statusC();
  */
 uint16_t bcd_to_int(uint8_t bcd);
 
-/*! TODO
+/*! TODO improve
  * sleep waits for [time - 1, time] seconds. dont rely on precision!
  * sleep(1) can only really be used to wait until the next second starts
  * (good for clock displays ;)).
  */
 void sleep(unsigned int time, bool from_clock = false);
+
+typedef enum {
+    sunday = 1,
+    monday,
+    tuesday,
+    wednesday,
+    thursday,
+    friday,
+    saturday,
+} Weekday;
 
 Time get_time(bool from_clock = false);
 

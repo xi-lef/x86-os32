@@ -177,14 +177,13 @@ O_Stream& O_Stream::operator << (O_Stream& (*f) (O_Stream&)) {
 
 O_Stream& O_Stream::operator << (Time t) {
     switch (t.weekday) {
-        case 2: *this << "Mon"; break;
-        case 3: *this << "Tue"; break;
-        case 4: *this << "Wed"; break;
-        case 5: *this << "Thu"; break;
-        case 6: *this << "Fri"; break;
-        case 7: *this << "Sat"; break;
-        case 1: *this << "Sun"; break;
-
+        case monday:    *this << "Mon"; break;
+        case tuesday:   *this << "Tue"; break;
+        case wednesday: *this << "Wed"; break;
+        case thursday:  *this << "Thu"; break;
+        case friday:    *this << "Fri"; break;
+        case saturday:  *this << "Sat"; break;
+        case sunday:    *this << "Sun"; break;
     }
     *this << " ";
     switch (t.month) {
