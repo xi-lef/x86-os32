@@ -61,7 +61,7 @@ void Shell::start() {
                 // ... otherwise, exit the shell
                 if (!k.SHIFT()) {
                     stream << "Goodbye!" << endl;
-                    sleep(2);
+                    //sleep(2);
                 }
                 screen_restore();
                 screen_restore(DBG);
@@ -87,7 +87,7 @@ void Shell::start() {
         } else if (streq(s, "yes")) {
             stream << "no" << endl;
         } else if (streq(s, "time") || streq(s, "date")) {
-            stream << get_time() << endl;
+            //stream << get_time() << endl;
         } else if (streq(s, "cpu0")) {
             dout_CPU0 << "sup bitch" << endl;
         } else if (streq(s, "cpu1")) {

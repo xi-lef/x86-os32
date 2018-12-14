@@ -19,6 +19,7 @@
 #include "device/keyboard.h"
 #include "machine/spinlock.h"
 #include "machine/ticketlock.h"
+#include "guard/secure.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
@@ -31,19 +32,22 @@ static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
 //*
 static void test_irq() {
+    //return;
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
-        CPU::disable_int();
-        ticket.lock();
+        //CPU::disable_int();
+        //ticket.lock();
+        { Secure s;
 
-        int x, y;
-        kout.getpos(x, y);
-        kout.setpos(id * 40 % 80, id + 2);
-        kout << i << flush;
-        kout.setpos(x, y);
+            int x, y;
+            kout.getpos(x, y);
+            kout.setpos(id * 40 % 80, id + 2);
+            kout << i << flush;
+            kout.setpos(x, y);
+        }
 
-        ticket.unlock();
-        CPU::enable_int();
+        //ticket.unlock();
+        //CPU::enable_int();
     }
 }
 //*/
@@ -60,6 +64,8 @@ extern "C" int main() {
     unsigned int numCPUs = system.getNumberOfCPUs();
     DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
         << "Number of CPUs: " << numCPUs << endl;
+
+    kout.reset(); // ?
 
     switch (type) {
         case APICSystem::MP_APIC: {
@@ -105,11 +111,10 @@ extern "C" int main() {
 
     ioapic.init();
     keyboard.plugin();
-    rtc.init();
+    rtc.init_RTC();
     CPU::enable_int();
-    //DBG << "interrupts enabled" << endl;
 
-    //test_irq();
+    test_irq();
 
     /*
     for (int cur_speed = 0, cur_delay = 0; ; ) {
@@ -168,7 +173,7 @@ extern "C" int main_ap() {
 
     CPU::enable_int();
 
-    //test_irq();
+    test_irq();
 
     switch (system.getCPUID()) {
         case 1: {

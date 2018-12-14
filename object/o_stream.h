@@ -35,8 +35,8 @@
 #pragma once
 
 #include "strbuf.h"
-#include "user/time/time.h"
 #include "types.h"
+#include "user/time/time.h"
 
 /*! \brief Die Aufgaben der Klasse O_Stream entsprechen im Wesentlichen denen der
  *  Klasse ostream der bekannten C++ IO-Streams-Bibliothek.

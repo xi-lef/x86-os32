@@ -176,35 +176,12 @@ O_Stream& O_Stream::operator << (O_Stream& (*f) (O_Stream&)) {
 }
 
 O_Stream& O_Stream::operator << (Time t) {
-    switch (t.weekday) {
-        case monday:    *this << "Mon"; break;
-        case tuesday:   *this << "Tue"; break;
-        case wednesday: *this << "Wed"; break;
-        case thursday:  *this << "Thu"; break;
-        case friday:    *this << "Fri"; break;
-        case saturday:  *this << "Sat"; break;
-        case sunday:    *this << "Sun"; break;
-    }
-    *this << " ";
-    switch (t.month) {
-        case 1:  *this << "Jan"; break;
-        case 2:  *this << "Feb"; break;
-        case 3:  *this << "Mar"; break;
-        case 4:  *this << "Apr"; break;
-        case 5:  *this << "May"; break;
-        case 6:  *this << "Jun"; break;
-        case 7:  *this << "Jul"; break;
-        case 8:  *this << "Aug"; break;
-        case 9:  *this << "Sep"; break;
-        case 10: *this << "Oct"; break;
-        case 11: *this << "Nov"; break;
-        case 12: *this << "Dec"; break;
-    }
-    *this << ((t.day  < 10) ? "  " : " ") << t.day
-        << " " << t.century << t.year << ","
-        << ((t.hour   < 10) ? " 0" : " ") << (t.hour + TIMEZONE)
-        << ((t.minute < 10) ? ":0" : ":") << t.minute
-        << ((t.second < 10) ? ":0" : ":") << t.second;
+    *this << t.weekday_string[t.weekday] << " " << t.month_string[t.month]
+          << ((t.day  < 10) ? "  " : " ") << t.day
+          << " " << t.century << t.year << ","
+          << ((t.hour   < 10) ? " 0" : " ") << t.hour
+          << ((t.minute < 10) ? ":0" : ":") << t.minute
+          << ((t.second < 10) ? ":0" : ":") << t.second;
 
     return *this;
 }

@@ -6,7 +6,9 @@
 
 Panic panic;
 
-void Panic::trigger() {
+bool Panic::prologue() {
     DBG << "panic!!1" << endl;
     CPU::die();
+
+    return false;
 }

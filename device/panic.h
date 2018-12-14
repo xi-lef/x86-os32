@@ -31,7 +31,7 @@ public:
 	 *  \todo Methode implementieren
 	 *
 	 */
-	void trigger();
+    bool prologue();
 };
 
 extern Panic panic;
