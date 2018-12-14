@@ -53,12 +53,28 @@ public:
 	 *  \return \b false wenn der Puffer leer ist, \b true sonst.
 	 */
 	bool consume(T &val) {
-		if(in != out) {
-			val = data[out];
-			out = (out + 1) % CAP;
-			return true;
-		}
-		return false;
-	}
+        unsigned cur_in;
+        unsigned new_out;
+        bool ret = false;
+
+        do {
+            cur_in = in;
+            if(cur_in != out) {
+                val = data[out];
+                new_out = (out + 1) % CAP; // if CAS fails, we must not change out.
+                ret = true;
+            }
+        } while (__sync_bool_compare_and_swap(&in, cur_in, cur_in) == false);
+        if (ret) {
+            out = new_out;
+        }
+        return ret;
+        /*if(in != out) {
+            val = data[out];
+            out = (out + 1) % CAP;
+            return true;
+        }
+        return false;*/
+    }
 };
 

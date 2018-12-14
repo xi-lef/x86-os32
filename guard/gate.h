@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "object/queuelink.h"
+
 /*! \brief Klasse von Objekten, die in der Lage sind, Unterbrechungen zu behandeln.
  *  \ingroup interrupts
  *
@@ -17,13 +19,20 @@
  */
 class Gate {
 	// Verhindere Kopien und Zuweisungen
+private:
 	Gate(const Gate&) = delete;
 	Gate& operator=(const Gate&) = delete;
+
+    bool in_queue = false;
+
 public:
+    QueueLink<Gate> queue_link;
+
 	/*! \brief Konstruktor
 	 *
 	 */
 	Gate() {}
+
 	/*! \brief Destruktor
 	 *
 	 *  Klassen mit virtuellen Methoden sollten grundsätzlich einen virtuellen
@@ -33,13 +42,39 @@ public:
 	 *  korrekt funktioniert.
 	 */
 	virtual ~Gate() {}
-	/*! \brief Unterbrechungsbehandlungsroutine
+
+	/*! \brief Unterbrechungsbehandlungsroutine, die sofort nach Auftreten der
+     *  Unterbrechung asynchron zu anderen Kernaktivitäten ausgeführt wird.
 	 *
-	 *  Diese Methode wird sofort nach Auftreten der Unterbrechung asynchron zu
-	 *  anderen Kernaktivitäten ausgeführt. Da sie als rein virtuelle Methode
-	 *  implementiert ist, muss sie durch die abgeleiteten Klassen spezifiziert
-	 *  werden.
-	 */
-	virtual void trigger() = 0;
+     *  \return gibt an, ob der entsprechende Epilog auszuführen ist.
+     */
+    virtual bool prologue() = 0;
+
+    /*! \brief Eine gegebenenfalls verzögerte, synchronisiert
+     *  ausgeführte Unterbrechungsbehandlung.
+     *
+     *  \todo virtuelle Methode definieren
+     */
+    virtual void epilogue() {}
+
+    /*! \brief Setzt atomar ein Flag um zu markieren, dass sich das Objekt
+     *  gerade in einer Epilog-Warteschlange befindet.
+     *
+     *  \todo Methode implementieren
+     *
+     *  \return Gibt false zurück, falls das Flag vorher bereits gesetzt
+     *  war, andernfalls true.
+     */
+    bool set_queued() {
+        return __sync_lock_test_and_set(&in_queue, true);
+    }
+
+    /*! \brief Setzt das in set_queued() gesetzte Flag zurück.
+     *
+     *  \todo Methode implementieren
+     */
+    void set_dequeued() {
+        __sync_lock_release(&in_queue);
+    }
 };
 

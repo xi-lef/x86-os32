@@ -54,5 +54,19 @@ class Math
 		return a > b ? a : b;
 	}
 
+    static uint32_t pow(uint32_t base, uint32_t exp) {
+        uint32_t result = 1;
+        for (;;) {
+            if (exp & 1) {
+                result *= base;
+            }
+            exp >>= 1;
+            if (!exp) {
+                break;
+            }
+            base *= base;
+        }
+        return result;
+    }
 };
 

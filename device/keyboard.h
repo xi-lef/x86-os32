@@ -57,6 +57,8 @@ public:
 	 */
 	void trigger();
 
+    bool prologue();
+    void epilogue();
 };
 
 extern Keyboard keyboard;

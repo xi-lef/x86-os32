@@ -32,12 +32,13 @@ public:
 	 *  CPUs.
 	 */
 	enum Vector {
-		timer = 32,         ///< Interruptvektornummer für den Timerinterrupt.
-		keyboard = 33,      ///< Interruptvektornummer für den Keyboardinterrupt.
-        rtc = 60,           ///< Interruptvektornummer für die Real-Time Clock
+		timer    =  32,     ///< Interruptvektornummer für den Timerinterrupt.
+		keyboard =  33,     ///< Interruptvektornummer für den Keyboardinterrupt.
+        serial   =  36,     ///< Interruptvektornummer für den Empfangsinterrupt der seriellen Schnittstelle.
+        rtc      =  60,     ///< Interruptvektornummer für die Real-Time Clock
 		assassin = 100,     ///< Interruptvektornummer für den Assassin; nur in MPStuBS benötigt.
-		wakeup = 101,       ///< Interruptvektornummer zum Aufwecken von schlafenden CPUs; nur in MPStubs benötigt.
-        panic = 255         ///< panic!!1
+		wakeup   = 101,     ///< Interruptvektornummer zum Aufwecken von schlafenden CPUs; nur in MPStubs benötigt.
+        panic    = 255      ///< Interruptvektornummer um dick Panik zu schieben.
 	};
 	/*! \brief Initialisierung der Gate map mit einem Default Gate.
 	 *

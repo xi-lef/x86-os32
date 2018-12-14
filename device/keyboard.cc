@@ -7,8 +7,11 @@
 #include "user/time/time.h"
 #include "machine/cpu.h"
 #include "machine/ticketlock.h"
+#include "object/bbuffer.h"
 
 Keyboard keyboard;
+//static Key buf;
+static BBuffer<Key, 16> buf[4];
 
 void Keyboard::plugin() {
     Plugbox::Vector kb_vector = Plugbox::Vector::keyboard;
@@ -21,22 +24,41 @@ void Keyboard::plugin() {
 }
 
 extern CGA_Stream kout;
-extern Ticketlock ticket;
 
-void Keyboard::trigger() {
-    Key k = key_hit();
-    if (!k.valid()) {
-        //DBG << "invalid key" << flush;
-        return;
+// TODO fucked order of keys?
+bool Keyboard::prologue() {
+    //DBG << "KB: prologue " << flush;
+    int id = system.getCPUID();
+    bool ret = false; // in case of spurious interrupts, dont request epilogue
+
+    for (Key k = key_hit(); k.valid(); k = key_hit()) {
+        ret = true;
+        if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
+            DBG << endl << "REBOOTING..." << endl;
+            //sleep(2);
+            reboot();
+        }
+
+        if (!buf[id].produce(k)) {
+            DBG << "bbuffer full :( " << flush;
+            while (key_hit().valid()) ;
+            break;
+        }
     }
+ 
+    return ret;
+}
 
-    if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
-        DBG << endl << "REBOOTING..." << endl;
-        sleep(2);
-        reboot();
+void Keyboard::epilogue() {
+    //DBG << "KB: epilogue " << flush;
+    int id = system.getCPUID();
+    Key k;
+    CPU::disable_int();
+    while (buf[id].consume(k)) {
+        CPU::enable_int();
+        kout << k.ascii();
+        CPU::disable_int();
     }
-
-    ticket.lock();
-    kout << k.ascii() << flush;
-    ticket.unlock();
+    CPU::enable_int();
+    kout << flush;
 }

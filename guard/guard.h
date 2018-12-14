@@ -104,3 +104,4 @@ public:
 	void relay(Gate *item);
 };
 
+extern Guard guard;

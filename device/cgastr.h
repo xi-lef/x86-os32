@@ -13,7 +13,7 @@
 
 #include "object/o_stream.h"
 #include "machine/cgascr.h"
-extern CGA_Stream dout_CPU1;
+
 /*! \brief Darstellung verschiedener Datentypen auf dem Bildschrim
  *  \ingroup io
  *
