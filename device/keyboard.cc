@@ -4,13 +4,10 @@
 #include "machine/ioapic.h"
 #include "machine/apicsystem.h"
 #include "debug/output.h"
-#include "user/time/time.h"
-#include "machine/cpu.h"
-#include "machine/ticketlock.h"
+#include "user/time/rtc.h"
 #include "object/bbuffer.h"
 
 Keyboard keyboard;
-//static Key buf;
 static BBuffer<Key, 16> buf[4];
 
 void Keyboard::plugin() {
@@ -34,8 +31,9 @@ bool Keyboard::prologue() {
     for (Key k = key_hit(); k.valid(); k = key_hit()) {
         ret = true;
         if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
-            DBG << endl << "REBOOTING..." << endl;
-            //sleep(2);
+            DBG.reset();
+            DBG << "REBOOTING..." << endl;
+            rtc.sleep(2);
             reboot();
         }
 
@@ -53,12 +51,12 @@ void Keyboard::epilogue() {
     //DBG << "KB: epilogue " << flush;
     int id = system.getCPUID();
     Key k;
-    CPU::disable_int();
+    //CPU::disable_int();
     while (buf[id].consume(k)) {
-        CPU::enable_int();
+        //CPU::enable_int();
         kout << k.ascii();
-        CPU::disable_int();
+        //CPU::disable_int();
     }
-    CPU::enable_int();
+    //CPU::enable_int();
     kout << flush;
 }

@@ -12,13 +12,12 @@ static bool in_epilogue[4] = {false, false, false, false};
 static Queue<Gate> queue[4];
 
 static void process_queue() {
-    //DBG << "p_q " << flush;
     int id = system.getCPUID();
     Gate *g;
     CPU::disable_int();
     while ((g = queue[id].dequeue()) != 0) {
         //DBG << "setdeq " << g << " " << flush;
-        g->set_dequeued(); // TODO maybe after enable_int? or is atomic enough?
+        g->set_dequeued();
         CPU::enable_int();
         g->epilogue();
         CPU::disable_int();
@@ -48,17 +47,14 @@ void Guard::relay(Gate *item) {
         //DBG << "setq " << flush;
         if (!item->set_queued()) { // TODO one queue per cpu -> set_queued cpu-wise?
             queue[id].enqueue(item);
-        } else {
-            //DBG << "alrdy in q " << flush;
         }
     } else {
         in_epilogue[id] = true;
         CPU::enable_int();
-        //DBG << "bla0 " << flush;
         enter();
-        //DBG << "bla1 " << flush;
-        CPU::disable_int();
-        queue[id].enqueue(item);
+        //CPU::disable_int();
+        //queue[id].enqueue(item); // if set queued...
+        item->epilogue(); // TODO hm
         leave();
     }
 }

@@ -6,10 +6,7 @@
 
 // might be overkill xdd
 void Time::increment_seconds(uint32_t amount) {
-    //second += amount;
     while (amount--) {
-    //for (int i = 0; i < amount; i++) {
-    //for (;;) {
         if ((++second %= 60) != 0) continue;
         if ((++minute %= 60) != 0) continue;
         if ((++hour %= 24) != 0) continue;
@@ -23,6 +20,8 @@ void Time::increment_seconds(uint32_t amount) {
         if ((++century %= 100) != 0) DBG << "very funny." << endl;
     }
 }
+
+constexpr uint8_t Time::days_per_month_array[13]; // TODO ????
 
 uint8_t Time::days_per_month(uint8_t month) {
     if (month == 2 && year % 4 == 0) { // is it february in a leap year?

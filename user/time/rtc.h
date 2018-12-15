@@ -13,6 +13,7 @@ private:
 
 public:
     int32_t hz;
+
 	RTC(int8_t timezone = 1) : Time(timezone), hz(-1) {}
 
 	void init_RTC();

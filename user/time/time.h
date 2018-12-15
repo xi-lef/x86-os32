@@ -13,17 +13,16 @@ public:
     /*
      * Indexing for these arrays starts at 1.
      */
-    // TODO static?
-    const char * const weekday_string[8] = {
+    constexpr static char *weekday_string[8] = {
         "Invalid", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
     };
 
-    const char * const month_string[13] = {
+    constexpr static char *month_string[13] = {
         "Invalid", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     };
 
-    const uint8_t days_per_month_array[13] = {
+    constexpr static uint8_t days_per_month_array[13] = {
         255, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
 
@@ -50,6 +49,8 @@ public:
 
     /*
      * Increments the seconds by amount.
+     * If you want to call this from anywhere else than an interrupt
+     * handler, you need to disable interrupts for synchronization.
      */
     void increment_seconds(uint32_t amount = 1);
 
@@ -59,3 +60,8 @@ public:
      */
     uint8_t days_per_month(uint8_t month);
 };
+
+// TODO ???? why not
+//constexpr char *Time::weekday_string[8];
+//constexpr char *Time::month_string[13];
+//constexpr uint8_t Time::days_per_month_array[13];

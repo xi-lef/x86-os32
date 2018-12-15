@@ -35,19 +35,13 @@ static void test_irq() {
     //return;
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
-        //CPU::disable_int();
-        //ticket.lock();
         { Secure s;
-
             int x, y;
             kout.getpos(x, y);
-            kout.setpos(id * 40 % 80, id + 2);
+            kout.setpos(4, id + 2);
             kout << i << flush;
             kout.setpos(x, y);
         }
-
-        //ticket.unlock();
-        //CPU::enable_int();
     }
 }
 //*/
@@ -68,46 +62,24 @@ extern "C" int main() {
     kout.reset(); // ?
 
     switch (type) {
-        case APICSystem::MP_APIC: {
-                                      //Startet die AP-Prozessoren
-                                      for (unsigned int i = 1; i < numCPUs; i++) {
-                                          void* startup_stack = (void *) &(cpu_stack[(i) * CPU_STACK_SIZE]);
-                                          DBG_VERBOSE << "Booting CPU " << i << ", Stack: " << startup_stack << endl;
-                                          system.bootCPU(i, startup_stack);
-                                      }
-                                      break;
-                                  }
-        case APICSystem::UP_APIC: {
-                                      break;
-                                  }
-        case APICSystem::UNDETECTED: {
-                                     }
+        case APICSystem::MP_APIC:
+            {
+                //Startet die AP-Prozessoren
+                for (unsigned int i = 1; i < numCPUs; i++) {
+                    void* startup_stack = (void *) &(cpu_stack[(i) * CPU_STACK_SIZE]);
+                    DBG_VERBOSE << "Booting CPU " << i << ", Stack: " << startup_stack << endl;
+                    system.bootCPU(i, startup_stack);
+                }
+                break;
+            }
+        case APICSystem::UP_APIC:
+            break;
+        case APICSystem::UNDETECTED:
+            {}
     }
 
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
-
-    /*
-    kout << "Test        <stream result> -> <expected>" << endl;
-    kout << "bool:       " << true << " -> true" << endl;
-    kout << "bool:       " << false << " -> false" << endl;
-    kout << "zero:       " << 0 << " -> 0" << endl;
-    kout << "ten:        " << (10) << " -> 10" << endl;
-    kout << "uint max:   " << ~((unsigned int)0) << " -> 4294967295" << endl;
-    kout << "int max:    " << ~(1<<31) << " -> 2147483647" << endl;
-    kout << "int min:    " << (1<<31) << " -> -2147483648" << endl;
-    //sleep(3);
-    kout << "some int:   " << (-123456789) << " -> -123456789" << endl;
-    kout << "some int:   " << (123456789) << " -> 123456789" << endl;
-    kout << "binary:     " << bin << 42 << dec << " -> 0b101010" << endl;
-    kout << "octal:      " << oct << 42 << dec << " -> 052" << endl;
-    kout << "hex:        " << hex << 42 << dec << " -> 0x2a" << endl;
-    kout << "pointer:    " << ((void*)(3735928559u)) << " -> 0xdeadbeef" << endl;
-    kout << "smiley:     " << ((char)1) << endl; 
-    CGA_Screen::Attribute a0(CGA_Screen::RED, CGA_Screen::GREEN, true);
-    kout.print("bling bling", 11, a0);
-    kout << endl;
-    //*/
 
     ioapic.init();
     keyboard.plugin();
@@ -169,30 +141,31 @@ extern "C" int main() {
 extern "C" int main_ap() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
-    DBG << "hiii " << ((char) 1) << endl;
 
     CPU::enable_int();
 
-    test_irq();
-
     switch (system.getCPUID()) {
-        case 1: {
-                    Console serial;
-                    for (;;) {
-                        int in = serial.read(true);
-                        if (in == -1) {
-                            DBG << "console: invalid char" << endl;
-                            continue;
-                        }
-                        //serial.write(in, true);
-                        serial << char(in) << flush;
+        case 1:
+            {
+                Console serial;
+                for (;;) {
+                    DBG << "bla" << flush;
+                    int in = serial.read(true);
+                    if (in == -1) {
+                        DBG << "console: invalid char" << endl;
+                        continue;
                     }
-                } break;
+                    //serial.write(in, true);
+                    serial << char(in) << flush;
+                }
+            } break;
         case 2: 
             break;
         case 3:
             break;
     }
+
+    test_irq();
 
     // dont die
     for (;;) {

@@ -23,7 +23,22 @@ void RTC::init_RTC() {
     clear_statusC();
 }
 
+/*
+#include "object/bbuffer.h"
+#include "device/keyboard.h"
+#include "guard/guardian.h"
+extern BBuffer<Key, 2> buf[4];
+void stresstest() {
+    int id = system.getCPUID();
+    Key k;
+    k.ascii(id + 97);
+    buf[id].produce(k);
+    guardian(33, NULL);
+    //asm volatile ("int 33\n" : );
+}
+//*/
 bool RTC::prologue() {
+    //stresstest();
     //DBG << "RTC: prologue " << flush;
     static uint32_t jiffies = 0;
     jiffies = (jiffies + 1) % hz;
@@ -91,7 +106,5 @@ void RTC::set_time() {
 void RTC::sleep(unsigned int time) {
     //DBG << "sleep for " << time - 1 << "s to " << time << "s" << endl;
     uint8_t start = get_second();
-    while (get_second() < (start + time) % 60) {
-        //CPU::idle();
-    }
+    while (get_second() < (start + time) % 60) ;
 }

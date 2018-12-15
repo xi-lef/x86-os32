@@ -12,7 +12,7 @@
 
 extern "C" void guardian(uint32_t vector, irq_context *context) {
     (void) context;
-    //DBG << "interrupt!!1" << flush;
+    //DBG << "irq(" << vector << ") " << flush;
 
     Gate *g = plugbox.report(vector);
     bool req = g->prologue();

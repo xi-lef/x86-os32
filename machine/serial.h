@@ -95,10 +95,6 @@ private:
 
 	/*! \brief gewähltes Register */
 	const Serial::comPort port;
-    const IO_Port io_port_buffer;
-    const IO_Port io_port_lcr;
-    const IO_Port io_port_ier;
-    const IO_Port io_port_lsr;
 
 	/*! \brief Lese Wert aus Register
 	 *

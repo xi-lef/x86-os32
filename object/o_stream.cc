@@ -175,8 +175,12 @@ O_Stream& O_Stream::operator << (O_Stream& (*f) (O_Stream&)) {
 	return f(*this);
 }
 
+// TODO ????
+constexpr char *Time::weekday_string[];
+constexpr char *Time::month_string[];
+
 O_Stream& O_Stream::operator << (Time t) {
-    *this << t.weekday_string[t.weekday] << " " << t.month_string[t.month]
+    *this << Time::weekday_string[t.weekday] << " " << t.month_string[t.month]
           << ((t.day  < 10) ? "  " : " ") << t.day
           << " " << t.century << t.year << ","
           << ((t.hour   < 10) ? " 0" : " ") << t.hour
