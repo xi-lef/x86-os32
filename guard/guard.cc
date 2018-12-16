@@ -45,7 +45,7 @@ void Guard::relay(Gate *item) {
 
     if (in_epilogue[id]) {
         //DBG << "setq " << flush;
-        if (!item->set_queued()) { // TODO one queue per cpu -> set_queued cpu-wise?
+        if (!item->set_queued()) { // TODO one queue per cpu -> set_queued cpu-wise? really problematic (see keyboard) :(
             queue[id].enqueue(item);
         }
     } else {

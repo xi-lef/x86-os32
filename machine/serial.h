@@ -77,6 +77,10 @@ public:
 		PARITY_SPACE = 56,
 	} parity;
 
+protected:
+	/*! \brief gewähltes Register */
+	const Serial::comPort port;
+
 private:
 	/*! \brief Registerindex */
 	enum regIndex {
@@ -92,9 +96,6 @@ private:
 		lsr = 5, // Line Status Register
 		msr = 6  // Modem Status Register
 	};
-
-	/*! \brief gewähltes Register */
-	const Serial::comPort port;
 
 	/*! \brief Lese Wert aus Register
 	 *
@@ -143,5 +144,7 @@ public:
 	 *  \return geschriebenes Byte (oder \b -1 falls kein Byte geschrieben werden konnte)
 	 */
 	int write(char out, bool blocking = true);
+
+    bool receiveInterrupt(bool enable);
 };
 

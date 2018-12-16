@@ -34,7 +34,7 @@ Key Keyboard_Controller::key_hit() {
 
         uint8_t code = data_port.inb();
         if (control_status & auxb) {
-            DBG << "lol mouse" << flush;
+            DBG << "kb_c: lol mouse " << flush;
             continue;
         }
 

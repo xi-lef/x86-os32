@@ -52,11 +52,14 @@ void IOAPIC::init() {
     DBG_VERBOSE << "IOAPIC: init done" << endl;
 }
 
-void IOAPIC::config(unsigned char slot, Plugbox::Vector vector) {
+void IOAPIC::config(unsigned char slot, Plugbox::Vector vector,
+        int trigger_mode, int polarity) {
     uint32_t reg = 0x10 + 2 * slot;
 
     IOAPICRegister_t cur_l = read_reg(reg);
     cur_l.IOREDTBL_L.vector = vector;
+    cur_l.IOREDTBL_L.polarity = polarity;
+    cur_l.IOREDTBL_L.trigger_mode = trigger_mode;
     write_reg(reg, cur_l);
     
     DBG_VERBOSE << "IOAPIC: config done for slot " << int(slot) << endl;

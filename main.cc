@@ -83,6 +83,7 @@ extern "C" int main() {
 
     ioapic.init();
     keyboard.plugin();
+    console.listen();
     rtc.init_RTC();
     CPU::enable_int();
 
@@ -146,19 +147,17 @@ extern "C" int main_ap() {
 
     switch (system.getCPUID()) {
         case 1:
-            {
-                Console serial;
-                for (;;) {
-                    DBG << "bla" << flush;
-                    int in = serial.read(true);
-                    if (in == -1) {
-                        DBG << "console: invalid char" << endl;
-                        continue;
-                    }
-                    //serial.write(in, true);
-                    serial << char(in) << flush;
+            /*for (;;) {
+                DBG << "bla" << flush;
+                int in = console.read(true);
+                if (in == -1) {
+                    DBG << "console: invalid char" << endl;
+                    continue;
                 }
-            } break;
+                //serial.write(in, true);
+                console << char(in) << flush;
+            }*/
+            break;
         case 2: 
             break;
         case 3:

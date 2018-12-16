@@ -76,10 +76,14 @@ public:
 	 *  dazugehörigen externen Interrupts) in der IO-Redirection Table.
 	 *  \param vector Nummer des Vektors, der durch den mit slot ausgewählten
 	 *  externen Interrupt aktiviert werden soll.
-	 *
+     *  \param trigger_mode Flanken- oder pegelgesteuerte Interruptsignalisierung
+     *  (letzteres wird bei der optionalen seriellen Schnittstelle benötigt)
+	 *  \param polarity Art der Interruptsignalisierung
+     *
 	 *  \todo Methode implementieren
 	 */
-	void config(unsigned char slot, Plugbox::Vector vector);
+	void config(unsigned char slot, Plugbox::Vector vector,
+            int trigger_mode = TRIGGER_MODE_EDGE, int polarity = POLARITY_HIGH);
 
 	/*! \brief Sorgt dafür, dass Unterbrechungen des zugeordneten Gerätes an
 	 *  die CPU(s) weitergereicht werden.

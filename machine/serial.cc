@@ -1,5 +1,6 @@
 #include "serial.h"
 #include "debug/output.h"
+#include "machine/ioapic.h"
 
 Serial::Serial(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits databits, Serial::stopBits stopbits, Serial::parity parity) :
     port(port) {
@@ -16,7 +17,7 @@ Serial::Serial(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits
     /// databits + stopbits + parity
     writeReg(lcr, databits | stopbits | parity);
 
-    // prepare ier for reading
+    // disable interrupts for normal reading
     writeReg(ier, 0x00);
     //DBG << "serial: finished init" << endl;
 }
@@ -34,7 +35,7 @@ char Serial::readReg(Serial::regIndex reg) {
 int Serial::write(char out, bool blocking) {
     if (!blocking) {
         if (!(readReg(lsr) & (1 << 5))) {
-            DBG << "serial: bad write" << endl;
+            DBG << "serial: bad write " << flush;
             return -1;
         } else {
             writeReg(tbr, out);
@@ -50,7 +51,7 @@ int Serial::write(char out, bool blocking) {
 int Serial::read(bool blocking) {
     if (!blocking) {
         if (!(readReg(lsr) & 1)) {
-            DBG << "serial: bad read" << endl;
+            //DBG << "serial: bad read " << flush;
             return -1;
         } else {
             return readReg(rbr);
@@ -59,4 +60,26 @@ int Serial::read(bool blocking) {
     while (!(readReg(lsr) & 1)) ;
 
     return readReg(rbr);
+}
+
+bool Serial::receiveInterrupt(bool enable) {
+    // unset DLAB bit, just to be sure
+    writeReg(lcr, 0 << 7);
+    // enable interrupt when data is available
+    bool old = readReg(ier) & 0x01;
+    writeReg(ier, enable ? 0x01 : 0x00);
+    // weird stuff, idk TODO
+    writeReg(mcr, 0x0b);
+
+    // configure IOAPIC
+    if (enable) {
+        ioapic.allow(system.getIOAPICSlot(APICSystem::Device::com1));
+    } else {
+        ioapic.forbid(system.getIOAPICSlot(APICSystem::Device::com1));
+    }
+
+    // clear buffer
+    while (read(false) != -1) ;
+
+    return old;
 }

@@ -37,13 +37,19 @@ public:
 	 *  \return \b false wenn der Puffer voll ist und keine weiteres Element
 	 *  mehr eingefügt werden kann, \b true sonst.
 	 */
+    // TODO
+#include "machine/ticketlock.h"
+    Ticketlock tlock;
 	bool produce(T val) {
+        tlock.lock();
 		unsigned nextin = (in + 1) % CAP;
 		if(nextin != out) {
 			data[in] = val;
 			in = nextin;
+            tlock.unlock();
 			return true;
 		}
+        tlock.unlock();
 		return false;
 	}
 

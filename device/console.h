@@ -8,6 +8,7 @@
 
 #include "object/o_stream.h"
 #include "machine/serial.h"
+#include "guard/gate.h"
 
 /*! \brief Konsole (VT100) über serielle Schnittstelle.
  *  \ingroup io
@@ -22,7 +23,7 @@
  */
 
 class Console
-	: public O_Stream, public Serial
+	: public O_Stream, public Serial, public Gate
 {
 //BEGIN_SOLUTION(1-)
 private:
@@ -155,4 +156,11 @@ public:
 	 */
 	void print (char* string, int length);
 
+    bool prologue();
+
+    void epilogue();
+
+    void listen();
 };
+
+extern Console console;

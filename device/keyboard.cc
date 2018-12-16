@@ -8,7 +8,8 @@
 #include "object/bbuffer.h"
 
 Keyboard keyboard;
-static BBuffer<Key, 16> buf[4];
+static BBuffer<Key, 16> buf;//[4];
+// TODO fucked order of keys? really problematic with set_queued not being cpu-wise :(
 
 void Keyboard::plugin() {
     Plugbox::Vector kb_vector = Plugbox::Vector::keyboard;
@@ -22,13 +23,13 @@ void Keyboard::plugin() {
 
 extern CGA_Stream kout;
 
-// TODO fucked order of keys?
 bool Keyboard::prologue() {
     //DBG << "KB: prologue " << flush;
-    int id = system.getCPUID();
+    //int id = system.getCPUID();
     bool ret = false; // in case of spurious interrupts, dont request epilogue
 
     for (Key k = key_hit(); k.valid(); k = key_hit()) {
+        //DBG << "bla " << flush;
         ret = true;
         if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
             DBG.reset();
@@ -37,8 +38,8 @@ bool Keyboard::prologue() {
             reboot();
         }
 
-        if (!buf[id].produce(k)) {
-            DBG << "bbuffer full :( " << flush;
+        if (!buf.produce(k)) {
+            DBG << "kb: bbuffer full :( " << flush;
             while (key_hit().valid()) ;
             break;
         }
@@ -49,10 +50,10 @@ bool Keyboard::prologue() {
 
 void Keyboard::epilogue() {
     //DBG << "KB: epilogue " << flush;
-    int id = system.getCPUID();
+    //int id = system.getCPUID();
     Key k;
     //CPU::disable_int();
-    while (buf[id].consume(k)) {
+    while (buf.consume(k)) {
         //CPU::enable_int();
         kout << k.ascii();
         //CPU::disable_int();

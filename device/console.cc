@@ -2,6 +2,12 @@
 
 #include "console.h"
 #include "debug/output.h"
+#include "machine/plugbox.h"
+#include "machine/ioapic.h"
+#include "object/bbuffer.h"
+
+Console console;
+static BBuffer<char, 16> buf[4];
 
 Console::Console(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits databits, Serial::stopBits stopbits, Serial::parity parity) :
     Console::Serial(port, baudrate, databits, stopbits, parity) {
@@ -9,7 +15,6 @@ Console::Console(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBi
     setForeground(WHITE);
     setBackground(BLACK);
     setAttribute(RESET);
-    DBG << "console: finished init" << endl;
 }
 
 void Console::write_number(int x) {
@@ -85,4 +90,48 @@ void Console::print(char* string, int length) {
         }
         write(string[i], true);
     }
+}
+
+bool Console::prologue() {
+    int c = read(false);
+    if (c == -1) {
+        return false;
+    }
+    if (!buf[system.getCPUID()].produce(c)) {
+        DBG << "console: bbuffer full :( " << ::flush;
+    }
+    return true;
+}
+
+extern CGA_Stream kout;
+
+void Console::epilogue() {
+    int id = system.getCPUID();
+    char c;
+
+    while (buf[id].consume(c)) {
+        if (c == '\r') { // TODO hm
+            kout << '\n';
+        } else {
+            kout << c;
+        }
+    }
+    kout << ::flush;
+}
+
+void Console::listen() {
+    Plugbox::Vector console_vector = Plugbox::Vector::serial;
+    APICSystem::Device dev;
+    switch (port) { // TODO port was private
+        default: // fall through to COM1
+        case COM1: dev = APICSystem::Device::com1; break;
+        case COM2: dev = APICSystem::Device::com2; break;
+        case COM3: dev = APICSystem::Device::com3; break;
+        case COM4: dev = APICSystem::Device::com4; break;
+    }
+    unsigned char console_slot = system.getIOAPICSlot(dev);
+
+    plugbox.assign(console_vector, &console);
+    ioapic.config(console_slot, console_vector, TRIGGER_MODE_LEVEL); // TODO POLARITY_LOW?
+    receiveInterrupt(true);
 }
