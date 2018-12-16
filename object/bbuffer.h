@@ -7,6 +7,7 @@
 #pragma once
 
 #include "types.h"
+#include "machine/ticketlock.h"
 
 /*! \brief Die Klasse BBuffer implementiert einen "Bounded Buffer",
  *  also einen Puffer mit beschränkter Größe.
@@ -25,6 +26,7 @@ private:
 	T data[CAP];
 	volatile unsigned in;
 	volatile unsigned out;
+    Ticketlock tlock; // TODO
 
 public:
 	/*! \brief Der Konstruktor initialisiert den Puffer als leer.
@@ -37,9 +39,6 @@ public:
 	 *  \return \b false wenn der Puffer voll ist und keine weiteres Element
 	 *  mehr eingefügt werden kann, \b true sonst.
 	 */
-    // TODO
-#include "machine/ticketlock.h"
-    Ticketlock tlock;
 	bool produce(T val) {
         tlock.lock();
 		unsigned nextin = (in + 1) % CAP;

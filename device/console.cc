@@ -122,7 +122,7 @@ void Console::epilogue() {
 void Console::listen() {
     Plugbox::Vector console_vector = Plugbox::Vector::serial;
     APICSystem::Device dev;
-    switch (port) { // TODO port was private
+    switch (port) {
         default: // fall through to COM1
         case COM1: dev = APICSystem::Device::com1; break;
         case COM2: dev = APICSystem::Device::com2; break;
