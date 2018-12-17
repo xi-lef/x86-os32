@@ -48,12 +48,8 @@ bool Keyboard::prologue() {
 void Keyboard::epilogue() {
     //DBG << "KB: epilogue " << flush;
     Key k;
-    //CPU::disable_int();
     while (buf.consume(k)) {
-        //CPU::enable_int();
         kout << k.ascii();
-        //CPU::disable_int();
     }
-    //CPU::enable_int();
     kout << flush;
 }

@@ -8,22 +8,20 @@
 
 Guard guard;
 static Ticketlock bkl;
-static volatile bool in_epilogue[CPU_MAX] = {};
+static volatile bool in_epilogue[CPU_MAX]; // initially false
 static Queue<Gate> queue[CPU_MAX];
 
 void Guard::enter() {
-    //DBG << "entering " << flush;
     in_epilogue[system.getCPUID()] = true;
     bkl.lock();
-    //DBG << "entered " << flush;
 }
 
 void Guard::leave() {
     int id = system.getCPUID();
     Gate *g;
+
     CPU::disable_int();
     while ((g = queue[id].dequeue()) != 0) {
-        //DBG << "setdeq " << g << " " << flush;
         g->set_dequeued();
         CPU::enable_int();
         g->epilogue();
@@ -33,15 +31,12 @@ void Guard::leave() {
     bkl.unlock();
     in_epilogue[system.getCPUID()] = false;
     CPU::enable_int();
-
-    //DBG << "left " << flush;
 }
 
 void Guard::relay(Gate *item) {
     int id = system.getCPUID();
 
     if (in_epilogue[id]) {
-        //DBG << "setq " << flush;
         if (!item->set_queued()) {
             queue[id].enqueue(item);
         }

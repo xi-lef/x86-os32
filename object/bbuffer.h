@@ -7,7 +7,6 @@
 #pragma once
 
 #include "types.h"
-#include "machine/ticketlock.h"
 
 /*! \brief Die Klasse BBuffer implementiert einen "Bounded Buffer",
  *  also einen Puffer mit beschränkter Größe.
@@ -26,7 +25,6 @@ private:
 	T data[CAP];
 	volatile unsigned in;
 	volatile unsigned out;
-    Ticketlock tlock; // TODO
 
 public:
 	/*! \brief Der Konstruktor initialisiert den Puffer als leer.
@@ -40,34 +38,13 @@ public:
 	 *  mehr eingefügt werden kann, \b true sonst.
 	 */
 	bool produce(T val) {
-        /*
-        unsigned cur_in;
-        unsigned next_in;
-        bool ret = false;
-
-        do {
-            cur_in = in;
-       	    next_in = (in + 1) % CAP;
-            if (next_in != out) {
-                ret = true;
-            }
-        } while (__sync_bool_compare_and_swap(&in, cur_in, next_in) == false);
-        if (ret) {
-            data[cur_in] = val;
-        }
- 
-        return ret;
-        /*/
-        //tlock.lock();
 		unsigned nextin = (in + 1) % CAP;
 		if(nextin != out) {
 			data[in] = val;
 			in = nextin;
-            //tlock.unlock();
 			return true;
 		}
-        //tlock.unlock();
-		return false;//*/
+		return false;
 	}
 
 	/*! \brief Aus dem Puffer herausnehmen.
@@ -76,30 +53,12 @@ public:
 	 *  \return \b false wenn der Puffer leer ist, \b true sonst.
 	 */
 	bool consume(T &val) {
-        /*
-        unsigned cur_in;
-        unsigned next_out;
-        bool ret = false;
-
-        do {
-            cur_in = in;
-            if (cur_in != out) {
-                val = data[out];
-                next_out = (out + 1) % CAP; // if CAS fails, we must not change out.
-                ret = true;
-            }
-        } while (__sync_bool_compare_and_swap(&in, cur_in, cur_in) == false);
-        if (ret) {
-            out = next_out;
-        }
-        return ret;
-        /*/
         if(in != out) {
             val = data[out];
             out = (out + 1) % CAP;
             return true;
         }
-        return false;//*/
+        return false;
     }
 };
 
