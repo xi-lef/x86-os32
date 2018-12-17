@@ -34,12 +34,12 @@ char Serial::readReg(Serial::regIndex reg) {
 
 int Serial::write(char out, bool blocking) {
     if (!blocking) {
-        if (!(readReg(lsr) & (1 << 5))) {
-            DBG << "serial: bad write " << flush;
-            return -1;
-        } else {
+        if (readReg(lsr) & (1 << 5)) {
             writeReg(tbr, out);
             return out;
+        } else {
+            DBG << "serial: bad write " << flush;
+            return -1;
         }
     } // else
     while (!(readReg(lsr) & (1 << 5))) ;
@@ -50,11 +50,11 @@ int Serial::write(char out, bool blocking) {
 
 int Serial::read(bool blocking) {
     if (!blocking) {
-        if (!(readReg(lsr) & 1)) {
+        if (readReg(lsr) & 1) {
+            return readReg(rbr);
+        } else {
             //DBG << "serial: bad read " << flush;
             return -1;
-        } else {
-            return readReg(rbr);
         }
     } // else
     while (!(readReg(lsr) & 1)) ;
@@ -72,10 +72,18 @@ bool Serial::receiveInterrupt(bool enable) {
     writeReg(mcr, 0x0b);
 
     // configure IOAPIC
+    APICSystem::Device dev;
+    switch (port) {
+        default: // fall through to COM1
+        case COM1: dev = APICSystem::Device::com1; break;
+        case COM2: dev = APICSystem::Device::com2; break;
+        case COM3: dev = APICSystem::Device::com3; break;
+        case COM4: dev = APICSystem::Device::com4; break;
+    }
     if (enable) {
-        ioapic.allow(system.getIOAPICSlot(APICSystem::Device::com1));
+        ioapic.allow(system.getIOAPICSlot(dev));
     } else {
-        ioapic.forbid(system.getIOAPICSlot(APICSystem::Device::com1));
+        ioapic.forbid(system.getIOAPICSlot(dev));
     }
 
     // clear buffer

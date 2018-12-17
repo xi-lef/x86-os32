@@ -7,7 +7,7 @@
 #include "object/bbuffer.h"
 
 Console console;
-static BBuffer<char, 16> buf[4];
+static BBuffer<char, 64> buf;
 
 Console::Console(Serial::comPort port, Serial::baudRate baudrate, Serial::dataBits databits, Serial::stopBits stopbits, Serial::parity parity) :
     Console::Serial(port, baudrate, databits, stopbits, parity) {
@@ -97,8 +97,8 @@ bool Console::prologue() {
     if (c == -1) {
         return false;
     }
-    DBG << char(c) << endl;
-    if (!buf[system.getCPUID()].produce(c)) {
+    //DBG << char(c) << endl;
+    if (!buf.produce(c)) {
         DBG << "console: bbuffer full :( " << ::flush;
     }
     return true;
@@ -107,10 +107,9 @@ bool Console::prologue() {
 extern CGA_Stream kout;
 
 void Console::epilogue() {
-    int id = system.getCPUID();
     char c;
 
-    while (buf[id].consume(c)) {
+    while (buf.consume(c)) {
         if (c == '\r') { // TODO hm
             kout << '\n';
         } else {
