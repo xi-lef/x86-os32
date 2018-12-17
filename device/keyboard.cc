@@ -30,6 +30,7 @@ bool Keyboard::prologue() {
 
     for (Key k = key_hit(); k.valid(); k = key_hit()) {
         //DBG << "bla " << flush;
+        DBG << k.ascii() << endl;
         ret = true;
         if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
             DBG.reset();
