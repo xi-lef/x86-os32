@@ -8,10 +8,17 @@
 
 Guard guard;
 static Ticketlock bkl;
-static bool in_epilogue[4] = {false, false, false, false};
-static Queue<Gate> queue[4];
+static volatile bool in_epilogue[CPU_MAX] = {};
+static Queue<Gate> queue[CPU_MAX];
 
-static void process_queue() {
+void Guard::enter() {
+    //DBG << "entering " << flush;
+    in_epilogue[system.getCPUID()] = true;
+    bkl.lock();
+    //DBG << "entered " << flush;
+}
+
+void Guard::leave() {
     int id = system.getCPUID();
     Gate *g;
     CPU::disable_int();
@@ -22,21 +29,11 @@ static void process_queue() {
         g->epilogue();
         CPU::disable_int();
     }
-    CPU::enable_int();
-}
 
-void Guard::enter() {
-    //DBG << "entering " << flush;
-    in_epilogue[system.getCPUID()] = true;
-    bkl.lock();
-    //DBG << "entered " << flush;
-}
-
-void Guard::leave() {
-    process_queue();
-    //CPU::enable_int();
     bkl.unlock();
     in_epilogue[system.getCPUID()] = false;
+    CPU::enable_int();
+
     //DBG << "left " << flush;
 }
 
@@ -45,16 +42,14 @@ void Guard::relay(Gate *item) {
 
     if (in_epilogue[id]) {
         //DBG << "setq " << flush;
-        if (!item->set_queued()) { // TODO one queue per cpu -> set_queued cpu-wise? really problematic (see keyboard) :(
+        if (!item->set_queued()) {
             queue[id].enqueue(item);
         }
     } else {
         in_epilogue[id] = true;
         CPU::enable_int();
-        enter();
-        //CPU::disable_int();
-        //queue[id].enqueue(item); // if set queued...
-        item->epilogue(); // TODO hm
+        bkl.lock();
+        item->epilogue();
         leave();
     }
 }

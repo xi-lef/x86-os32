@@ -25,20 +25,14 @@ Keyboard_Controller::Keyboard_Controller() :
     drainKeyboardBuffer();
 }
 
-#include "machine/ticketlock.h"
-static Ticketlock tlock; // TODO
-
 Key Keyboard_Controller::key_hit() {
     for (;;) {
-        //tlock.lock();
         uint8_t control_status = ctrl_port.inb();
         if ((control_status & outb) == 0) {
-            //tlock.unlock();
             return Key();
         }
 
         uint8_t code = data_port.inb();
-        //tlock.unlock();
 
         if (control_status & auxb) {
             DBG << "kb_c: lol mouse " << flush;

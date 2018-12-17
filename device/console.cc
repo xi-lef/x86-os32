@@ -97,6 +97,7 @@ bool Console::prologue() {
     if (c == -1) {
         return false;
     }
+    DBG << char(c) << endl;
     if (!buf[system.getCPUID()].produce(c)) {
         DBG << "console: bbuffer full :( " << ::flush;
     }

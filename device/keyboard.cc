@@ -8,8 +8,7 @@
 #include "object/bbuffer.h"
 
 Keyboard keyboard;
-static BBuffer<Key, 16> buf;//[4];
-// TODO fucked order of keys? really problematic with set_queued not being cpu-wise :(
+static BBuffer<Key, 64> buf;
 
 void Keyboard::plugin() {
     Plugbox::Vector kb_vector = Plugbox::Vector::keyboard;
@@ -25,12 +24,9 @@ extern CGA_Stream kout;
 
 bool Keyboard::prologue() {
     //DBG << "KB: prologue " << flush;
-    //int id = system.getCPUID();
     bool ret = false; // in case of spurious interrupts, dont request epilogue
 
     for (Key k = key_hit(); k.valid(); k = key_hit()) {
-        //DBG << "bla " << flush;
-        DBG << k.ascii() << endl;
         ret = true;
         if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
             DBG.reset();
@@ -51,7 +47,6 @@ bool Keyboard::prologue() {
 
 void Keyboard::epilogue() {
     //DBG << "KB: epilogue " << flush;
-    //int id = system.getCPUID();
     Key k;
     //CPU::disable_int();
     while (buf.consume(k)) {
