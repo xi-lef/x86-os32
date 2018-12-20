@@ -55,6 +55,11 @@ public:
     void increment_seconds(uint32_t amount = 1);
 
     /*
+     * This adds i seconds to the time.
+     */
+    Time& operator+(int i);
+
+    /*
      * Returns the days in a given month. This is necessary due to leap years.
      * month must be in [1, 12].
      */

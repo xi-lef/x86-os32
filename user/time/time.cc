@@ -21,6 +21,11 @@ void Time::increment_seconds(uint32_t amount) {
     }
 }
 
+Time& Time::operator+(int i) {
+    increment_seconds(i);
+    return *this;
+}
+
 constexpr uint8_t Time::days_per_month_array[13]; // TODO ????
 
 uint8_t Time::days_per_month(uint8_t month) {
