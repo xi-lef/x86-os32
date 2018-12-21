@@ -11,40 +11,31 @@
 #include "debug/output.h"
 #include "machine/keyctrl.h"
 #include "device/console.h"
-#include "user/shell/shell.h"
-#include "user/time/time.h"
 #include "user/time/rtc.h"
 #include "machine/ioapic.h"
 #include "machine/cpu.h"
 #include "device/keyboard.h"
-#include "machine/spinlock.h"
-#include "machine/ticketlock.h"
 #include "guard/secure.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
 
-Ticketlock ticket;
-
 static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
-//*
 static void test_irq() {
-    //return;
+    return;
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
-        { Secure s;
-            int x, y;
-            kout.getpos(x, y);
-            kout.setpos(4, id + 2);
-            kout << i << flush;
-            kout.setpos(x, y);
-        }
+        Secure s; // to sync for-body
+        int x, y;
+        kout.getpos(x, y);
+        kout.setpos(4, id + 2);
+        kout << i << flush;
+        kout.setpos(x, y);
     }
 }
-//*/
 
 /*! \brief Einsprungpunkt ins System
  *
@@ -129,7 +120,6 @@ extern "C" int main() {
     for (;;) { // dont die
         CPU::idle();
     }
-    test_irq(); // fuck g++
 
     return 0;
 }

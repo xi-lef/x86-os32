@@ -16,6 +16,12 @@
 
 align 8
 toc_go:
+    mov eax, [esp + 4]
+    mov ebx, [eax + ebx_offset]
+    mov esi, [eax + esi_offset]
+    mov edi, [eax + edi_offset]
+    mov ebp, [eax + ebp_offset]
+    mov esp, [eax + esp_offset]
 
 ; TOC_SWITCH : Threadumschaltung. Der aktuelle Registersatz wird     
 ;              gesichert und der Registersatz des neuen "thread of control"
@@ -26,3 +32,21 @@ toc_go:
 
 align 8
 toc_switch:
+    ; save current toc
+    mov eax, [esp + 4]
+    mov [eax + ebx_offset], ebx
+    mov [eax + esi_offset], esi
+    mov [eax + edi_offset], edi
+    mov [eax + ebp_offset], ebp
+    mov [eax + esp_offset], esp
+
+    ; set new toc
+    mov eax, [esp + 8]
+    mov ebx, [eax + ebx_offset]
+    mov esi, [eax + esi_offset]
+    mov edi, [eax + edi_offset]
+    mov ebp, [eax + ebp_offset]
+    mov esp, [eax + esp_offset]
+
+    ; jump to new thread
+    ret
