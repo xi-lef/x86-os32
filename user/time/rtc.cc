@@ -40,7 +40,6 @@ void stresstest() {
 bool RTC::prologue() {
     //stresstest();
     //DBG << "RTC: prologue " << flush;
-    static uint32_t jiffies = 0;
     jiffies = (jiffies + 1) % hz;
     if (is_update_irq()) {
         increment_seconds();
@@ -52,7 +51,7 @@ bool RTC::prologue() {
 void RTC::epilogue() {
     //DBG << "RTC: epilogue " << flush;
     dout_clock.reset();
-    dout_clock << *this << flush; // TODO not *this
+    dout_clock << *this << flush;
 }
 
 uint16_t RTC::get_value(CMOS_offset offset) {

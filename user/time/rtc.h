@@ -13,8 +13,9 @@ private:
 
 public:
     int32_t hz;
+    uint32_t jiffies;
 
-	RTC(int8_t timezone = 1) : Time(timezone), hz(-1) {}
+    RTC(int8_t timezone = 1) : Time(timezone), hz(-1), jiffies(0) {}
 
 	void init_RTC();
 

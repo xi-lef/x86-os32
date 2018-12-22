@@ -1,31 +1,35 @@
 #pragma once
 
 #include "types.h"
-//#include "device/cgastr.h"
 
 class Time {
 private:
     // Disallow copies and assignments.
-    //Time(const Time&)            = delete; // TODO hm
+    //Time(const Time&)            = delete;
     Time& operator=(const Time&) = delete;
 
-public:
     /*
-     * Indexing for these arrays starts at 1.
+     * This adds i seconds to the time.
      */
-    constexpr static char *weekday_string[8] = {
-        "Invalid", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+    Time& operator+(unsigned int i);
+
+    /*
+     * Indexing for these arrays should start at 1.
+     */
+    constexpr static const char *weekday_string[8] = {
+        "INV", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
     };
 
-    constexpr static char *month_string[13] = {
-        "Invalid", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    constexpr static const char *month_string[13] = {
+        "INV", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     };
 
-    constexpr static uint8_t days_per_month_array[13] = {
-        255, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    constexpr static uint16_t days_per_month[13] = {
+        0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
 
+public:
     uint16_t second;
     uint16_t minute;
     uint16_t hour;
@@ -35,14 +39,9 @@ public:
     uint16_t weekday;
     uint16_t century;
 
-    int8_t timezone;
+    int16_t timezone;
 
-    Time(int8_t timezone = 1) : timezone(timezone) {}
-
-    /*
-     * Updates the time.
-     */
-    void update_time();
+    Time(int16_t timezone = 1) : timezone(timezone) {}
 
 // Converts hours to seconds. Useful for increment_seconds.
 #define HOURS_TO_SECONDS(x) ((x) * 60 * 60)
@@ -55,18 +54,21 @@ public:
     void increment_seconds(uint32_t amount = 1);
 
     /*
-     * This adds i seconds to the time.
+     * Returns the string representation of a weekday.
+     * weekday must be in [1, 7].
      */
-    Time& operator+(int i);
+    static const char *get_weekday_string(uint16_t weekday);
+
+    /*
+     * Returns the string representation of a month.
+     * month must be in [1, 12].
+     */
+    static const char *get_month_string(uint16_t month);
 
     /*
      * Returns the days in a given month. This is necessary due to leap years.
      * month must be in [1, 12].
+     * year can (theoretically) be anything.
      */
-    uint8_t days_per_month(uint8_t month);
+    static uint16_t get_days_per_month(uint16_t month, uint16_t year);
 };
-
-// TODO ???? why not
-//constexpr char *Time::weekday_string[8];
-//constexpr char *Time::month_string[13];
-//constexpr uint8_t Time::days_per_month_array[13];

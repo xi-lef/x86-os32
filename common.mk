@@ -30,7 +30,7 @@ OBJDIR = ./build
 DEPDIR = ./dep
 NOOPTTAG = -noopt
 VERBOSETAG = -verbose
-SOLUTIONDIR = /proj/i4bs/solution
+SOLUTIONDIR = ./solution
 SOLUTIONPREFIX = musterloesung-m
 ASM = nasm
 CXX = g++
@@ -279,7 +279,7 @@ help:
 		"	         \e[4mUSBDEV\e[0m bestimmten USB Datenträger\n\n" \
 		"\n	\e[3mcd\e[0m       Erstellt eine bootfähige CD auf den mit der Umgebungsvariable\n" \
 		"	         \e[4mCDRWDEV\e[0m bestimmten CD-Brenner\n\n" \
-		"\nAußerdem kann die Musterlösung im CIP mit dem Target\n" \
+		"\nAußerdem kann die Musterlösung mit dem Target\n" \
 		"	\e[3msolution-\e[2;3mAufgabe\e[0m\n" \
 		"(in KVM) ausgeführt werden, wobei für \e[2;3mAufgabe\e[0m die entsprechende Aufgabennummer\n" \
 		"eingesetzt werden muss.\n\n" \

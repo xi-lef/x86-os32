@@ -25,7 +25,7 @@ static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
 static void test_irq() {
-    return;
+    //return;
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
         Secure s; // to sync for-body

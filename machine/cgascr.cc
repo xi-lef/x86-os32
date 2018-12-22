@@ -36,7 +36,7 @@ void CGA_Screen::setpos(int x, int y) {
 		cur_y = y;
 	}
 }
-	
+
 void CGA_Screen::getpos(int& x, int& y) {
 	if (use_cursor) {
 		index.outb(15);
