@@ -2,3 +2,9 @@
 
 #include "thread/dispatcher.h"
 
+
+// TODO ?
+void Dispatcher::kickoff(Thread *object) {
+    object->action();
+    for (;;) ;
+}

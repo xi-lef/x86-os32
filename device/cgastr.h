@@ -49,3 +49,6 @@ public:
 	virtual void flush();
 };
 
+extern CGA_Stream kout;
+extern CGA_Stream dout_status;
+extern CGA_Stream dout_clock;

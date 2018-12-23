@@ -23,6 +23,8 @@ toc_go:
     mov ebp, [eax + ebp_offset]
     mov esp, [eax + esp_offset]
 
+    ret
+
 ; TOC_SWITCH : Threadumschaltung. Der aktuelle Registersatz wird     
 ;              gesichert und der Registersatz des neuen "thread of control"
 ;              wird in den Prozessor eingelesen.  

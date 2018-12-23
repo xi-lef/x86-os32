@@ -16,16 +16,20 @@
 #include "machine/cpu.h"
 #include "device/keyboard.h"
 #include "guard/secure.h"
+#include "user/app1/appl.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
+
+static char stack[16][128];
+Application *apps[16];
 
 static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
 static void test_irq() {
-    //return;
+    return;
     int id = system.getCPUID();
     for (uint32_t i = 0; ; i++) {
         Secure s; // to sync for-body
@@ -50,7 +54,27 @@ extern "C" int main() {
     DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
         << "Number of CPUs: " << numCPUs << endl;
 
+    DBG << "CPU " << (int) system.getCPUID()
+        << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
+
     kout.reset(); // ?
+
+    Application a0(&stack[0][124], 0);
+    Application a1(&stack[1][124], 1);
+    Application a2(&stack[2][124], 2);
+    Application a3(&stack[3][124], 3);
+    Application a4(&stack[4][124], 4);
+    Application a5(&stack[5][124], 5);
+    Application a6(&stack[6][124], 6);
+    Application a7(&stack[7][124], 7);
+    apps[0] = &a0;
+    apps[1] = &a1;
+    apps[2] = &a2;
+    apps[3] = &a3;
+    apps[4] = &a4;
+    apps[5] = &a5;
+    apps[6] = &a6;
+    apps[7] = &a7;
 
     switch (type) {
         case APICSystem::MP_APIC:
@@ -69,14 +93,13 @@ extern "C" int main() {
             {}
     }
 
-    DBG << "CPU " << (int) system.getCPUID()
-        << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
+    //ioapic.init();
+    //keyboard.plugin();
+    //console.listen();
+    //rtc.init_RTC();
+    //CPU::enable_int();
 
-    ioapic.init();
-    keyboard.plugin();
-    console.listen();
-    rtc.init_RTC();
-    CPU::enable_int();
+    a0.go();
 
     test_irq();
 
@@ -133,10 +156,11 @@ extern "C" int main_ap() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
 
-    CPU::enable_int();
+    //CPU::enable_int();
 
     switch (system.getCPUID()) {
         case 1:
+            apps[2]->go();
             /*for (;;) {
                 DBG << "bla" << flush;
                 int in = console.read(true);
@@ -148,9 +172,11 @@ extern "C" int main_ap() {
                 console << char(in) << flush;
             }*/
             break;
-        case 2: 
+        case 2:
+            apps[4]->go();
             break;
         case 3:
+            apps[6]->go();
             break;
     }
 

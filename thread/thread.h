@@ -16,14 +16,12 @@
 #pragma once
 
 #include "machine/toc.h"
-
 #include "object/queuelink.h"
 
 /*! \brief Der Thread ist das Objekt der Ablaufplanung.
  *  \ingroup thread
  */
-class Thread
-{
+class Thread {
 public:
 	/*! \brief Konstruktor.
 	 *
@@ -36,8 +34,11 @@ public:
 
 	/*! \brief Verkettungszeiger für Scheduler und Waitingroom */
 	QueueLink<Thread> queue_link;
+
 private:
 	struct toc regs;
+    bool killed;
+
 public:
 	/*! \brief Aktiviert den ersten Thread auf einem Prozessor.
 	 *
@@ -49,6 +50,7 @@ public:
 	 *
 	 */
 	void go();
+
 	/*! \brief Wechsel von dem aktuell laufenden Thread zum nächsten.
 	 *
 	 *  Die aktuelle Belegung der nicht-flüchtigen Register wird in dem toc
@@ -60,11 +62,18 @@ public:
 	 *
 	 */
 	void resume(Thread *next);
+
 	/*! \brief Methode, die als Thread ausgeführt werden soll.
 	 *
 	 *  Abgeleitete Klassen können durch Überschreiben dieser Methode den Code
 	 *  angeben, der als Thread ausgeführt werden soll.
 	 */
 	virtual void action() = 0;
+
+    void set_kill_flag();
+
+    void reset_kill_flag();
+
+    bool dying();
 };
 
