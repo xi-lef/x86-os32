@@ -2,6 +2,7 @@
 
 #include "thread/thread.h"
 #include "thread/dispatcher.h"
+#include "debug/output.h"
 
 Thread::Thread(void *tos) : killed(false) {
     toc_settle(&regs, tos, Dispatcher::kickoff, this);
@@ -9,11 +10,14 @@ Thread::Thread(void *tos) : killed(false) {
 
 void Thread::go() {
     toc_go(&regs);
+    DBG << "go returned " << flush;
     // go will not return
 }
 
 void Thread::resume(Thread *next) {
-    toc_switch(&this->regs, &next->regs);
+    DBG << "pre switch " << flush;
+    toc_switch(&(this->regs), &(next->regs));
+    DBG << "post switch (bad) " << flush;
 }
 
 void Thread::set_kill_flag() {

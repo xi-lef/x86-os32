@@ -7,7 +7,7 @@
 Panic panic;
 
 bool Panic::prologue() {
-    DBG << "panic!!1" << endl;
+    DBG << "panic!" << endl;
     CPU::die();
 
     return false;

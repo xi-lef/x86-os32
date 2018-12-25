@@ -24,7 +24,7 @@ public:
 	 * \param i Instanz-ID
 	 */
     Application(void *tos, int i = 0) : Thread(tos), id(i) {
-        DBG << i << ": " << tos << "   " << flush;
+        //DBG << i << ": " << tos << "   " << flush;
     }
 
 	/*! \brief Enthält den Code der Anwendung

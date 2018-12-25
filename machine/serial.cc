@@ -63,8 +63,6 @@ int Serial::read(bool blocking) {
 }
 
 bool Serial::receiveInterrupt(bool enable) {
-    // unset DLAB bit, just to be sure
-    writeReg(lcr, 0 << 7);
     // enable interrupt when data is available
     bool old = readReg(ier) & 0x01;
     writeReg(ier, enable ? 0x01 : 0x00);

@@ -8,13 +8,14 @@ extern Application *apps[16];
 
 void Application::action() {
     for (uint32_t i = 0; ; i++) {
-        Secure s; // TODO change for resume
+        DBG << "Thread " << id << ": action " << flush;
+        //Secure s; // TODO change for resume
         int x, y;
         kout.getpos(x, y);
         kout.setpos(4, id + 2);
         kout << "Thread " << id << ": " << i << flush;
         kout.setpos(x, y);
-        //resume(apps[(id + 1) % 2]);
+        resume(apps[id == 0 ? 1 : 0]);
     }
 }
 

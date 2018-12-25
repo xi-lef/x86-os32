@@ -21,7 +21,8 @@
 extern CGA_Stream kout;
 extern APICSystem system;
 
-static char stack[16][128];
+static uint8_t stack0[128];
+static uint8_t stack1[128];
 Application *apps[16];
 
 static const unsigned long CPU_STACK_SIZE = 4096;
@@ -59,22 +60,24 @@ extern "C" int main() {
 
     kout.reset(); // ?
 
-    Application a0(&stack[0][124], 0);
-    Application a1(&stack[1][124], 1);
-    Application a2(&stack[2][124], 2);
+    //*
+    Application a0(&(stack0[124]), 0);
+    Application a1(&(stack1[124]), 1);
+    /*Application a2(&stack[2][124], 2);
     Application a3(&stack[3][124], 3);
     Application a4(&stack[4][124], 4);
     Application a5(&stack[5][124], 5);
     Application a6(&stack[6][124], 6);
-    Application a7(&stack[7][124], 7);
+    Application a7(&stack[7][124], 7);*/
     apps[0] = &a0;
     apps[1] = &a1;
-    apps[2] = &a2;
+    /*apps[2] = &a2;
     apps[3] = &a3;
     apps[4] = &a4;
     apps[5] = &a5;
     apps[6] = &a6;
-    apps[7] = &a7;
+    apps[7] = &a7;*/
+    //*/
 
     switch (type) {
         case APICSystem::MP_APIC:
@@ -93,11 +96,13 @@ extern "C" int main() {
             {}
     }
 
-    //ioapic.init();
-    //keyboard.plugin();
-    //console.listen();
-    //rtc.init_RTC();
-    //CPU::enable_int();
+    /*
+    ioapic.init();
+    keyboard.plugin();
+    console.listen();
+    rtc.init_RTC();
+    CPU::enable_int();
+    //*/
 
     a0.go();
 
@@ -160,7 +165,7 @@ extern "C" int main_ap() {
 
     switch (system.getCPUID()) {
         case 1:
-            apps[2]->go();
+            //apps[2]->go();
             /*for (;;) {
                 DBG << "bla" << flush;
                 int in = console.read(true);
@@ -173,10 +178,10 @@ extern "C" int main_ap() {
             }*/
             break;
         case 2:
-            apps[4]->go();
+            //apps[4]->go();
             break;
         case 3:
-            apps[6]->go();
+            //apps[6]->go();
             break;
     }
 

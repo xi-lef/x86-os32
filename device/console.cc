@@ -110,7 +110,9 @@ void Console::epilogue() {
     char c;
 
     while (buf.consume(c)) {
-        if (c == '\r') { // TODO hm
+        // on real hardware, a '\r\n' is created, so the '\r' needs to be ignored.
+        // in kvm, only a '\r' is created, so it needs to be replaced by a '\n'.
+        if (c == '\r') {
             kout << '\n';
         } else {
             kout << c;
