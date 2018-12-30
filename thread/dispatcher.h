@@ -8,6 +8,7 @@
  */
 
 #include "thread/thread.h"
+#include "machine/apicsystem.h"
 
 /*! \brief Der Dispatcher lastet Threads ein und setzt damit die Entscheidungen der Ablaufplanung durch.
  *  \ingroup thread
@@ -29,8 +30,12 @@ class Dispatcher
 	Dispatcher& operator=(const Dispatcher&) = delete;
 
 protected:
-	void setActive(Thread* c) {
-	}
+    Thread *life[CPU_MAX];
+
+	void set_active(Thread *c) { // TODO why implementation in .h? also camelcase lol
+        life[system.getCPUID()] = c;
+    }
+
 public:
 	/*! \brief Konstruktor
 	 *
@@ -41,20 +46,19 @@ public:
 	 *  \todo Konstruktor implementieren
 	 *
 	 */
-	Dispatcher()
-	{
+	Dispatcher() {
+        for (int i = 0; i < CPU_MAX; i++) {
+            life[i] = 0;
+        }
 	}
 
 	/*! \brief Hiermit kann abgefragt werden, welche Koroutine gerade im Besitz
 	 *  des aktuellen Prozessors ist.
 	 *
-	 *
 	 *  \todo Methode implementieren
 	 *
 	 */
-	Thread* active() {
-		return 0;
-	}
+	Thread* active();
 
 	/*! \brief Mit dieser Methode wird die Koroutine first im Life-Pointer des
 	 *  aktuellen Prozessores vermerkt und gestartet.

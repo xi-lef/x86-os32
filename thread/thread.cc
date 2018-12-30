@@ -10,14 +10,15 @@ Thread::Thread(void *tos) : killed(false) {
 
 void Thread::go() {
     toc_go(&regs);
-    DBG << "go returned " << flush;
-    // go will not return
+
+    // go should not return here, but in Dispatcher::kickoff
+    DBG << "Thread: bad return (go)" << endl;
 }
 
 void Thread::resume(Thread *next) {
-    DBG << "pre switch " << flush;
+    //DBG << "Thread: pre switch " << flush;
     toc_switch(&(this->regs), &(next->regs));
-    DBG << "post switch (bad) " << flush;
+    //DBG << "Thread: post switch " << flush;
 }
 
 void Thread::set_kill_flag() {

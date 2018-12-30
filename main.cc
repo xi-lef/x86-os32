@@ -17,13 +17,14 @@
 #include "device/keyboard.h"
 #include "guard/secure.h"
 #include "user/app1/appl.h"
+#include "user/time/cappl.h"
+#include "thread/scheduler.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
-
-static uint8_t stack0[128];
-static uint8_t stack1[128];
-Application *apps[16];
+static const unsigned long APP_STACK_SIZE = 4096;
+static unsigned char app_stack[2 * CPU_MAX * APP_STACK_SIZE];
+Application *opfer;
 
 static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
@@ -46,7 +47,6 @@ static void test_irq() {
  *
  *  Dieser Code wird nur auf der Boot-CPU (diejenige mit der ID 0) ausgeführt.
  */
-
 extern "C" int main() {
     // Startmeldung ausgeben
 
@@ -58,26 +58,34 @@ extern "C" int main() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
 
-    kout.reset(); // ?
+    kout.reset();
 
-    //*
-    Application a0(&(stack0[124]), 0);
-    Application a1(&(stack1[124]), 1);
-    /*Application a2(&stack[2][124], 2);
-    Application a3(&stack[3][124], 3);
-    Application a4(&stack[4][124], 4);
-    Application a5(&stack[5][124], 5);
-    Application a6(&stack[6][124], 6);
-    Application a7(&stack[7][124], 7);*/
-    apps[0] = &a0;
-    apps[1] = &a1;
-    /*apps[2] = &a2;
-    apps[3] = &a3;
-    apps[4] = &a4;
-    apps[5] = &a5;
-    apps[6] = &a6;
-    apps[7] = &a7;*/
-    //*/
+    Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
+    Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
+    Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
+    Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
+    Application a4(&(app_stack[5 * APP_STACK_SIZE - 4]), 4);
+    Application a5(&(app_stack[6 * APP_STACK_SIZE - 4]), 5);
+    Application a6(&(app_stack[7 * APP_STACK_SIZE - 4]), 6);
+    Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
+    Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
+    Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
+    Clock_Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
+    Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
+
+    opfer = &a0;
+    scheduler.ready(&a0);
+    scheduler.ready(&a1);
+    scheduler.ready(&a2);
+    scheduler.ready(&a3);
+    scheduler.ready(&a4);
+    scheduler.ready(&a5);
+    scheduler.ready(&a6);
+    scheduler.ready(&a7);
+    scheduler.ready(&a8);
+    scheduler.ready(&a9);
+    scheduler.ready(&a10);
+    //scheduler.ready(&a11);//*/
 
     switch (type) {
         case APICSystem::MP_APIC:
@@ -96,7 +104,7 @@ extern "C" int main() {
             {}
     }
 
-    /*
+    //*
     ioapic.init();
     keyboard.plugin();
     console.listen();
@@ -104,7 +112,7 @@ extern "C" int main() {
     CPU::enable_int();
     //*/
 
-    a0.go();
+    scheduler.schedule();
 
     test_irq();
 
@@ -162,26 +170,15 @@ extern "C" int main_ap() {
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
 
     //CPU::enable_int();
+    //rtc.sleep(5);
+    scheduler.schedule();
 
     switch (system.getCPUID()) {
         case 1:
-            //apps[2]->go();
-            /*for (;;) {
-                DBG << "bla" << flush;
-                int in = console.read(true);
-                if (in == -1) {
-                    DBG << "console: invalid char" << endl;
-                    continue;
-                }
-                //serial.write(in, true);
-                console << char(in) << flush;
-            }*/
             break;
         case 2:
-            //apps[4]->go();
             break;
         case 3:
-            //apps[6]->go();
             break;
     }
 

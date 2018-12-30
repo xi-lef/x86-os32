@@ -4,24 +4,18 @@
 
 class Time {
 private:
-    // Disallow copies and assignments.
     //Time(const Time&)            = delete;
-    Time& operator=(const Time&) = delete;
-
-    /*
-     * This adds i seconds to the time.
-     */
-    Time& operator+(unsigned int i);
+    //Time& operator=(const Time&) = delete;
 
     /*
      * Indexing for these arrays should start at 1.
      */
     constexpr static const char *weekday_string[8] = {
-        "INV", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        "???", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
     };
 
     constexpr static const char *month_string[13] = {
-        "INV", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "???", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     };
 
@@ -54,6 +48,13 @@ public:
     void increment_seconds(uint32_t amount = 1);
 
     /*
+     * This adds i (or 1) seconds to the time.
+     */
+    Time& operator+(uint32_t i);
+    Time& operator++();      // prefix
+    Time  operator++(int);   // postfix
+
+    /*
      * Returns the string representation of a weekday.
      * weekday must be in [1, 7].
      */
@@ -68,7 +69,7 @@ public:
     /*
      * Returns the days in a given month. This is necessary due to leap years.
      * month must be in [1, 12].
-     * year can (theoretically) be anything.
+     * year and century can (theoretically) be anything.
      */
-    static uint16_t get_days_per_month(uint16_t month, uint16_t year);
+    static uint16_t get_days_per_month(uint16_t month, uint16_t year, uint16_t century);
 };

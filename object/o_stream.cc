@@ -177,10 +177,10 @@ O_Stream& O_Stream::operator << (O_Stream& (*f) (O_Stream&)) {
 
 O_Stream& O_Stream::operator << (Time t) {
     *this << Time::get_weekday_string(t.weekday)
-          << " " << t.get_month_string(t.month)
           << ((t.day     < 10) ? "  " : " ") << t.day
+          << " " << t.get_month_string(t.month)
           << ((t.century < 10) ? "  " : " ") << t.century
-          << ((t.year    < 10) ? " "  : "")  << t.year << ","
+          << ((t.year    < 10) ? "0"  : "")  << t.year << ","
           << ((t.hour    < 10) ? " 0" : " ") << t.hour
           << ((t.minute  < 10) ? ":0" : ":") << t.minute
           << ((t.second  < 10) ? ":0" : ":") << t.second;

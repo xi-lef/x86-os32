@@ -9,13 +9,13 @@ private:
     // Disallow copies and assignments.
     CMOS(const CMOS&)            = delete;
     CMOS& operator=(const CMOS&) = delete;
+    bool initialized;
 
 public:
     const IO_Port CMOS_ctrl_port;
     const IO_Port CMOS_data_port;
-    bool initialized;
 
-    CMOS() : CMOS_ctrl_port(0x70), CMOS_data_port(0x71), initialized(false) {}
+    CMOS() : initialized(false), CMOS_ctrl_port(0x70), CMOS_data_port(0x71) {}
 
     // Used for CMOS_ctrl_port.
     enum CMOS_offset {
@@ -41,7 +41,7 @@ public:
     };
 
 //Frequency is 2^16 / 2^CMOS_irq_freq::freq_xhz.
-#define CMOS_CALC_FREQ(freq) (freq == freq_0hz) ? 0 : Math::pow(2, 16) / Math::pow(2, freq)
+#define CMOS_CALC_FREQ(freq) ((freq == freq_0hz) ? 0 : (Math::pow(2, 16) / Math::pow(2, freq)))
 
     // Used for manipulating status-register A.
     enum CMOS_irq_freq {
@@ -65,18 +65,18 @@ public:
      * Initializes the CMOS with fitting values. This includes:
      * * if enable_update_irq is true, enable the update interrupt.
      * * set frequency of periodic interrupt to the frequency corresponding
-     *   to periodic_irq_freq. Beware of lost interrupts!
+     *   to periodic_irq_freq. High frequencies are not advised.
      *
      * If this method was already called earlier, it does nothing but
      * print an error message.
      *
-     * Returns the amount of interrupts that get produced per second.
+     * Returns the amount of interrupts that will be generated per second.
      */
     uint32_t init_CMOS(bool enable_update_irq = true, CMOS_irq_freq periodic_irq_freq = freq_0hz);
 
     /*
      * Reads/writes the byte from/to the field specified in offset.
-     * You must not use the ports directly. Instead, use this function.
+     * You must not use the ports directly. Instead, use these methods.
      *
      * write_port returns the value from the field specified in offset prior
      * to writing.

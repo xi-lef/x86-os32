@@ -27,6 +27,10 @@ class Scheduler
 	// Verhindere Kopien und Zuweisungen
 	Scheduler(const Scheduler&)            = delete;
 	Scheduler& operator=(const Scheduler&) = delete;
+
+private:
+    Queue<Thread> ready_list;
+
 public:
 	/*! \brief Konstruktor
 	 *
@@ -97,3 +101,4 @@ public:
 
 };
 
+extern Scheduler scheduler;

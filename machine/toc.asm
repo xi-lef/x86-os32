@@ -42,7 +42,7 @@ toc_switch:
     mov [eax + ebp_offset], ebp
     mov [eax + esp_offset], esp
 
-    ; set new toc
+    ; load new toc
     mov eax, [esp + 8]
     mov ebx, [eax + ebx_offset]
     mov esi, [eax + esi_offset]

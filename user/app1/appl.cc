@@ -3,19 +3,21 @@
 #include "user/app1/appl.h"
 #include "device/cgastr.h"
 #include "guard/secure.h"
-
-extern Application *apps[16];
+#include "thread/scheduler.h"
 
 void Application::action() {
-    for (uint32_t i = 0; ; i++) {
-        DBG << "Thread " << id << ": action " << flush;
-        //Secure s; // TODO change for resume
+    for (int16_t i = 0; ; i++) {
+        //DBG << "App " << id << ": action " << flush;
+        Secure s;
+
         int x, y;
         kout.getpos(x, y);
         kout.setpos(4, id + 2);
-        kout << "Thread " << id << ": " << i << flush;
+        kout << "App " << id << ": " << i << flush;
         kout.setpos(x, y);
-        resume(apps[id == 0 ? 1 : 0]);
+
+        //Secure s; // TODO wtf?
+        scheduler.resume();
     }
 }
 

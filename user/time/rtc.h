@@ -5,19 +5,32 @@
 #include "guard/gate.h"
 #include "types.h"
 
-class RTC : public CMOS, public Time, public Gate {
+class RTC : public CMOS, public Gate {
 private:
 	// Disallow copies and assignments.
 	RTC(const RTC&)            = delete;
 	RTC& operator=(const RTC&) = delete;
 
-public:
+    Time time;
     int32_t hz;
     uint32_t jiffies;
 
-    RTC(int8_t timezone = 1) : Time(timezone), hz(-1), jiffies(0) {}
+public:
+    RTC(int16_t timezone = 1) : time(timezone), hz(-1), jiffies(0) {}
 
-	void init_RTC();
+    Time get_time() const {
+        return time;
+    }
+
+    int32_t get_freq() const {
+        return hz;
+    }
+
+    uint32_t get_jiffies() const {
+        return jiffies;
+    }
+
+	void init_RTC(bool enable_update_irq = true, CMOS_irq_freq periodic_irq_freq = freq_0hz);
 
     bool prologue();
     void epilogue();
@@ -66,7 +79,7 @@ public:
     uint16_t get_century();
 
     /*
-     * Sets the values in superclass Time by reading from the CMOS.
+     * Sets time to the current time by reading from the CMOS.
      */
     void set_time();
 
