@@ -50,12 +50,14 @@ Time& Time::operator+(uint32_t i) {
     return *this;
 }
 
-Time& Time::operator++() {   // pre
+// pre
+Time& Time::operator++() {
     increment_seconds(1);
     return *this;
 }
 
-Time Time::operator++(int) { // post
+// post
+Time Time::operator++(int) {
     Time ans = *this;
     increment_seconds(1);
     return ans;
@@ -76,7 +78,8 @@ const char *Time::get_month_string(uint16_t month) {
 
 uint16_t Time::get_days_per_month(uint16_t month, uint16_t year, uint16_t century) {
     // is it february in a leap year?
-    if (month == 2 && year % 4 == 0 && (year % 100 != 0 || century % 4 == 0)) {
+    // keep in mind how the RTC stores the year: it uses year and century.
+    if (month == 2 && year % 4 == 0 && (year != 0 || century % 4 == 0)) {
         return days_per_month[month] + 1; // = 29
     }
     return days_per_month[month];
