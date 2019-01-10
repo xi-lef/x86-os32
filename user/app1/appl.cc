@@ -16,7 +16,6 @@ void Application::action() {
         kout << "App " << id << ": " << i << flush;
         kout.setpos(x, y);
 
-        //Secure s; // TODO wtf?
         scheduler.resume();
     }
 }

@@ -32,7 +32,7 @@ class Dispatcher
 protected:
     Thread *life[CPU_MAX];
 
-	void set_active(Thread *c) { // TODO why implementation in .h? also camelcase lol
+	void set_active(Thread *c) {
         life[system.getCPUID()] = c;
     }
 

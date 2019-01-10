@@ -16,9 +16,7 @@ void Thread::go() {
 }
 
 void Thread::resume(Thread *next) {
-    //DBG << "Thread: pre switch " << flush;
     toc_switch(&(this->regs), &(next->regs));
-    //DBG << "Thread: post switch " << flush;
 }
 
 void Thread::set_kill_flag() {

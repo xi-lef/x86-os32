@@ -23,9 +23,7 @@ void Dispatcher::dispatch(Thread *next) {
 }
 
 void Dispatcher::kickoff(Thread *object) {
-    //DBG << "kickoff " << flush;
     guard.leave();
     object->action();
-    //DBG << "Dispatcher: bad return (kickoff) :(" << endl;
-    //for (;;) ; // dont return
+    // this wont really return. see machine/toc.cc
 }

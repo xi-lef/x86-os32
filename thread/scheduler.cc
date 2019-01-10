@@ -26,13 +26,11 @@ void Scheduler::exit() {
 void Scheduler::kill(Thread *that) {
     Secure s;
     if (ready_list.remove(that) == 0) {
-        //DBG << "Scheduler: kill: thread exec'd or 404" << endl;
         that->set_kill_flag();
     }
 }
 
 void Scheduler::resume() {
-    // TODO dispatch?
     Thread *prev = active();
     if (!prev->dying()) {
         ready_list.enqueue(prev);

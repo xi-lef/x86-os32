@@ -7,7 +7,6 @@
 
 static void fail() {
     DBG << endl << "Dispatcher: bad return (kickoff) :(" << endl;
-    rtc.sleep(3);
     scheduler.exit();
 }
 
@@ -16,7 +15,7 @@ void toc_settle(struct toc *regs, void *tos, void (*kickoff)(Thread*), Thread *o
 
     regs->ebp = esp;
     *esp      = (void *) object;
-    *(--esp)  = (void *) fail;//0xbaadf00d;
+    *(--esp)  = (void *) fail;
     *(--esp)  = (void *) kickoff;
     regs->esp = esp;
 }

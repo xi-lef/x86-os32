@@ -22,9 +22,6 @@
 
 extern CGA_Stream kout;
 extern APICSystem system;
-static const unsigned long APP_STACK_SIZE = 4096;
-static unsigned char app_stack[2 * CPU_MAX * APP_STACK_SIZE];
-Application *opfer;
 
 static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
@@ -60,6 +57,10 @@ extern "C" int main() {
 
     kout.reset();
 
+    /*
+    static const unsigned long APP_STACK_SIZE = 4096;
+    static unsigned char app_stack[2 * CPU_MAX * APP_STACK_SIZE];
+
     Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
     Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
     Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
@@ -73,7 +74,6 @@ extern "C" int main() {
     Clock_Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
     Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
 
-    opfer = &a0;
     scheduler.ready(&a0);
     scheduler.ready(&a1);
     scheduler.ready(&a2);
@@ -85,7 +85,8 @@ extern "C" int main() {
     scheduler.ready(&a8);
     scheduler.ready(&a9);
     scheduler.ready(&a10);
-    //scheduler.ready(&a11);//*/
+    scheduler.ready(&a11);
+    //*/
 
     switch (type) {
         case APICSystem::MP_APIC:
@@ -112,7 +113,7 @@ extern "C" int main() {
     CPU::enable_int();
     //*/
 
-    scheduler.schedule();
+    //scheduler.schedule();
 
     test_irq();
 
@@ -171,7 +172,7 @@ extern "C" int main_ap() {
 
     //CPU::enable_int();
     //rtc.sleep(5);
-    scheduler.schedule();
+    //scheduler.schedule();
 
     switch (system.getCPUID()) {
         case 1:
