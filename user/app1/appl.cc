@@ -4,19 +4,19 @@
 #include "device/cgastr.h"
 #include "guard/secure.h"
 #include "thread/scheduler.h"
+#include "syscall/guarded_scheduler.h"
 
 void Application::action() {
     for (int16_t i = 0; ; i++) {
         //DBG << "App " << id << ": action " << flush;
-        Secure s;
-
-        int x, y;
-        kout.getpos(x, y);
-        kout.setpos(4, id + 2);
-        kout << "App " << id << ": " << i << flush;
-        kout.setpos(x, y);
-
-        scheduler.resume();
+        { //Secure s; // TODO what. the. fuck.
+            int x, y;
+            kout.getpos(x, y);
+            kout.setpos(4,  2);
+            kout << "App " << id << ": " << i << flush;
+            //kout.setpos(x, y);
+        }
+        //Guarded_Scheduler::resume();
     }
 }
 

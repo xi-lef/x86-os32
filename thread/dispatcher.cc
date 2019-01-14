@@ -3,9 +3,13 @@
 #include "thread/dispatcher.h"
 #include "debug/output.h"
 #include "guard/guard.h"
+#include "machine/cpu.h"
 
 Thread *Dispatcher::active() {
-    return life[system.getCPUID()];
+    //CPU::disable_int(); // TODO hm
+    Thread *ret = life[system.getCPUID()];
+    //CPU::enable_int();
+    return ret;
 }
 
 void Dispatcher::go(Thread *first) {
@@ -24,6 +28,7 @@ void Dispatcher::dispatch(Thread *next) {
 
 void Dispatcher::kickoff(Thread *object) {
     guard.leave();
+
+    // this function wont really return. see machine/toc.cc
     object->action();
-    // this wont really return. see machine/toc.cc
 }

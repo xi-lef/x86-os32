@@ -1,13 +1,12 @@
 // vim: set et ts=4 sw=4:
 
 #include "machine/toc.h"
-#include "thread/scheduler.h"
 #include "debug/output.h"
-#include "user/time/rtc.h"
+#include "syscall/guarded_scheduler.h"
 
 static void fail() {
     DBG << endl << "Dispatcher: bad return (kickoff) :(" << endl;
-    scheduler.exit();
+    Guarded_Scheduler::exit();
 }
 
 void toc_settle(struct toc *regs, void *tos, void (*kickoff)(Thread*), Thread *object) {

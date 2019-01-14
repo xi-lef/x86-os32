@@ -4,6 +4,7 @@
 // Verwendung der Klasse IO_Port für Zugriff auf die Register
 #include "machine/io_port.h"
 #include "debug/output.h"
+#include "machine/cpu.h"
 
 static IO_Port index(0x3d4);
 static IO_Port data(0x3d5);

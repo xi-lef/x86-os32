@@ -19,13 +19,29 @@
 #include "user/app1/appl.h"
 #include "user/time/cappl.h"
 #include "thread/scheduler.h"
+#include "syscall/guarded_scheduler.h"
+#include "device/watch.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
 
-static const unsigned long CPU_STACK_SIZE = 4096;
 // Stack fuer max. 7 APs
+static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
+
+static const unsigned long APP_STACK_SIZE = 4096;
+static unsigned char app_stack[2 * CPU_MAX * APP_STACK_SIZE];
+
+    Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
+    Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
+    Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
+    Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
+    Application a4(&(app_stack[5 * APP_STACK_SIZE - 4]), 4);
+    Application a5(&(app_stack[6 * APP_STACK_SIZE - 4]), 5);
+    Application a6(&(app_stack[7 * APP_STACK_SIZE - 4]), 6);
+    Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
+    Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
+    Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
 
 static void test_irq() {
     return;
@@ -57,35 +73,25 @@ extern "C" int main() {
 
     kout.reset();
 
-    /*
-    static const unsigned long APP_STACK_SIZE = 4096;
-    static unsigned char app_stack[2 * CPU_MAX * APP_STACK_SIZE];
+    //DBG << "lapic freq (per ms): " << lapic.timer_ticks() << endl;
+    watch.windup(1 * 1000);
 
-    Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
-    Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
-    Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
-    Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
-    Application a4(&(app_stack[5 * APP_STACK_SIZE - 4]), 4);
-    Application a5(&(app_stack[6 * APP_STACK_SIZE - 4]), 5);
-    Application a6(&(app_stack[7 * APP_STACK_SIZE - 4]), 6);
-    Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
-    Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
-    Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
-    Clock_Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
-    Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
+    //*
+    //Clock_Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
+    //Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
 
-    scheduler.ready(&a0);
-    scheduler.ready(&a1);
-    scheduler.ready(&a2);
-    scheduler.ready(&a3);
-    scheduler.ready(&a4);
-    scheduler.ready(&a5);
-    scheduler.ready(&a6);
-    scheduler.ready(&a7);
-    scheduler.ready(&a8);
-    scheduler.ready(&a9);
-    scheduler.ready(&a10);
-    scheduler.ready(&a11);
+    Guarded_Scheduler::ready(&a0);
+    Guarded_Scheduler::ready(&a1);
+    Guarded_Scheduler::ready(&a2);
+    Guarded_Scheduler::ready(&a3);
+    Guarded_Scheduler::ready(&a4);
+    Guarded_Scheduler::ready(&a5);
+    Guarded_Scheduler::ready(&a6);
+    Guarded_Scheduler::ready(&a7);
+    Guarded_Scheduler::ready(&a8);
+    Guarded_Scheduler::ready(&a9);
+    //Guarded_Scheduler::ready(&a10);
+    //Guarded_Scheduler::ready(&a11);
     //*/
 
     switch (type) {
@@ -108,12 +114,14 @@ extern "C" int main() {
     //*
     ioapic.init();
     keyboard.plugin();
-    console.listen();
-    rtc.init_RTC();
+    //console.listen();
+    //rtc.init_RTC();
+    
     CPU::enable_int();
+    watch.activate();
     //*/
 
-    //scheduler.schedule();
+    scheduler.schedule();
 
     test_irq();
 
@@ -170,9 +178,11 @@ extern "C" int main_ap() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
 
-    //CPU::enable_int();
+    CPU::enable_int();
+    watch.activate();
+
     //rtc.sleep(5);
-    //scheduler.schedule();
+    scheduler.schedule();
 
     switch (system.getCPUID()) {
         case 1:

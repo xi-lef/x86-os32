@@ -17,7 +17,13 @@
  *  des globalen Scheduler-Objekts abgebildet, nur dass ihre Ausführung jeweils
  *  mit Hilfe eines Objekts der Klasse Secure geschützt wird.
  */
-class Guarded_Scheduler
-{
+class Guarded_Scheduler {
 public:
+    static void exit();
+
+    static void kill(Thread *that);
+
+    static void ready(Thread *that);
+
+    static void resume();
 };

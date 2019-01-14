@@ -28,6 +28,8 @@ class Scheduler
 	Scheduler(const Scheduler&)            = delete;
 	Scheduler& operator=(const Scheduler&) = delete;
 
+    //friend class Guarded_Scheduler;
+
 private:
     Queue<Thread> ready_list;
 
@@ -36,6 +38,7 @@ public:
 	 *
 	 */
 	Scheduler() {}
+
 	/*! \brief Starten des Schedulings
 	 *
 	 *  Diese Methode setzt das Scheduling in Gang, indem der erste
@@ -47,6 +50,8 @@ public:
 	 *
 	 */
 	void schedule();
+
+//private: // use syscall/Guarded_Scheduler!
 	/*! \brief Anmelden eines Threads zum Scheduling
 	 *
 	 *  Mit dieser Methode wird der Thread that beim Scheduler angemeldet. Er
@@ -57,6 +62,7 @@ public:
 	 *
 	 */
 	void ready(Thread *that);
+
 	/*! \brief Selbstbeenden des aktuellen Threads.
 	 *
 	 *  Hiermit kann sich ein Thread selbst beenden. Er wird nun nicht wieder
@@ -67,6 +73,7 @@ public:
 	 *
 	 */
 	void exit();
+
 	/*! \brief Beenden eines beliebigen Threads
 	 *
 	 *  Mit dieser Methode kann ein Thread einen anderen (\b that) beenden.
@@ -84,6 +91,7 @@ public:
 	 *
 	 */
 	void kill(Thread *that);
+
 	/*! \brief Auslösen eines Threadwechsels
 	 *
 	 *  Hiermit kann ein Threadwechsel ausgelöst werden, ohne dass der

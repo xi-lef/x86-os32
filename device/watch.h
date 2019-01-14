@@ -24,8 +24,13 @@ class Watch
 	Watch(const Watch&)            = delete;
 	Watch& operator=(const Watch&) = delete;
 
+private:
+    uint32_t irq_interval;
+    uint32_t initial_count;
+    uint8_t divide;
+
 public:
-	Watch() {}
+	Watch() : irq_interval(0), initial_count(0), divide(0) {}
 
 	/*! \brief Uhr "aufziehen"
 	 *
@@ -84,3 +89,4 @@ public:
 
 };
 
+extern Watch watch;

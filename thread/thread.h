@@ -37,7 +37,7 @@ public:
 
 private:
 	struct toc regs;
-    bool killed;
+    volatile bool killed; // TODO volatile?
 
 public:
 	/*! \brief Aktiviert den ersten Thread auf einem Prozessor.

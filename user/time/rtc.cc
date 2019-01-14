@@ -117,7 +117,7 @@ void RTC::sleep(unsigned int time) {
     uint16_t start = get_second();
     uint16_t end   = (start + time) % 60;
     uint16_t s;
-    DBG << "start: " << start << ", end: " << end << endl; // TODO wtf man
+    //DBG << "start: " << start << ", end: " << end << endl; // TODO wtf man
     while ((s = get_second()) < end) ;//DBG << "start: " << start << ", second: " << s << ", end: " << end << endl;
-    DBG << "s: " << s << endl;
+    //DBG << "s: " << s << endl;
 }

@@ -5,6 +5,7 @@
 #include "device/cgastr.h"
 #include "guard/secure.h"
 #include "thread/scheduler.h"
+#include "syscall/guarded_scheduler.h"
 #include "user/time/rtc.h"
 
 void Clock_Application::action() {
@@ -15,8 +16,7 @@ void Clock_Application::action() {
         dout_clock.reset();
         dout_clock << rtc.get_time() << flush;
 
-        Secure s;
-        scheduler.resume();
+        //Guarded_Scheduler::resume();
     }
 }
 

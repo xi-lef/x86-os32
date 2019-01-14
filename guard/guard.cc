@@ -2,7 +2,6 @@
 
 #include "guard/guard.h"
 #include "object/queue.h"
-#include "machine/spinlock.h"
 #include "machine/ticketlock.h"
 #include "machine/cpu.h"
 
@@ -12,16 +11,19 @@ static volatile bool in_epilogue[CPU_MAX]; // initially false
 static Queue<Gate> queue[CPU_MAX];
 
 void Guard::enter() {
+    CPU::disable_int(); // TODO hm
+    assert(in_epilogue[system.getCPUID()] != true);
     in_epilogue[system.getCPUID()] = true;
+    CPU::enable_int();
     bkl.lock();
 }
 
 void Guard::leave() {
-    int id = system.getCPUID();
+//    int id = system.getCPUID();
     Gate *g;
 
     CPU::disable_int();
-    while ((g = queue[id].dequeue()) != 0) {
+    while ((g = queue[system.getCPUID()].dequeue()) != 0) {
         g->set_dequeued();
         CPU::enable_int();
         g->epilogue();
@@ -29,6 +31,7 @@ void Guard::leave() {
     }
 
     bkl.unlock();
+    assert(in_epilogue[system.getCPUID()] != false);
     in_epilogue[system.getCPUID()] = false;
     CPU::enable_int();
 }
