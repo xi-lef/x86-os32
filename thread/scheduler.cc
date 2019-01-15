@@ -10,7 +10,7 @@
 Scheduler scheduler;
 
 void Scheduler::schedule() {
-    guard.enter();
+    //guard.enter();
     Thread *t = ready_list.dequeue();
     go(t);
 }
@@ -29,10 +29,16 @@ void Scheduler::kill(Thread *that) {
         return;
     }
 
-    // otherwise, set kill flag and send IPIs to all CPUs
+    // otherwise, set kill flag and send IPIs to the correct CPU
     that->set_kill_flag();
 
-    uint8_t dest = (1 << system.getNumberOfCPUs()) - 1; // TODO all CPUs?
+    // find the CPU that is currently executing that
+    uint8_t dest;
+    for (unsigned int i = 0; i < sizeof(life) / sizeof(life[0]); i++) {
+        if (life[i] == that) {
+            dest = 1 << i;
+        }
+    }
     struct ICR_L data = {};
     data.vector           = Plugbox::Vector::assassin;
     data.destination_mode = DESTINATION_MODE_LOGICAL;
@@ -51,6 +57,5 @@ void Scheduler::resume() {
 
     Thread *next = ready_list.dequeue();
     assert(next != nullptr);
-    set_active(next);
-    prev->resume(next);
+    dispatch(next);
 }

@@ -11,10 +11,10 @@
 Watch watch;
 
 bool Watch::windup(uint32_t us) {
-    uint64_t tmp = Math::div64((uint64_t) us * lapic.timer_ticks(), 1000);
-    int x = 0;
-    while (tmp >> (32 + x) != 0) {
-        if (++x > 7) { // TODO hmmm
+    uint64_t tmp = Math::div64((uint64_t) us * lapic.timer_ticks(), 1000); // ticks between IRQs
+    int shift = 0;
+    while (tmp >> (32 + shift) != 0) {
+        if (++shift > 7) {
             DBG << "Watch: windup overflow" << endl;
             return false;
         }
@@ -22,8 +22,8 @@ bool Watch::windup(uint32_t us) {
 
     // save everything required for interval/activate
     irq_interval = us;
-    initial_count = tmp >> x;
-    divide = 1 << x;
+    initial_count = tmp >> shift;
+    divide = 1 << shift;
     //DBG << "initial_count: " << initial_count << ", divide: " << int(divide) << endl;
 
     plugbox.assign(Plugbox::Vector::timer, &watch);
@@ -32,12 +32,11 @@ bool Watch::windup(uint32_t us) {
 }
 
 bool Watch::prologue() {
-    //DBG << "Watch: prologue " << flush;
-    return true; // TODO hm
+    return true;
 }
 
 void Watch::epilogue() {
-    scheduler.resume(); // TODO deadlock ?
+    scheduler.resume();
 }
 
 uint32_t Watch::interval() {

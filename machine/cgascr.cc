@@ -4,7 +4,6 @@
 // Verwendung der Klasse IO_Port für Zugriff auf die Register
 #include "machine/io_port.h"
 #include "debug/output.h"
-#include "machine/cpu.h"
 
 static IO_Port index(0x3d4);
 static IO_Port data(0x3d5);
@@ -14,10 +13,6 @@ CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool 
     to_row(to_row), use_cursor(use_cursor) {}
 
 void CGA_Screen::setpos(int x, int y) {
-    if (x < from_col || x > to_col || y < from_row || y > to_row) {
-        DBG << "invalid setpos (x: " << x << ", y: " << y << ")" << endl;
-        return;
-    }
     // to account for negative x and y
 	if (x < 0) {
 		x += COLUMNS;
@@ -25,6 +20,12 @@ void CGA_Screen::setpos(int x, int y) {
 	if (y < 0) {
 		y += ROWS;
 	}
+
+    // sanity checks
+    if (x < from_col || x > to_col || y < from_row || y > to_row) {
+        DBG << "invalid setpos (x: " << x << ", y: " << y << ")" << endl;
+        return;
+    }
 
 	if (use_cursor) {
 		int new_cursor = y * COLUMNS + x;
@@ -44,7 +45,15 @@ void CGA_Screen::getpos(int& x, int& y) {
 		uint16_t cursor = data.inb();
 		index.outb(14);
 		cursor |= data.inb() << 8;
-		
+
+        // sanity check in case of unfortunate scheduling
+        if (cursor < from_col * from_row || cursor > to_col * to_row) {
+            DBG << "invalid getpos" << endl;
+            x = 0;
+            y = 0;
+            return;
+        }
+
 		x = cursor % COLUMNS;
 		y = int(cursor / COLUMNS);
 	} else {
@@ -54,18 +63,13 @@ void CGA_Screen::getpos(int& x, int& y) {
 }
 
 void CGA_Screen::move_up_one_line(void) {
-    //uint8_t *base = (uint8_t *) BASE_ADDRESS;
     uint16_t *base = (uint16_t *) BASE_ADDRESS;
 
     for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row - 1; y++) {
-            //base[(y * COLUMNS + x) * 2]      = base[((y + 1) * COLUMNS + x) * 2];
-            //base[(y * COLUMNS + x) * 2 + 1]  = base[((y + 1) * COLUMNS + x) * 2 + 1];
 		    base[y * COLUMNS + x] = base[(y + 1) * COLUMNS + x];
         }
         // set last row to nothing with no color
-        //base[(to_row * COLUMNS + x) * 2]     = 0; // char
-        //base[(to_row * COLUMNS + x) * 2 + 1] = 0; // color
         base[to_row * COLUMNS + x] = 0;
 	}
 }
@@ -82,13 +86,13 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 	int x;
 	int y;
 	getpos(x, y);
-	
+
 	for (int i = 0; i < length; i++) {
 		if (string[i] == '\n') {
 			LF(x, y);
             continue;
 		}
-		
+
 		show(x, y, string[i], attrib);
 		if (++x > to_col) {
             LF(x, y);
@@ -117,6 +121,12 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 	if (y < 0) {
 		y += ROWS;
 	}
+
+    // sanity checks
+    if (x < 0 || x > COLUMNS || y < 0 || y > ROWS) {
+        DBG << "invalid show (x: " << x << ", y: " << y << ")" << endl;
+        return;
+    }
 
 	char *base = BASE_ADDRESS;
 	char *pos  = &(base[(y * COLUMNS + x) * 2]);

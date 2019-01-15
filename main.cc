@@ -29,19 +29,22 @@ extern APICSystem system;
 static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
+// Stack fuer max. 32 Applications
 static const unsigned long APP_STACK_SIZE = 4096;
-static unsigned char app_stack[2 * CPU_MAX * APP_STACK_SIZE];
+static unsigned char app_stack[32 * APP_STACK_SIZE];
 
-    Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
-    Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
-    Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
-    Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
-    Application a4(&(app_stack[5 * APP_STACK_SIZE - 4]), 4);
-    Application a5(&(app_stack[6 * APP_STACK_SIZE - 4]), 5);
-    Application a6(&(app_stack[7 * APP_STACK_SIZE - 4]), 6);
-    Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
-    Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
-    Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
+static Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
+static Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
+static Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
+static Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
+static Application a4(&(app_stack[5 * APP_STACK_SIZE - 4]), 4);
+static Application a5(&(app_stack[6 * APP_STACK_SIZE - 4]), 5);
+static Application a6(&(app_stack[7 * APP_STACK_SIZE - 4]), 6);
+static Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
+static Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
+static Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
+static Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
+//static Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
 
 static void test_irq() {
     return;
@@ -74,12 +77,9 @@ extern "C" int main() {
     kout.reset();
 
     //DBG << "lapic freq (per ms): " << lapic.timer_ticks() << endl;
-    watch.windup(1 * 1000);
+    watch.windup(1000); // 1 irq per ms
 
     //*
-    //Clock_Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
-    //Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
-
     Guarded_Scheduler::ready(&a0);
     Guarded_Scheduler::ready(&a1);
     Guarded_Scheduler::ready(&a2);
@@ -90,7 +90,7 @@ extern "C" int main() {
     Guarded_Scheduler::ready(&a7);
     Guarded_Scheduler::ready(&a8);
     Guarded_Scheduler::ready(&a9);
-    //Guarded_Scheduler::ready(&a10);
+    Guarded_Scheduler::ready(&a10);
     //Guarded_Scheduler::ready(&a11);
     //*/
 
@@ -114,13 +114,14 @@ extern "C" int main() {
     //*
     ioapic.init();
     keyboard.plugin();
-    //console.listen();
-    //rtc.init_RTC();
+    console.listen();
+    rtc.init_RTC();
     
     CPU::enable_int();
     watch.activate();
     //*/
 
+    guard.enter();
     scheduler.schedule();
 
     test_irq();
@@ -165,7 +166,6 @@ extern "C" int main() {
     for (;;) { // dont die
         CPU::idle();
     }
-
     return 0;
 }
 
@@ -182,6 +182,7 @@ extern "C" int main_ap() {
     watch.activate();
 
     //rtc.sleep(5);
+    guard.enter();
     scheduler.schedule();
 
     switch (system.getCPUID()) {
@@ -199,6 +200,5 @@ extern "C" int main_ap() {
     for (;;) {
         CPU::idle();
     }
-
     return 0;
 }

@@ -19,10 +19,9 @@ void Guard::enter() {
 }
 
 void Guard::leave() {
-//    int id = system.getCPUID();
-    Gate *g;
-
     CPU::disable_int();
+
+    Gate *g;
     while ((g = queue[system.getCPUID()].dequeue()) != 0) {
         g->set_dequeued();
         CPU::enable_int();

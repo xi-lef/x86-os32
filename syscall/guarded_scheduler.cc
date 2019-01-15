@@ -2,7 +2,7 @@
 #include "guard/secure.h"
 
 void Guarded_Scheduler::exit() {
-    // TODO ? 
+    Secure s;
     scheduler.exit();
 }
 

@@ -9,14 +9,13 @@
 void Application::action() {
     for (int16_t i = 0; ; i++) {
         //DBG << "App " << id << ": action " << flush;
-        { //Secure s; // TODO what. the. fuck.
+        { Secure s; // TODO questionable.
             int x, y;
             kout.getpos(x, y);
-            kout.setpos(4,  2);
+            kout.setpos(4, id + 2);
             kout << "App " << id << ": " << i << flush;
-            //kout.setpos(x, y);
+            kout.setpos(x, y);
         }
-        //Guarded_Scheduler::resume();
     }
 }
 
