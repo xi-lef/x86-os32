@@ -32,6 +32,10 @@ bool Watch::windup(uint32_t us) {
 }
 
 bool Watch::prologue() {
+    //DBG << "Watch: prologue " << flush;
+    if (scheduler.active() == 0) {
+        return false;
+    }
     return true;
 }
 

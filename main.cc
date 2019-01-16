@@ -21,6 +21,7 @@
 #include "thread/scheduler.h"
 #include "syscall/guarded_scheduler.h"
 #include "device/watch.h"
+#include "debug/gdb/stub.h"
 
 extern CGA_Stream kout;
 extern APICSystem system;
@@ -116,11 +117,13 @@ extern "C" int main() {
     keyboard.plugin();
     console.listen();
     rtc.init_RTC();
-    
+    GDB_Stub gdb;
+
     CPU::enable_int();
     watch.activate();
     //*/
 
+    //rtc.sleep(3);
     guard.enter();
     scheduler.schedule();
 
@@ -181,7 +184,7 @@ extern "C" int main_ap() {
     CPU::enable_int();
     watch.activate();
 
-    //rtc.sleep(5);
+    //rtc.sleep(2);
     guard.enter();
     scheduler.schedule();
 

@@ -84,11 +84,11 @@ public:
     void set_time();
 
     /* TODO improve, static?
-     * sleep waits for [time - 1, time] seconds. dont rely on precision!
+     * sleep waits for [t - 1, t] seconds. dont rely on precision!
      * sleep(1) can only really be used to wait until the next second starts
      * (good for clock displays ;)).
      */
-    void sleep(unsigned int time);
+    void sleep(unsigned int t);
 };
 
 extern RTC rtc;

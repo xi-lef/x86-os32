@@ -66,6 +66,7 @@ static void * memset(void *ptr, int data, size_t len){
 /*** Debug-Unterbrechungsbehandlung (generischer Teil) ***/
 
 extern "C" void debug_handler(struct debug_context *context){
+    DBG << "gdb debug_handler" << endl;
 	// Benötigt eine aktive GDB Instanz
 	if (instance == 0)
 		return;

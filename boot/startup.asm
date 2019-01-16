@@ -151,6 +151,7 @@ IRQ i, 0
 
 [SECTION .data]
 ;  'interrupt descriptor table' mit 256 Eintraegen.
+[GLOBAL idt] ; fuer debug/gdb/init.cc
 align 4
 idt:
 %macro idt_entry 1

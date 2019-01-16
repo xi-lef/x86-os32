@@ -6,6 +6,7 @@
 #include "debug/output.h"
 #include "user/time/time.h"
 #include "machine/ticketlock.h"
+#include "syscall/guarded_scheduler.h"
 
 RTC rtc;
 static Ticketlock tlock;
@@ -58,7 +59,7 @@ void RTC::epilogue() {
 uint16_t RTC::get_value(CMOS_offset offset) {
     // wait until the RTC is done updating the values, then read it.
     // lock in case multiple CPUs try to read at the same time.
-    // this would be racey.
+    // this should not happen, but it would be racey.
     tlock.lock();
     while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
     uint16_t ret = read_port(offset);
@@ -112,12 +113,10 @@ void RTC::set_time() {
     time = time + HOURS_TO_SECONDS(time.timezone);
 }
 
-void RTC::sleep(unsigned int time) {
+void RTC::sleep(unsigned int t) {
     //DBG << "sleep for " << time - 1 << "s to " << time << "s" << endl;
-    uint16_t start = get_second();
-    uint16_t end   = (start + time) % 60;
-    uint16_t s;
-    //DBG << "start: " << start << ", end: " << end << endl; // TODO wtf man
-    while ((s = get_second()) < end) ;//DBG << "start: " << start << ", second: " << s << ", end: " << end << endl;
-    //DBG << "s: " << s << endl;
+    uint16_t end = (time.second + t) % 60;
+    while (time.second != end) { // '!=' instead of '<' in case starting time is e.g. 59
+        Guarded_Scheduler::resume(); // do not waste CPU time
+    }
 }

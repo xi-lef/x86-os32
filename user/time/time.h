@@ -24,14 +24,14 @@ private:
     };
 
 public:
-    uint16_t second;
-    uint16_t minute;
-    uint16_t hour;
-    uint16_t day;
-    uint16_t month;
-    uint16_t year;
-    uint16_t weekday;
-    uint16_t century;
+    volatile uint16_t second;
+    volatile uint16_t minute;
+    volatile uint16_t hour;
+    volatile uint16_t day;
+    volatile uint16_t month;
+    volatile uint16_t year;
+    volatile uint16_t weekday;
+    volatile uint16_t century;
 
     int16_t timezone;
 
