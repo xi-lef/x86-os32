@@ -65,7 +65,7 @@ public:
 
     /*
      * These methods read the corresponding values from the CMOS.
-     * get_value is just a helper method.
+     * get_second etc. are for more convenient use, but internally use get_value.
      */
     uint16_t get_value(CMOS_offset offset);
 
@@ -83,10 +83,8 @@ public:
      */
     void set_time();
 
-    /* TODO improve, static?
+    /*
      * sleep waits for [t - 1, t] seconds. dont rely on precision!
-     * sleep(1) can only really be used to wait until the next second starts
-     * (good for clock displays ;)).
      */
     void sleep(unsigned int t);
 };

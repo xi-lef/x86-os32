@@ -11,8 +11,7 @@ static volatile bool in_epilogue[CPU_MAX]; // initially false
 static Queue<Gate> queue[CPU_MAX];
 
 void Guard::enter() {
-    CPU::disable_int(); // TODO hm
-    assert(in_epilogue[system.getCPUID()] != true);
+    CPU::disable_int();
     in_epilogue[system.getCPUID()] = true;
     CPU::enable_int();
     bkl.lock();
@@ -30,7 +29,6 @@ void Guard::leave() {
     }
 
     bkl.unlock();
-    assert(in_epilogue[system.getCPUID()] != false);
     in_epilogue[system.getCPUID()] = false;
     CPU::enable_int();
 }

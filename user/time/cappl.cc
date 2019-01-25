@@ -8,15 +8,16 @@
 #include "syscall/guarded_scheduler.h"
 #include "user/time/rtc.h"
 
+extern Application a0;
+
 void Clock_Application::action() {
+    rtc.sleep(2);
+    Guarded_Scheduler::kill(&a0);
     for (;;) {
         //DBG << "Clock_App " << id << ": action " << flush;
-
         rtc.set_time();
         dout_clock.reset();
         dout_clock << rtc.get_time() << flush;
-
-        //Guarded_Scheduler::resume();
     }
 }
 

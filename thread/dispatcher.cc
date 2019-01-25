@@ -6,9 +6,7 @@
 #include "machine/cpu.h"
 
 Thread *Dispatcher::active() {
-    //CPU::disable_int(); // TODO hm
     Thread *ret = life[system.getCPUID()];
-    //CPU::enable_int();
     return ret;
 }
 

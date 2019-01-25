@@ -12,8 +12,10 @@
 
 extern "C" void guardian(uint32_t vector, irq_context *context) {
     (void) context;
-    //if (vector != Plugbox::Vector::timer)
-    //    DBG << "irq(" << vector << ") " << flush;
+    if (vector != Plugbox::Vector::timer && vector != Plugbox::Vector::rtc
+            && vector != Plugbox::Vector::keyboard && vector != Plugbox::Vector::serial) {
+        DBG << "irq(" << vector << ") " << flush;
+    }
 
     Gate *g = plugbox.report(vector);
     bool req = g->prologue();

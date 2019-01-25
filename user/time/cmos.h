@@ -65,14 +65,14 @@ public:
      * Initializes the CMOS with fitting values. This includes:
      * * if enable_update_irq is true, enable the update interrupt.
      * * set frequency of periodic interrupt to the frequency corresponding
-     *   to periodic_irq_freq. High frequencies are not advised.
+     *   to periodic_irq_freq.
      *
      * If this method was already called earlier, it does nothing but
      * print an error message.
      *
      * Returns the amount of interrupts that will be generated per second.
      */
-    uint32_t init_CMOS(bool enable_update_irq = true, CMOS_irq_freq periodic_irq_freq = freq_0hz);
+    uint32_t init_CMOS(bool enable_update_irq = false, CMOS_irq_freq periodic_irq_freq = freq_0hz);
 
     /*
      * Reads/writes the byte from/to the field specified in offset.

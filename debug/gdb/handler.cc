@@ -22,6 +22,7 @@
 #include "debug/output.h"
 #include "debug/assert.h"
 #include "machine/ticketlock.h"
+#include "machine/plugbox.h"
 
 /*! \brief Mutex für Unterbrechungsbehandlung
  *
@@ -66,7 +67,6 @@ static void * memset(void *ptr, int data, size_t len){
 /*** Debug-Unterbrechungsbehandlung (generischer Teil) ***/
 
 extern "C" void debug_handler(struct debug_context *context){
-    DBG << "gdb debug_handler" << endl;
 	// Benötigt eine aktive GDB Instanz
 	if (instance == 0)
 		return;
@@ -143,9 +143,12 @@ GDB_Stub::GDB_Stub(bool wait, bool debugOutput, Serial::comPort port, Serial::ba
 			install_handler(i);
 		}
 
+    install_handler(Plugbox::Vector::serial);
+
 	// Warte auf Verbindung
 	if (wait){
 		breakpoint();
 	}
+    DBG << "GDB_Stub: init done" << endl;
 }
 

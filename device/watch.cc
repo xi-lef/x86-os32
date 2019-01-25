@@ -27,13 +27,12 @@ bool Watch::windup(uint32_t us) {
     //DBG << "initial_count: " << initial_count << ", divide: " << int(divide) << endl;
 
     plugbox.assign(Plugbox::Vector::timer, &watch);
-
     return true;
 }
 
 bool Watch::prologue() {
     //DBG << "Watch: prologue " << flush;
-    if (scheduler.active() == 0) {
+    if (scheduler.active() == nullptr) {
         return false;
     }
     return true;

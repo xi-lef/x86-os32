@@ -3,6 +3,7 @@
 #include "thread/assassin.h"
 #include "machine/plugbox.h"
 #include "syscall/guarded_scheduler.h"
+#include "debug/output.h"
 
 Assassin assassin;
 

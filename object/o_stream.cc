@@ -75,7 +75,7 @@ void O_Stream::put_signed(long ival) {
                     print = true;
                 }
                 if (print) {
-                    put(cur + 48); // ascii stuff
+                    put(cur + '0');
                 }
             }
             return;
@@ -90,7 +90,7 @@ void O_Stream::put_signed(long ival) {
             if (r < 0) {
                 r *= -1;
             }
-            put(r + 48); // ascii stuff
+            put(r + '0');
         } return;
         case 16:
             put('0'); put('x');
@@ -105,7 +105,7 @@ void O_Stream::put_signed(long ival) {
             print = true;
         }
         if (print) {
-            put(cur + ((cur < 10) ? 48 : 87)); // ascii stuff
+            put(cur + ((cur < 10) ? '0' : ('a' - 10)));
         }
     }
 }
@@ -130,7 +130,7 @@ void O_Stream::put_unsigned(unsigned long ival) {
                     print = true;
                 }
                 if (print) {
-                    put(cur + 48); // ascii stuff
+                    put(cur + '0');
                 }
             }
             return;
@@ -140,7 +140,7 @@ void O_Stream::put_unsigned(unsigned long ival) {
                 *this << (ival / base);
             }
 
-            put(r + 48); // ascii stuff
+            put(r + '0');
         } return;
         case 16:
             put('0'); put('x');
@@ -155,7 +155,7 @@ void O_Stream::put_unsigned(unsigned long ival) {
             print = true;
         }
         if (print) {
-            put(cur + ((cur < 10) ? 48 : 87)); // ascii stuff
+            put(cur + ((cur < 10) ? '0' : ('a' - 10)));
         }
     }
 }

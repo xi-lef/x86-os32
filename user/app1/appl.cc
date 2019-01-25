@@ -9,7 +9,7 @@
 void Application::action() {
     for (int16_t i = 0; ; i++) {
         //DBG << "App " << id << ": action " << flush;
-        { Secure s; // TODO questionable.
+        { Secure s;
             int x, y;
             kout.getpos(x, y);
             kout.setpos(4, id + 2);

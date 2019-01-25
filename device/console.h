@@ -69,7 +69,7 @@ public:
 	 *
 	 *  \opt Methode implementieren
 	 */
-	Console(Serial::comPort port = COM1, Serial::baudRate baudrate = BAUD_115200, Serial::dataBits databits = DATA_8BIT, Serial::stopBits stopbits = STOP_1BIT, Serial::parity parity = PARITY_NONE);
+	Console(Serial::comPort port = COM1, Serial::baudRate baudrate = BAUD_9600, Serial::dataBits databits = DATA_8BIT, Serial::stopBits stopbits = STOP_1BIT, Serial::parity parity = PARITY_NONE);
 
 	/*! \brief Destruktor
 	 */

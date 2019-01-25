@@ -10,7 +10,6 @@
 Scheduler scheduler;
 
 void Scheduler::schedule() {
-    //guard.enter();
     Thread *t = ready_list.dequeue();
     go(t);
 }
@@ -20,23 +19,24 @@ void Scheduler::ready(Thread *that) {
 }
 
 void Scheduler::exit() {
-    schedule();
+    dispatch(ready_list.dequeue());
 }
 
 void Scheduler::kill(Thread *that) {
     if (ready_list.remove(that) != 0) {
-        // remove was successful
+        DBG << "kill: remove was successful " << flush;
         return;
     }
 
-    // otherwise, set kill flag and send IPIs to the correct CPU
+    // otherwise, set kill flag and send IPI to the correct CPU
     that->set_kill_flag();
 
-    // find the CPU that is currently executing that
-    uint8_t dest;
+    // find the CPU that is currently executing "that"
+    uint8_t dest = 0; // TODO compiler lol???
     for (unsigned int i = 0; i < sizeof(life) / sizeof(life[0]); i++) {
         if (life[i] == that) {
             dest = 1 << i;
+            break;
         }
     }
     struct ICR_L data = {};
@@ -47,7 +47,6 @@ void Scheduler::kill(Thread *that) {
 }
 
 void Scheduler::resume() {
-    //DBG << "Scheduler: resume " << flush;
     Thread *prev = active();
     if (!prev->dying()) {
         ready_list.enqueue(prev);
@@ -56,6 +55,5 @@ void Scheduler::resume() {
     }
 
     Thread *next = ready_list.dequeue();
-    assert(next != nullptr);
     dispatch(next);
 }

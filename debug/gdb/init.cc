@@ -2,27 +2,26 @@
 
 #include "stub.h"
 #include "debug/output.h"
+#include "debug/gdb/idt.h"
 
 /*!\brief Array mit Addressen der jeweiligen spezifischen Debug-Unterbrechungsbehandlungsroutinen
  * aus der handler.asm ( dbg_irq_entry_%INDEX )
  */
 extern void const * const dbg_irq_entries[];
+extern const int dbg_irq_entries_length;
 
 bool GDB_Stub::install_handler(int vector){
-    if (vector < 0 || vector > 255) {
+    if (vector < 0 || vector > dbg_irq_entries_length - 1) {
         DBG << "GDB: invalid vector" << endl;
         return false;
     }
 
-    extern uint64_t idt[]; // from boot/startup.asm
+    idt_entry idt_e = idt[vector];
+    idt_e.address_low  = (uint32_t) dbg_irq_entries[vector] & 0xffff;
+    idt_e.address_high = ((uint32_t) dbg_irq_entries[vector] & 0xffff0000) >> 16;
+    idt[vector] = idt_e;
 
-    uint64_t idt_entry = 0;
-    idt_entry |=  (uint64_t) dbg_irq_entries[vector] & 0xffff;            // low 2 bytes of address
-    idt_entry |= (uint64_t) 0x8e000008 << 16;                             // idt flags/options
-    idt_entry |= ((uint64_t) dbg_irq_entries[vector] & 0xffff0000) << 32; // high 2 bytes of address
-
-    idt[vector] = idt_entry;
-
+    //DBG << "GDB: installed " << vector << " " << flush;
 	return true;
 }
 

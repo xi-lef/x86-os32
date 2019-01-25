@@ -4,9 +4,6 @@
 
 class Time {
 private:
-    //Time(const Time&)            = delete;
-    //Time& operator=(const Time&) = delete;
-
     /*
      * Indexing for these arrays should start at 1.
      */

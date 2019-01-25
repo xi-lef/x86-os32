@@ -6,7 +6,6 @@ uint32_t CMOS::init_CMOS(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq
         DBG << "Tried to init CMOS multiple times!" << endl;
         return CMOS_CALC_FREQ(periodic_irq_freq) + (enable_update_irq ? 1 : 0);
     }
-    uint32_t jiffies_per_second = 0;
     uint8_t statusB_flags = 0;
 
     // set frequency of periodic interrupt to periodic_irq_freq
@@ -15,7 +14,7 @@ uint32_t CMOS::init_CMOS(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq
     uint8_t statusA_old = read_port(offset_statusA);
     write_port(offset_statusA, (statusA_old & 0xf0) | periodic_irq_freq);
 
-    jiffies_per_second += CMOS_CALC_FREQ(periodic_irq_freq);
+    uint32_t jiffies_per_second = CMOS_CALC_FREQ(periodic_irq_freq);
 
     // possibly enable update interrupt and periodic interrupt
     if (enable_update_irq) {

@@ -10,8 +10,13 @@
 
 RTC rtc;
 static Ticketlock tlock;
+static bool init;
 
 void RTC::init_RTC(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
+    if (init) {
+        DBG << "RTC: tried to init multiple times" << endl;
+        return;
+    }
     hz = init_CMOS(enable_update_irq, periodic_irq_freq);
     set_time();
 
@@ -22,26 +27,12 @@ void RTC::init_RTC(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
     ioapic.config(rtc_slot, rtc_vector);
     ioapic.allow(rtc_slot);
     clear_statusC();
+
+    init = true;
     DBG << "RTC: init done (" << hz << "hz)" << endl;
 }
 
-/*
-#include "object/bbuffer.h"
-#include "device/keyboard.h"
-#include "guard/guardian.h"
-extern BBuffer<Key, 64> buf;
-void stresstest() {
-    Key k;
-    k.ascii(id + 97);
-    buf.produce(k);
-    guardian(33, NULL);
-    //asm volatile ("int 33\n" : );
-}
-//*/
-
 bool RTC::prologue() {
-    //stresstest();
-    //DBG << "RTC: prologue " << flush;
     jiffies = (jiffies + 1) % hz;
     if (is_update_irq()) {
         time++;
@@ -51,7 +42,6 @@ bool RTC::prologue() {
 }
 
 void RTC::epilogue() {
-    //DBG << "RTC: epilogue " << flush;
     dout_clock.reset();
     dout_clock << time << flush;
 }
@@ -67,37 +57,14 @@ uint16_t RTC::get_value(CMOS_offset offset) {
     return bcd_to_int(ret);
 }
 
-uint16_t RTC::get_second () {
-    return get_value(offset_second);
-}
-
-uint16_t RTC::get_minute () {
-    return get_value(offset_minute);
-}
-
-uint16_t RTC::get_hour   () {
-    return get_value(offset_hour);
-}
-
-uint16_t RTC::get_day    () {
-    return get_value(offset_day);
-}
-
-uint16_t RTC::get_month  () {
-    return get_value(offset_month);
-}
-
-uint16_t RTC::get_year   () {
-    return get_value(offset_year);
-}
-
-uint16_t RTC::get_weekday() {
-    return get_value(offset_weekday);
-}
-
-uint16_t RTC::get_century() {
-    return get_value(offset_century);
-}
+uint16_t RTC::get_second () { return get_value(offset_second);  }
+uint16_t RTC::get_minute () { return get_value(offset_minute);  }
+uint16_t RTC::get_hour   () { return get_value(offset_hour);    }
+uint16_t RTC::get_day    () { return get_value(offset_day);     }
+uint16_t RTC::get_month  () { return get_value(offset_month);   }
+uint16_t RTC::get_year   () { return get_value(offset_year);    }
+uint16_t RTC::get_weekday() { return get_value(offset_weekday); }
+uint16_t RTC::get_century() { return get_value(offset_century); }
 
 void RTC::set_time() {
     time.second  = get_second ();
@@ -114,9 +81,16 @@ void RTC::set_time() {
 }
 
 void RTC::sleep(unsigned int t) {
-    //DBG << "sleep for " << time - 1 << "s to " << time << "s" << endl;
-    uint16_t end = (time.second + t) % 60;
-    while (time.second != end) { // '!=' instead of '<' in case starting time is e.g. 59
-        Guarded_Scheduler::resume(); // do not waste CPU time
+    // if RTC was not initialized, time will not be updated through update IRQ
+    if (init) {
+        uint16_t end = (time.second + t) % 60;
+        while (time.second != end) { // '!=' instead of '<' in case starting time is e.g. 59
+            Guarded_Scheduler::resume(); // do not waste CPU time
+        }
+    } else {
+        uint16_t end = (get_second() + t) % 60;
+        while (get_second() != end) {
+            Guarded_Scheduler::resume();
+        }
     }
 }

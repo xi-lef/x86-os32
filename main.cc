@@ -1,11 +1,5 @@
 // vim: set et ts=4 sw=4:
 
-/*! \file
- *  \brief Enthält mit den main() und main_ap() Funktionen den Startpunkt für
- *  das System
- */
-
-/* INCLUDES */
 #include "machine/apicsystem.h"
 #include "machine/lapic.h"
 #include "debug/output.h"
@@ -22,8 +16,8 @@
 #include "syscall/guarded_scheduler.h"
 #include "device/watch.h"
 #include "debug/gdb/stub.h"
+#include "thread/assassin.h"
 
-extern CGA_Stream kout;
 extern APICSystem system;
 
 // Stack fuer max. 7 APs
@@ -34,7 +28,7 @@ static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 static const unsigned long APP_STACK_SIZE = 4096;
 static unsigned char app_stack[32 * APP_STACK_SIZE];
 
-static Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0);
+Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0); // non-static to test kill
 static Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
 static Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
 static Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
@@ -45,20 +39,7 @@ static Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
 static Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
 static Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
 static Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
-//static Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
-
-static void test_irq() {
-    return;
-    int id = system.getCPUID();
-    for (uint32_t i = 0; ; i++) {
-        Secure s; // to sync for-body
-        int x, y;
-        kout.getpos(x, y);
-        kout.setpos(4, id + 2);
-        kout << i << flush;
-        kout.setpos(x, y);
-    }
-}
+static Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
 
 /*! \brief Einsprungpunkt ins System
  *
@@ -66,7 +47,6 @@ static void test_irq() {
  */
 extern "C" int main() {
     // Startmeldung ausgeben
-
     APICSystem::SystemType type = system.getSystemType();
     unsigned int numCPUs = system.getNumberOfCPUs();
     DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
@@ -75,12 +55,17 @@ extern "C" int main() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main()" << endl;
 
+    // initialize various stuff
     kout.reset();
-
     //DBG << "lapic freq (per ms): " << lapic.timer_ticks() << endl;
+    ioapic.init();
+    keyboard.plugin();
+    GDB_Stub gdb; // must be before console.listen (or IRQs are disabled)
+    console.listen();
+    rtc.init_RTC();
     watch.windup(1000); // 1 irq per ms
+    assassin.hire();
 
-    //*
     Guarded_Scheduler::ready(&a0);
     Guarded_Scheduler::ready(&a1);
     Guarded_Scheduler::ready(&a2);
@@ -92,8 +77,7 @@ extern "C" int main() {
     Guarded_Scheduler::ready(&a8);
     Guarded_Scheduler::ready(&a9);
     Guarded_Scheduler::ready(&a10);
-    //Guarded_Scheduler::ready(&a11);
-    //*/
+    Guarded_Scheduler::ready(&a11);
 
     switch (type) {
         case APICSystem::MP_APIC:
@@ -112,22 +96,11 @@ extern "C" int main() {
             {}
     }
 
-    //*
-    ioapic.init();
-    keyboard.plugin();
-    console.listen();
-    rtc.init_RTC();
-    GDB_Stub gdb;
-
-    CPU::enable_int();
     watch.activate();
-    //*/
-
+    CPU::enable_int();
     //rtc.sleep(3);
     guard.enter();
     scheduler.schedule();
-
-    test_irq();
 
     /*
     for (int cur_speed = 0, cur_delay = 0; ; ) {
@@ -181,13 +154,6 @@ extern "C" int main_ap() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
 
-    CPU::enable_int();
-    watch.activate();
-
-    //rtc.sleep(2);
-    guard.enter();
-    scheduler.schedule();
-
     switch (system.getCPUID()) {
         case 1:
             break;
@@ -197,7 +163,11 @@ extern "C" int main_ap() {
             break;
     }
 
-    test_irq();
+    watch.activate();
+    CPU::enable_int();
+    //rtc.sleep(1);
+    guard.enter();
+    scheduler.schedule();
 
     // dont die
     for (;;) {

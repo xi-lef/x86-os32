@@ -19,10 +19,11 @@
 
 bits 32
 
-%define NUM_HANDLERS 32
+%define NUM_HANDLERS 256 ; old: 32
 
 section .data
 global dbg_irq_entries
+global dbg_irq_entries_length
 
 ; Erstelle eine Tabelle (Array) mit den Adressen der spezifischen Unterbrechungsbehandlungen
 dbg_irq_entries:
@@ -34,6 +35,9 @@ dbg_irq_entries:
 	dbg_irq_addr i
 	%assign i i+1
 %endrep
+
+dbg_irq_entries_length:
+    dd NUM_HANDLERS
 
 section .text
 ; Die generische Unterbrechungsbehandlung ist (analog zum guardian) eine C Funktion
