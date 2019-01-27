@@ -40,6 +40,7 @@ QEMU = qemu-system-i386
 
 PROJECT="MPStuBS"
 
+MAKEFLAGS = -j
 WARNFLAGS = -Wall -Wextra -Werror -Wno-error=unused-parameter
 OPTFLAGS = -O3 -fomit-frame-pointer
 FLOATINGPOINT = -mno-mmx -mno-sse
