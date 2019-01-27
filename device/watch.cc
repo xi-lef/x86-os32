@@ -24,14 +24,13 @@ bool Watch::windup(uint32_t us) {
     irq_interval = us;
     initial_count = tmp >> shift;
     divide = 1 << shift;
-    //DBG << "initial_count: " << initial_count << ", divide: " << int(divide) << endl;
+    //DBG << "Watch: initial_count: " << initial_count << ", divide: " << int(divide) << endl;
 
     plugbox.assign(Plugbox::Vector::timer, &watch);
     return true;
 }
 
 bool Watch::prologue() {
-    //DBG << "Watch: prologue " << flush;
     if (scheduler.active() == nullptr) {
         return false;
     }

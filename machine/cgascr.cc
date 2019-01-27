@@ -23,7 +23,7 @@ void CGA_Screen::setpos(int x, int y) {
 
     // sanity checks
     if (x < from_col || x > to_col || y < from_row || y > to_row) {
-        DBG << "invalid setpos (x: " << x << ", y: " << y << ")" << endl;
+        DBG << "CGA_S: invalid setpos (x: " << x << ", y: " << y << ")" << endl;
         return;
     }
 
@@ -48,7 +48,7 @@ void CGA_Screen::getpos(int& x, int& y) {
 
         // sanity check in case of unfortunate scheduling
         if (cursor < from_col * from_row || cursor > to_col * to_row) {
-            DBG << "invalid getpos" << endl;
+            DBG << "CGA_S: invalid getpos" << endl;
             x = 0;
             y = 0;
             return;
@@ -103,8 +103,6 @@ void CGA_Screen::print(char* string, int length, Attribute attrib) {
 }
 
 void CGA_Screen::reset(char character, Attribute attrib) {
-    //DBG << "reset " << from_col << " to " << to_col << " and " << from_row << " to " << to_row << endl;
-    //DBG << "last adress: " << (to_row * COLUMNS + to_col) * 2 + 1 << endl;
     setpos(from_col, from_row);
 	for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row; y++) {
@@ -124,7 +122,7 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 
     // sanity checks
     if (x < 0 || x > COLUMNS || y < 0 || y > ROWS) {
-        DBG << "invalid show (x: " << x << ", y: " << y << ")" << endl;
+        DBG << "CGA_S: invalid show (x: " << x << ", y: " << y << ")" << endl;
         return;
     }
 

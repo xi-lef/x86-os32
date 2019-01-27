@@ -84,8 +84,7 @@ bool Console::getpos(int& x, int& y) {
 
 void Console::print(char* string, int length) {
     for (int i = 0; i < length; i++) {
-        //DBG << int(string[i]) << ::flush;
-        if (string[i] == '\r') { // harald lied, too :(
+        if (string[i] == '\r') {
             write('\n', true);
         }
         write(string[i], true);
@@ -97,9 +96,8 @@ bool Console::prologue() {
     if (c == -1) {
         return false;
     }
-    //DBG << char(c) << endl;
     if (!buf.produce(c)) {
-        DBG << "console: bbuffer full :( " << ::flush;
+        DBG << "Console: bbuffer full :(" << endl;
     }
     return true;
 }

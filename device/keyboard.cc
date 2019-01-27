@@ -23,20 +23,16 @@ void Keyboard::plugin() {
 extern CGA_Stream kout;
 
 bool Keyboard::prologue() {
-    //DBG << "KB: prologue " << flush;
     bool ret = false; // in case of spurious interrupts, dont request epilogue
 
     for (Key k = key_hit(); k.valid(); k = key_hit()) {
         ret = true;
         if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
-            DBG.reset();
-            DBG << "REBOOTING..." << endl;
-            rtc.sleep(2);
             reboot();
         }
 
         if (!buf.produce(k)) {
-            DBG << "kb: bbuffer full :( " << flush;
+            DBG << "KB: bbuffer full :( " << flush;
             while (key_hit().valid()) ;
             break;
         }
@@ -46,7 +42,6 @@ bool Keyboard::prologue() {
 }
 
 void Keyboard::epilogue() {
-    //DBG << "KB: epilogue " << flush;
     Key k;
     while (buf.consume(k)) {
         kout << k.ascii();

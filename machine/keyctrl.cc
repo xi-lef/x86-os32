@@ -35,7 +35,7 @@ Key Keyboard_Controller::key_hit() {
         uint8_t code = data_port.inb();
 
         if (control_status & auxb) {
-            DBG << "kb_c: lol mouse " << flush;
+            DBG << "KB_C: lol mouse " << flush;
             continue;
         }
 
@@ -61,14 +61,14 @@ void Keyboard_Controller::reboot() {
 void Keyboard_Controller::set_repeat_rate(int speed, int delay) {
     uint8_t config = speed | (delay << 5);
 
-    DBG_VERBOSE << "set repeat rate (" << "speed: " << speed << ", delay: " << delay << ")" << endl;
+    DBG_VERBOSE << "KB_C: set repeat rate (" << "speed: " << speed << ", delay: " << delay << ")" << endl;
 
     send_command(kbd_cmd::set_speed, config);
 }
 
 void Keyboard_Controller::set_led(led_t led, bool on) {
     leds = on ? (leds | led) : (leds & ~led);
-    DBG_VERBOSE << "set LEDs (" << ((led == 1) ? "scroll lock" : ((led == 2) ? "num lock" : "caps lock"))
+    DBG_VERBOSE << "KB_C: set LEDs (" << ((led == 1) ? "scroll lock" : ((led == 2) ? "num lock" : "caps lock"))
         << " to " << (on ? "on" : "off") << ")" << endl;
 
     send_command(kbd_cmd::set_led, leds);

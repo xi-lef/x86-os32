@@ -12,7 +12,7 @@ void Thread::go() {
     toc_go(&regs);
 
     // go should not return here, but in Dispatcher::kickoff
-    DBG << "Thread: bad return (go)" << endl;
+    DBG << "Thread: bad return (from toc_go)" << endl;
 }
 
 void Thread::resume(Thread *next) {

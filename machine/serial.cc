@@ -38,7 +38,7 @@ int Serial::write(char out, bool blocking) {
             writeReg(tbr, out);
             return out;
         } else {
-            DBG << "serial: bad write " << flush;
+            DBG << "Serial: bad write" << endl;
             return -1;
         }
     } // else
@@ -53,7 +53,6 @@ int Serial::read(bool blocking) {
         if (readReg(lsr) & 1) {
             return readReg(rbr);
         } else {
-            //DBG << "serial: bad read " << flush;
             return -1;
         }
     } // else

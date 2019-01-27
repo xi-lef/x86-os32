@@ -5,7 +5,7 @@
 #include "syscall/guarded_scheduler.h"
 
 static void fail() {
-    DBG << endl << "Dispatcher: bad return (kickoff) :(" << endl;
+    DBG << endl << "Dispatcher: bad return (from kickoff) :(" << endl;
     Guarded_Scheduler::exit();
 }
 

@@ -24,7 +24,7 @@ void Scheduler::exit() {
 
 void Scheduler::kill(Thread *that) {
     if (ready_list.remove(that) != 0) {
-        DBG << "kill: remove was successful " << flush;
+        DBG << "Scheduler: kill: remove was successful" << endl;
         return;
     }
 

@@ -9,7 +9,7 @@ void Time::increment_seconds(uint32_t amount) {
     uint32_t next;
 #if __GNUC__ >= 7     // CIP uses gcc 6 :/
     if (__builtin_add_overflow_p(second, amount, next)) {
-        DBG << "what the fuck are you doing" << endl;
+        DBG << "What the fuck are you doing?" << endl;
         return;
     }
 #endif
@@ -26,7 +26,7 @@ void Time::increment_seconds(uint32_t amount) {
         if ((++month %= 12 + 1) != 0) continue;
         month++; // month is 0, so increment it for 1-indexing
         if ((++year %= 100) != 0) continue;
-        if ((++century %= 100) == 0) DBG << "nice cheats." << endl;
+        if ((++century %= 100) == 0) DBG << "Time: Nice cheats" << endl;
     }
     second = next;
 }

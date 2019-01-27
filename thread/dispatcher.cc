@@ -12,7 +12,7 @@ Thread *Dispatcher::active() {
 
 void Dispatcher::go(Thread *first) {
     if (active() != 0) {
-        DBG << "Dispatcher: invalid go " << flush;
+        DBG << "Dispatcher: invalid go" << endl;
     }
     set_active(first);
     first->go();
