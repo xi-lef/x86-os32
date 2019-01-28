@@ -57,7 +57,6 @@ extern "C" int main() {
 
     // initialize various stuff
     kout.reset();
-    //DBG << "lapic freq (per ms): " << lapic.timer_ticks() << endl;
     ioapic.init();
     keyboard.plugin();
     GDB_Stub gdb; // must be before console.listen (or IRQs are disabled)
