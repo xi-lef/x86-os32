@@ -5,7 +5,7 @@
 #include "guard/secure.h"
 #include "debug/output.h"
 #include "machine/plugbox.h"
-#include "machine/lapic.h"
+#include "machine/cpu.h"
 
 Scheduler scheduler;
 
@@ -32,18 +32,19 @@ void Scheduler::kill(Thread *that) {
     that->set_kill_flag();
 
     // find the CPU that is currently executing "that"
-    uint8_t dest = 0; // TODO compiler lol???
+    uint8_t dest = 0;
     for (unsigned int i = 0; i < sizeof(life) / sizeof(life[0]); i++) {
         if (life[i] == that) {
-            dest = 1 << i;
+            dest = i;
             break;
         }
     }
-    struct ICR_L data = {};
-    data.vector           = Plugbox::Vector::assassin;
-    data.destination_mode = DESTINATION_MODE_LOGICAL;
-    data.level            = LEVEL_ASSERT;
-    lapic.sendIPI(dest, data);
+
+    if (dest == system.getCPUID()) {
+        exit();
+    } else {
+        system.sendCustomIPI(system.getLogicalLAPICID(dest), Plugbox::Vector::assassin);
+    }
 }
 
 void Scheduler::resume() {
