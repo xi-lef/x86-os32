@@ -28,15 +28,15 @@ class Keyboard
 	Keyboard& operator=(const Keyboard&) = delete;
 
 private:
+    BBuffer<Key, 64> prebuf;
     BBuffer<Key, 64> buf;
-    volatile int count;
     Semaphore sem;
 
 public:
 	/*! \brief Konstruktor
 	 *
 	 */
-	Keyboard() : count(0), sem(0) {}
+	Keyboard() : sem(0) {}
 
 	/*! \brief 'Anstöpseln' der Tastatur.
 	 *
@@ -70,4 +70,3 @@ public:
     Key getkey();
 };
 
-extern Keyboard keyboard;

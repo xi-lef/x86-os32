@@ -6,12 +6,9 @@
 Bellringer bellringer;
 
 void Bellringer::check() {
-    //DBG << "BR: check " << flush;
     if (!bell_pending()) {
-        //DBG << "BR: no pending " << flush;
         return;
     }
-    //DBG << "BR: pending " << flush;
 
     Bell *first = bell_list.first();
     if (--first->ms == 0) {
@@ -24,7 +21,6 @@ void Bellringer::check() {
 }
 
 void Bellringer::job(Bell *bell, unsigned int ms) {
-    //DBG << "BR: job, ms " << ms << " " << flush;
     Bell *prev = nullptr;
     for (auto const & b : bell_list) {
         if (b->ms <= ms) { // before bell
@@ -32,8 +28,10 @@ void Bellringer::job(Bell *bell, unsigned int ms) {
             prev = b;
         } else {           // after bell
             b->ms -= ms;
+            break;
         }
     }
+    bell->ms = ms;
 
     if (prev == nullptr) {
         bell_list.insert_first(bell);
@@ -43,6 +41,10 @@ void Bellringer::job(Bell *bell, unsigned int ms) {
 }
 
 void Bellringer::cancel(Bell *bell) {
+    Bell *next = bell_list.next(bell);
+    if (next) {
+        next->ms += bell->ms;
+    }
     bell_list.remove(bell);
 }
 

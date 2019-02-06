@@ -5,14 +5,13 @@
 #include "machine/apicsystem.h"
 #include "debug/output.h"
 #include "user/time/rtc.h"
-
-Keyboard keyboard;
+#include "syscall/guarded_keyboard.h"
 
 void Keyboard::plugin() {
     Plugbox::Vector kb_vector = Plugbox::Vector::keyboard;
     unsigned char   kb_slot   = system.getIOAPICSlot(APICSystem::Device::keyboard);
 
-    plugbox.assign(kb_vector, &keyboard);
+    plugbox.assign(kb_vector, this);
     ioapic.config(kb_slot, kb_vector, TRIGGER_MODE_LEVEL);
     ioapic.allow(kb_slot);
     drainKeyboardBuffer();
@@ -29,38 +28,26 @@ bool Keyboard::prologue() {
             reboot();
         }
 
-        if (!buf.produce(k)) {
-            DBG << "KB: buffer full :( " << flush;
+        if (!prebuf.produce(k)) {
+            DBG << "KB: prebuf full :( " << flush;
             while (key_hit().valid()) ;
             break;
         }
-        count++;
     }
  
     return ret;
 }
 
 void Keyboard::epilogue() {
-    /*
     Key k;
-    while (buf.consume(k)) {
-        kout << k.ascii();
-    }
-    kout << flush;
-    */
-    //DBG << "count: " << count << " " << flush;
-    while (count > 0) {
-        count--;
+    while (prebuf.consume(k)) {
+        buf.produce(k);
         sem.v();
     }
 }
 
 Key Keyboard::getkey() {
-    //DBG << "pre getkey p " << flush;
-    guard.enter(); // TODO
     sem.p();
-    guard.leave();
-    //DBG << "post getkey p " << flush;
     Key k;
     buf.consume(k);
     return k;

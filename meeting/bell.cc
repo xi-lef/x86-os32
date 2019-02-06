@@ -14,7 +14,7 @@ void Bell::sleep(unsigned int ms) {
         return;
     }
 
-    Bell bell(ms);
+    Bell bell;
     bellringer.job(&bell, ms);
     scheduler.block(&bell);
 }

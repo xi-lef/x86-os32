@@ -52,3 +52,4 @@ public:
 	}
 };
 
+extern Guarded_Semaphore kout_sem;

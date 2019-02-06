@@ -42,7 +42,7 @@ public:
 	 *  \todo Konstruktor implementieren
 	 *
 	 */
-	Bell(unsigned int ms = 0) : ms(ms) {}
+	Bell() : ms(0) {}
 
 	/*! \brief Läuten der Glocke
 	 *

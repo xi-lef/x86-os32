@@ -20,3 +20,8 @@ void Guarded_Scheduler::resume() {
     Secure s;
     scheduler.resume();
 }
+
+void Guarded_Scheduler::wakeup(Thread *customer) {
+    Secure s;
+    scheduler.wakeup(customer);
+}

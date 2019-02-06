@@ -11,8 +11,7 @@
 /*! \brief Systemaufrufschnittstelle zur Tastatur
  *
  */
-class Guarded_Keyboard
-	: public Keyboard
+class Guarded_Keyboard : public Keyboard
 {
 	// Verhindere Kopien und Zuweisungen
 	Guarded_Keyboard(const Guarded_Keyboard&)            = delete;
@@ -31,3 +30,4 @@ public:
 	Key getkey();
 };
 
+extern Guarded_Keyboard keyboard;

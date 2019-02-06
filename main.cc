@@ -20,6 +20,7 @@
 #include "thread/idlethread.h"
 #include "thread/wakeup.h"
 #include "user/app2/kappl.h"
+#include "syscall/guarded_keyboard.h"
 
 extern APICSystem system;
 

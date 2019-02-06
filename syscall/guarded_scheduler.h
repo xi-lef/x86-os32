@@ -26,4 +26,6 @@ public:
     static void ready(Thread *that);
 
     static void resume();
+
+    static void wakeup(Thread *customer);
 };

@@ -14,13 +14,11 @@ void Scheduler::schedule() {
 }
 
 void Scheduler::ready(Thread *that) {
-    //DBG << "ready " << flush;
     ready_list.enqueue(that);
-    system.sendCustomIPI(0xff, Plugbox::Vector::wakeup);
+    system.sendCustomIPI((1 << system.getNumberOfOnlineCPUs()) - 1, Plugbox::Vector::wakeup);
 }
 
 void Scheduler::exit() {
-    //DBG << "exit " << flush;
     dispatch(is_empty() ? idlethread[system.getCPUID()] : ready_list.dequeue());
 }
 

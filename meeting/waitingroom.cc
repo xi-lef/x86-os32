@@ -1,12 +1,12 @@
 // vim: set et ts=4 sw=4:
 
 #include "meeting/waitingroom.h"
-#include "thread/scheduler.h"
+#include "syscall/guarded_scheduler.h"
 
 Waitingroom::~Waitingroom() {
     Thread *t;
     while ((t = dequeue()) != nullptr) {
-        scheduler.wakeup(t);
+        Guarded_Scheduler::wakeup(t);
     }
 }
 
