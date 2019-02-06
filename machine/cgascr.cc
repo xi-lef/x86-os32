@@ -83,10 +83,13 @@ void CGA_Screen::LF(int& x, int& y) {
 }
 
 void CGA_Screen::print(char* string, int length, Attribute attrib) {
-	int x;
-	int y;
+	int x, y;
 	getpos(x, y);
-
+    if (x < from_col || x > to_col || y < from_row || y > to_row) {
+        DBG << "CGA_S: invalid print (x: " << x << ", y: " << y << ")" << endl;
+        return;
+    }
+	
 	for (int i = 0; i < length; i++) {
 		if (string[i] == '\n') {
 			LF(x, y);
@@ -121,7 +124,7 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
 	}
 
     // sanity checks
-    if (x < 0 || x > COLUMNS || y < 0 || y > ROWS) {
+    if (x < 0 || x >= COLUMNS || y < 0 || y >= ROWS) {
         DBG << "CGA_S: invalid show (x: " << x << ", y: " << y << ")" << endl;
         return;
     }

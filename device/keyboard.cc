@@ -5,10 +5,8 @@
 #include "machine/apicsystem.h"
 #include "debug/output.h"
 #include "user/time/rtc.h"
-#include "object/bbuffer.h"
 
 Keyboard keyboard;
-static BBuffer<Key, 64> buf;
 
 void Keyboard::plugin() {
     Plugbox::Vector kb_vector = Plugbox::Vector::keyboard;
@@ -32,19 +30,38 @@ bool Keyboard::prologue() {
         }
 
         if (!buf.produce(k)) {
-            DBG << "KB: bbuffer full :( " << flush;
+            DBG << "KB: buffer full :( " << flush;
             while (key_hit().valid()) ;
             break;
         }
+        count++;
     }
  
     return ret;
 }
 
 void Keyboard::epilogue() {
+    /*
     Key k;
     while (buf.consume(k)) {
         kout << k.ascii();
     }
     kout << flush;
+    */
+    //DBG << "count: " << count << " " << flush;
+    while (count > 0) {
+        count--;
+        sem.v();
+    }
+}
+
+Key Keyboard::getkey() {
+    //DBG << "pre getkey p " << flush;
+    guard.enter(); // TODO
+    sem.p();
+    guard.leave();
+    //DBG << "post getkey p " << flush;
+    Key k;
+    buf.consume(k);
+    return k;
 }

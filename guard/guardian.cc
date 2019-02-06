@@ -13,7 +13,8 @@
 extern "C" void guardian(uint32_t vector, irq_context *context) {
     (void) context;
     if (vector != Plugbox::Vector::timer && vector != Plugbox::Vector::rtc
-            && vector != Plugbox::Vector::keyboard && vector != Plugbox::Vector::serial) {
+            && vector != Plugbox::Vector::keyboard && vector != Plugbox::Vector::serial
+            && vector != Plugbox::Vector::wakeup) {
         DBG << "IRQ " << vector << endl;
     }
 

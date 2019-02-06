@@ -34,6 +34,8 @@ private:
     Queue<Thread> ready_list;
 
 public:
+    Thread *idlethread[CPU_MAX];
+
 	/*! \brief Konstruktor
 	 *
 	 */
@@ -51,7 +53,6 @@ public:
 	 */
 	void schedule();
 
-//private: // use syscall/Guarded_Scheduler!
 	/*! \brief Anmelden eines Threads zum Scheduling
 	 *
 	 *  Mit dieser Methode wird der Thread that beim Scheduler angemeldet. Er
@@ -107,6 +108,13 @@ public:
 	 */
 	void resume();
 
+    void block(Waitingroom *w);
+
+    bool is_empty();
+
+    void set_idle_thread(int cpuid, Thread *thread);
+
+    void wakeup(Thread *customer);
 };
 
 extern Scheduler scheduler;

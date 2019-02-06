@@ -39,3 +39,4 @@ public:
 	bool prologue();
 };
 
+extern WakeUp wakeup;

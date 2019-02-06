@@ -30,8 +30,7 @@ public:
 	 *  \todo Konstruktor implementieren
 	 *
 	 */
-	Guarded_Semaphore(int c)
-	{}
+	Guarded_Semaphore(int c) : Semaphore(c) {}
 
 	/*! \brief Diese Methode entspricht der gleichnamigen Methode der
 	 *  Basisklasse Semaphore, nur dass sie mit Hilfe eines Secure Objekts
@@ -42,10 +41,14 @@ public:
 	 *
 	 */
 	void p() {
+        Secure s;
+        Semaphore::p();
 	}
 
 	/// \copydoc p()
 	void v() {
+        Secure s;
+        Semaphore::v();
 	}
 };
 

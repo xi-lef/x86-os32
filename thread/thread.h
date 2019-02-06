@@ -17,6 +17,7 @@
 
 #include "machine/toc.h"
 #include "object/queuelink.h"
+#include "meeting/waitingroom.h"
 
 /*! \brief Der Thread ist das Objekt der Ablaufplanung.
  *  \ingroup thread
@@ -34,6 +35,8 @@ public:
 
 	/*! \brief Verkettungszeiger für Scheduler und Waitingroom */
 	QueueLink<Thread> queue_link;
+
+    Waitingroom *waitingroom;
 
 private:
 	struct toc regs;
@@ -75,5 +78,8 @@ public:
     void reset_kill_flag();
 
     bool dying();
-};
 
+    Waitingroom *waiting_in();
+
+    void waiting_in(Waitingroom *w);
+};

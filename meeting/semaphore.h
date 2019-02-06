@@ -22,6 +22,10 @@ class Semaphore
 	// Verhindere Kopien und Zuweisungen
 	Semaphore(const Semaphore&)            = delete;
 	Semaphore& operator=(const Semaphore&) = delete;
+
+private:
+    int counter;
+
 public:
 	/*! \brief Der Konstruktor initialisiert den Semaphorzähler mit dem
 	 *  angegebenen Wert \b c
@@ -29,8 +33,9 @@ public:
 	 *
 	 *  \todo Konstruktor implementieren
 	 */
-	Semaphore(int c = 0)
-	{}
+	Semaphore(int c = 0) {
+        counter = c;
+    }
 
 	/*! \brief Warten auf das Freiwerden eines kritischen Abschnitts.
 	 *

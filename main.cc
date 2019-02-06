@@ -17,6 +17,9 @@
 #include "device/watch.h"
 #include "debug/gdb/stub.h"
 #include "thread/assassin.h"
+#include "thread/idlethread.h"
+#include "thread/wakeup.h"
+#include "user/app2/kappl.h"
 
 extern APICSystem system;
 
@@ -24,22 +27,33 @@ extern APICSystem system;
 static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
-// Stack fuer max. 32 Applications
-static const unsigned long APP_STACK_SIZE = 4096;
-static unsigned char app_stack[32 * APP_STACK_SIZE];
+// Stack fuer IdleThreads
+static unsigned char idle_stack[8 * CPU_STACK_SIZE];
+static IdleThread idle0(&idle_stack[1 * CPU_STACK_SIZE - 4]);
+static IdleThread idle1(&idle_stack[2 * CPU_STACK_SIZE - 4]);
+static IdleThread idle2(&idle_stack[3 * CPU_STACK_SIZE - 4]);
+static IdleThread idle3(&idle_stack[4 * CPU_STACK_SIZE - 4]);
+static IdleThread idle4(&idle_stack[5 * CPU_STACK_SIZE - 4]);
+static IdleThread idle5(&idle_stack[6 * CPU_STACK_SIZE - 4]);
+static IdleThread idle6(&idle_stack[7 * CPU_STACK_SIZE - 4]);
+static IdleThread idle7(&idle_stack[8 * CPU_STACK_SIZE - 4]);
 
-Application a0(&(app_stack[1 * APP_STACK_SIZE - 4]), 0); // non-static to test kill
-static Application a1(&(app_stack[2 * APP_STACK_SIZE - 4]), 1);
-static Application a2(&(app_stack[3 * APP_STACK_SIZE - 4]), 2);
-static Application a3(&(app_stack[4 * APP_STACK_SIZE - 4]), 3);
-static Application a4(&(app_stack[5 * APP_STACK_SIZE - 4]), 4);
-static Application a5(&(app_stack[6 * APP_STACK_SIZE - 4]), 5);
-static Application a6(&(app_stack[7 * APP_STACK_SIZE - 4]), 6);
-static Application a7(&(app_stack[8 * APP_STACK_SIZE - 4]), 7);
-static Application a8(&(app_stack[9 * APP_STACK_SIZE - 4]), 8);
-static Application a9(&(app_stack[10 * APP_STACK_SIZE - 4]), 9);
-static Application a10(&(app_stack[11 * APP_STACK_SIZE - 4]), 10);
-static Clock_Application a11(&(app_stack[12 * APP_STACK_SIZE - 4]), 11);
+// Stack fuer max. 32 Applications
+static unsigned char app_stack[32 * CPU_STACK_SIZE];
+
+Application a0(&(app_stack[1 * CPU_STACK_SIZE - 4]), 0); // non-static to test kill
+static Application a1(&(app_stack[2 * CPU_STACK_SIZE - 4]), 1);
+static Application a2(&(app_stack[3 * CPU_STACK_SIZE - 4]), 2);
+static Application a3(&(app_stack[4 * CPU_STACK_SIZE - 4]), 3);
+static Application a4(&(app_stack[5 * CPU_STACK_SIZE - 4]), 4);
+static Application a5(&(app_stack[6 * CPU_STACK_SIZE - 4]), 5);
+static Application a6(&(app_stack[7 * CPU_STACK_SIZE - 4]), 6);
+static Application a7(&(app_stack[8 * CPU_STACK_SIZE - 4]), 7);
+static Application a8(&(app_stack[9 * CPU_STACK_SIZE - 4]), 8);
+static Application a9(&(app_stack[10 * CPU_STACK_SIZE - 4]), 9);
+static Application a10(&(app_stack[11 * CPU_STACK_SIZE - 4]), 10);
+//static ClockApplication a11(&(app_stack[12 * CPU_STACK_SIZE - 4]), 11);
+static KeyboardApplication a12(&(app_stack[13 * CPU_STACK_SIZE - 4]), 12);
 
 /*! \brief Einsprungpunkt ins System
  *
@@ -63,8 +77,20 @@ extern "C" int main() {
     console.listen();
     rtc.init_RTC();
     watch.windup(1000); // 1 irq per ms
+    wakeup.activate();
     assassin.hire();
 
+    // set idle threads
+    scheduler.set_idle_thread(0, &idle0);
+    scheduler.set_idle_thread(1, &idle1);
+    scheduler.set_idle_thread(2, &idle2);
+    scheduler.set_idle_thread(3, &idle3);
+    scheduler.set_idle_thread(4, &idle4);
+    scheduler.set_idle_thread(5, &idle5);
+    scheduler.set_idle_thread(6, &idle6);
+    scheduler.set_idle_thread(7, &idle7);
+
+    //*
     Guarded_Scheduler::ready(&a0);
     Guarded_Scheduler::ready(&a1);
     Guarded_Scheduler::ready(&a2);
@@ -75,8 +101,9 @@ extern "C" int main() {
     Guarded_Scheduler::ready(&a7);
     Guarded_Scheduler::ready(&a8);
     Guarded_Scheduler::ready(&a9);
-    Guarded_Scheduler::ready(&a10);
-    Guarded_Scheduler::ready(&a11);
+    Guarded_Scheduler::ready(&a10);//*/
+//    Guarded_Scheduler::ready(&a11); // ClockApplication
+    Guarded_Scheduler::ready(&a12); // KeyboardApplication
 
     switch (type) {
         case APICSystem::MP_APIC:
@@ -95,8 +122,8 @@ extern "C" int main() {
             {}
     }
 
-    watch.activate();
     CPU::enable_int();
+    watch.activate();
     //rtc.sleep(3);
     guard.enter();
     scheduler.schedule();
@@ -162,8 +189,8 @@ extern "C" int main_ap() {
             break;
     }
 
-    watch.activate();
     CPU::enable_int();
+    watch.activate();
     //rtc.sleep(1);
     guard.enter();
     scheduler.schedule();

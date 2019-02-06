@@ -6,12 +6,11 @@
 #include "machine/cpu.h"
 
 Thread *Dispatcher::active() {
-    Thread *ret = life[system.getCPUID()];
-    return ret;
+    return life[system.getCPUID()];
 }
 
 void Dispatcher::go(Thread *first) {
-    if (active() != 0) {
+    if (active() != nullptr) {
         DBG << "Dispatcher: invalid go" << endl;
     }
     set_active(first);

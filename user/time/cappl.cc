@@ -10,7 +10,7 @@
 
 extern Application a0;
 
-void Clock_Application::action() {
+void ClockApplication::action() {
     rtc.sleep(2);
     Guarded_Scheduler::kill(&a0);
     for (;;) {
@@ -21,6 +21,6 @@ void Clock_Application::action() {
     }
 }
 
-void Clock_Application::setID(int i) {
+void ClockApplication::setID(int i) {
     id = i;
 }

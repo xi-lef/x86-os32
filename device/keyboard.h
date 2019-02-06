@@ -9,6 +9,8 @@
 #include "machine/keyctrl.h"
 #include "guard/gate.h"
 #include "machine/key.h"
+#include "syscall/guarded_semaphore.h"
+#include "object/bbuffer.h"
 
 /*! \brief Die Klasse Keyboard stellt die Abstraktion der Tastatur dar.
  *  \ingroup io
@@ -26,11 +28,15 @@ class Keyboard
 	Keyboard& operator=(const Keyboard&) = delete;
 
 private:
+    BBuffer<Key, 64> buf;
+    volatile int count;
+    Semaphore sem;
+
 public:
 	/*! \brief Konstruktor
 	 *
 	 */
-	Keyboard() {}
+	Keyboard() : count(0), sem(0) {}
 
 	/*! \brief 'Anstöpseln' der Tastatur.
 	 *
@@ -58,7 +64,10 @@ public:
 	void trigger();
 
     bool prologue();
+
     void epilogue();
+
+    Key getkey();
 };
 
 extern Keyboard keyboard;

@@ -31,6 +31,9 @@ private:
 	 * bellringer_link. */
 	friend class Bellringer;
 
+    unsigned int ms;
+    QueueLink<Bell> bellringer_link;
+
 public:
 	/*! \brief Konstruktor.
 	 *
@@ -39,8 +42,7 @@ public:
 	 *  \todo Konstruktor implementieren
 	 *
 	 */
-	Bell()
-	{}
+	Bell(unsigned int ms = 0) : ms(ms) {}
 
 	/*! \brief Läuten der Glocke
 	 *

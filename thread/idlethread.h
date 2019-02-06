@@ -20,7 +20,9 @@
  *  ausgeführt werden sollen, wenn kein normaler Thread mehr bereit ist.
  *
  */
-class IdleThread
-{
-};
+class IdleThread : public Thread {
+public:
+    IdleThread(void *tos) : Thread(tos) {}
 
+    void action();
+};

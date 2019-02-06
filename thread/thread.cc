@@ -4,7 +4,7 @@
 #include "thread/dispatcher.h"
 #include "debug/output.h"
 
-Thread::Thread(void *tos) : killed(false) {
+Thread::Thread(void *tos) : waitingroom(0), killed(false) {
     toc_settle(&regs, tos, Dispatcher::kickoff, this);
 }
 
@@ -29,4 +29,12 @@ void Thread::reset_kill_flag() {
 
 bool Thread::dying() {
     return killed;
+}
+
+Waitingroom *Thread::waiting_in() {
+    return waitingroom;
+}
+
+void Thread::waiting_in(Waitingroom *w) {
+    waitingroom = w;
 }

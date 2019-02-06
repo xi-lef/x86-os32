@@ -10,16 +10,18 @@
 Scheduler scheduler;
 
 void Scheduler::schedule() {
-    Thread *t = ready_list.dequeue();
-    go(t);
+    go(is_empty() ? idlethread[system.getCPUID()] : ready_list.dequeue());
 }
 
 void Scheduler::ready(Thread *that) {
+    //DBG << "ready " << flush;
     ready_list.enqueue(that);
+    system.sendCustomIPI(0xff, Plugbox::Vector::wakeup);
 }
 
 void Scheduler::exit() {
-    dispatch(ready_list.dequeue());
+    //DBG << "exit " << flush;
+    dispatch(is_empty() ? idlethread[system.getCPUID()] : ready_list.dequeue());
 }
 
 void Scheduler::kill(Thread *that) {
@@ -49,12 +51,32 @@ void Scheduler::kill(Thread *that) {
 
 void Scheduler::resume() {
     Thread *prev = active();
-    if (!prev->dying()) {
+    if (!prev->dying() && prev != idlethread[system.getCPUID()]) { // dont queue idlethreads!
         ready_list.enqueue(prev);
     } else {
         prev->reset_kill_flag();
     }
 
-    Thread *next = ready_list.dequeue();
-    dispatch(next);
+    exit();
+}
+
+void Scheduler::block(Waitingroom *w) {
+    Thread *t = active();
+    w->enqueue(t);
+    t->waiting_in(w);
+    exit();
+}
+
+bool Scheduler::is_empty() {
+    return ready_list.first() == nullptr;
+}
+
+void Scheduler::set_idle_thread(int cpuid, Thread *thread) {
+    idlethread[cpuid] = thread;
+}
+
+void Scheduler::wakeup(Thread *customer) {
+    customer->waiting_in()->remove(customer);
+    customer->waiting_in(nullptr);
+    ready(customer);
 }

@@ -26,13 +26,16 @@ class Bellringer
 	// Verhindere Kopien und Zuweisungen
 	Bellringer(const Bellringer&)            = delete;
 	Bellringer& operator=(const Bellringer&) = delete;
+
+private:
+    Queue<Bell, &Bell::bellringer_link> bell_list;
+
 public:
 	/*! \brief Konstruktor.
 	 *
 	 */
 	Bellringer() {}
 
-public:
 	/*! \brief Prüft, ob Glocken zu läuten sind und tut es gegebenenfalls.
 	 *
 	 *  Bei jedem Aufruf von check vergeht ein Tick. Wenn das Ticken einer
@@ -74,3 +77,4 @@ public:
 
 };
 
+extern Bellringer bellringer;

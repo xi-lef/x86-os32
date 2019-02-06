@@ -142,8 +142,9 @@ public:
 	 *  \param periodic Gibt an, ob die Unterbrechung periodisch kommen soll
 	 *  \param masked Unterdrückt Unterbrechungen bei Zählerablauf
 	 */
-	void setTimer(uint32_t counter, uint8_t divide, uint8_t vector, bool periodic, bool masked=false);
+	void setTimer(uint32_t counter, uint8_t divide, uint8_t vector, bool periodic, bool masked = false);
 
+    void setTimerMasked(bool masked = false);
 };
 
 // global object declaration

@@ -11,10 +11,10 @@
 
 /*! \brief Die Klasse Application definiert eine Anwendung für OO-Stubs.
  */
-class Clock_Application : public Thread {
+class ClockApplication : public Thread {
 	// Verhindere Kopien und Zuweisungen
-	Clock_Application(const Clock_Application&)            = delete;
-	Clock_Application& operator=(const Clock_Application&) = delete;
+	ClockApplication(const ClockApplication&)            = delete;
+	ClockApplication& operator=(const ClockApplication&) = delete;
 
 private:
 	int id;
@@ -24,7 +24,7 @@ public:
 	 *
 	 * \param i Instanz-ID
 	 */
-    Clock_Application(void *tos, int i = 0) : Thread(tos), id(i) {}
+    ClockApplication(void *tos, int i = 0) : Thread(tos), id(i) {}
 
 	/*! \brief Enthält den Code der Anwendung
 	 *

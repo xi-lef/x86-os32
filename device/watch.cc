@@ -7,6 +7,7 @@
 #include "debug/output.h"
 #include "thread/scheduler.h"
 #include "syscall/guarded_scheduler.h"
+#include "meeting/bellringer.h"
 
 Watch watch;
 
@@ -31,13 +32,13 @@ bool Watch::windup(uint32_t us) {
 }
 
 bool Watch::prologue() {
-    if (scheduler.active() == nullptr) {
-        return false;
-    }
     return true;
 }
 
 void Watch::epilogue() {
+    if (system.getCPUID() == 0) {
+        bellringer.check();
+    }
     scheduler.resume();
 }
 
@@ -47,4 +48,12 @@ uint32_t Watch::interval() {
 
 void Watch::activate() {
     lapic.setTimer(initial_count, divide, Plugbox::Vector::timer, true, false);
+}
+
+void Watch::block() {
+    lapic.setTimerMasked(true);
+}
+
+void Watch::unblock() {
+    lapic.setTimerMasked(false);
 }

@@ -87,6 +87,9 @@ public:
 	 */
 	void activate();
 
+    void block();
+
+    void unblock();
 };
 
 extern Watch watch;
