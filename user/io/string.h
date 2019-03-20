@@ -7,27 +7,24 @@
 class String {
 private:
     char    data[STRING_MAX_LENGTH];
-    uint8_t length;
+    size_t len;
 
 public:
     String();
-
     String(char *s);
 
     operator char*();
 
     char at(int i);
 
-    uint8_t get_length() const;
+    size_t length() const;
 
-    String without_nl();
-    void remove_nl();
-
+    String without_lf();
+    void remove_lf();
     bool append(char c);
 
     void empty();
+    bool is_empty();
 };
-
-int strlen(String s);
 
 bool streq(String s1, String s2);

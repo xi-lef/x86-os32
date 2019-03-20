@@ -2,7 +2,6 @@
 #include "utils/memutil.h"
 #include "debug/assert.h"
 #include "debug/output.h"
-#include "guard/secure.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -243,6 +242,7 @@ HeapStats get_heap_stats()
 	result.free_blocks = free_blocks;
 	result.used = used;
 	result.used_blocks = used_blocks;
+    result.total = HEAP_SIZE;
 	return result;
 }
 
@@ -372,4 +372,16 @@ void *realloc(void *ptr, size_t size)
 
 void *operator new(size_t size) {
     return malloc(size);
+}
+
+void *operator new[](size_t size) {
+    return malloc(size);
+}
+
+void operator delete(void *ptr) {
+    free(ptr);
+}
+
+void operator delete[](void *ptr) {
+    free(ptr);
 }

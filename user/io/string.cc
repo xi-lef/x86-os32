@@ -1,18 +1,18 @@
 #include "user/io/string.h"
 #include "debug/output.h"
 
-String::String() : length(0) {}
+String::String() : len(0) {}
 
 String::String(char *s) {
     int i;
     for (i = 0; s[i] != '\0'; i++) {
         data[i] = s[i];
     }   
-    length = i;
+    len = i;
 }
 
 String::operator char*() {
-    for (int i = length; i < STRING_MAX_LENGTH; i++) {
+    for (int i = len; i < STRING_MAX_LENGTH; i++) {
         data[i] = '\0';
     }
     return data;
@@ -22,61 +22,50 @@ char String::at(int i) {
     return data[i];
 }
 
-uint8_t String::get_length() const {
-    return length;
+size_t String::length() const {
+    return len;
 }
 
-String String::without_nl() {
+String String::without_lf() {
     String new_str(*this);
-    if (new_str.data[length - 1] == '\n') {
-        new_str.data[length - 1] =  '\0';
+    if (new_str.data[len - 1] == '\n') {
+        new_str.data[len - 1] =  '\0';
+        new_str.len--;
     }
-    new_str.length--;
     return new_str;
 }
 
-void String::remove_nl() {
-    if (data[length - 1] == '\n') {
-        data[length - 1] =  '\0';
+void String::remove_lf() {
+    if (data[len - 1] == '\n') {
+        data[len - 1] =  '\0';
+        len--;
     }
-    length--;
 }
 
 bool String::append(char c) {
-    if (length == STRING_MAX_LENGTH) {
+    if (len == STRING_MAX_LENGTH) {
         return false;
     }
-    data[length++] = c;
+    data[len++] = c;
     return true;
 }
 
 void String::empty() {
-    length = 0;
+    len = 0;
 }
 
-int strlen(String s) {
-    return s.get_length();
+bool String::is_empty() {
+    return len == 0;
 }
 
 bool streq(String s1, String s2) {
-    if (s1.get_length() != s2.get_length()) {
+    if (s1.length() != s2.length()) {
         return false;
     }
-    for (int i = 0; i < s1.get_length(); i++) {
+    for (size_t i = 0; i < s1.length(); i++) {
         if (s1.at(i) != s2.at(i)) {
             return false;
         }
     }
     return true;
 }
-
-/*#include <stdio.h>
-
-int main() {
-    String s1("abcdef");
-    String s2("abcdef");
-
-    printf("%d\n", streq(s1, s2));
-
-    return 0;
-}//*/

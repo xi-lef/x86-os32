@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-static const size_t HEAP_SIZE = 1024 * 1024 * 32; // 32 MiB
+static const size_t HEAP_SIZE = 1024 * 1024 * 1; // 1 MiB
 
 struct HeapStats
 {
@@ -14,7 +14,10 @@ struct HeapStats
 	size_t free_blocks;
 	size_t used;
 	size_t used_blocks;
+    size_t total;
 };
+
+HeapStats get_heap_stats();
 
 /*! \brief Allokiere Speicher und gib einen Zeiger darauf zurück.
  *  Der Speicher ist nicht bereinigt (genullt).
@@ -50,3 +53,4 @@ extern "C" void *calloc(size_t nmemb, size_t size);
 extern "C" void *realloc(void *ptr, size_t size);
 
 void *operator new(size_t size);
+void operator delete(void *ptr);

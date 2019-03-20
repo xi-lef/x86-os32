@@ -28,14 +28,11 @@ class Scheduler
 	Scheduler(const Scheduler&)            = delete;
 	Scheduler& operator=(const Scheduler&) = delete;
 
-    //friend class Guarded_Scheduler;
-
 private:
     Queue<Thread> ready_list;
-
-public:
     Thread *idlethread[CPU_MAX];
 
+public:
 	/*! \brief Konstruktor
 	 *
 	 */

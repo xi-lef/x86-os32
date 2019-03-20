@@ -1,10 +1,9 @@
 // vim: set et ts=4 sw=4:
 
 #include "device/cgastr.h"
-#include "syscall/guarded_semaphore.h"
 
 CGA_Stream kout     ( 0, 79,  0, 14, true);
-Guarded_Semaphore kout_sem(1);
+Guarded_Mutex kout_mutex;
 
 CGA_Stream dout_CPU0( 0, 39, 15, 19, false);
 CGA_Stream dout_CPU1(40, 79, 15, 19, false);

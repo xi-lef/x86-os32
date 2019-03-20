@@ -22,14 +22,14 @@ void Bellringer::check() {
 
 void Bellringer::job(Bell *bell, unsigned int ms) {
     Bell *prev = nullptr;
-    for (auto const & b : bell_list) {
-        if (b->ms <= ms) { // before bell
-            ms -= b->ms;
-            prev = b;
-        } else {           // after bell
+    for (Bell *b : bell_list) {
+        if (b->ms > ms) { // if insert position was found: decrease the next one
             b->ms -= ms;
             break;
         }
+        // otherwise: just keep iterating and decreasing
+        ms -= b->ms;
+        prev = b;
     }
     bell->ms = ms;
 

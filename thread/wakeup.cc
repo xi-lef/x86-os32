@@ -4,7 +4,7 @@
 WakeUp wakeup;
 
 void WakeUp::activate() {
-    plugbox.assign(Plugbox::Vector::wakeup, &wakeup);
+    plugbox.assign(Plugbox::Vector::wakeup, this);
 }
 
 bool WakeUp::prologue() {

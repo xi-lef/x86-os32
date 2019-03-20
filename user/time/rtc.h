@@ -84,6 +84,7 @@ public:
     void set_time();
 
     /*
+     * DO NOT USE THIS. Use [Guarded_]Bell::sleep instead.
      * sleep waits for [t - 1, t] seconds. dont rely on precision!
      */
     void sleep(unsigned int t);

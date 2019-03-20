@@ -203,8 +203,7 @@ uint8_t LAPIC::timer_div(uint8_t div)
 	return masks[trail];
 }
 
-void LAPIC::setTimer(uint32_t counter, uint8_t divide, uint8_t vector, bool periodic, bool masked)
-{
+void LAPIC::setTimer(uint32_t counter, uint8_t divide, uint8_t vector, bool periodic, bool masked) {
     // set initial count to 0 to stop timer for configuration
     LAPICRegister_t lr = { .value = 0 };
     write(icr_reg, lr);

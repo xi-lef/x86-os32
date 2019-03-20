@@ -7,12 +7,15 @@
 #include "thread/scheduler.h"
 #include "syscall/guarded_scheduler.h"
 #include "user/time/rtc.h"
+#include "syscall/guarded_bell.h"
 
-extern Application a0;
+extern Application *app;
 
 void ClockApplication::action() {
-    rtc.sleep(2);
-    Guarded_Scheduler::kill(&a0);
+    Guarded_Bell::sleep(1000);
+    Guarded_Scheduler::kill(app);
+    Guarded_Scheduler::exit();
+
     for (;;) {
         //DBG << "Clock_App " << id << ": action " << flush;
         rtc.set_time();

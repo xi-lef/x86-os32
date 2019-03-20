@@ -30,7 +30,7 @@ public:
 	 *  \todo Konstruktor implementieren
 	 *
 	 */
-	Guarded_Semaphore(int c) : Semaphore(c) {}
+	Guarded_Semaphore(int c = 0) : Semaphore(c) {}
 
 	/*! \brief Diese Methode entspricht der gleichnamigen Methode der
 	 *  Basisklasse Semaphore, nur dass sie mit Hilfe eines Secure Objekts
@@ -51,5 +51,3 @@ public:
         Semaphore::v();
 	}
 };
-
-extern Guarded_Semaphore kout_sem;

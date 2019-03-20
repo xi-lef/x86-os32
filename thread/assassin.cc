@@ -8,7 +8,7 @@
 Assassin assassin;
 
 void Assassin::hire() {
-    plugbox.assign(Plugbox::Vector::assassin, &assassin);
+    plugbox.assign(Plugbox::Vector::assassin, this);
 }
 
 bool Assassin::prologue() {
@@ -18,6 +18,7 @@ bool Assassin::prologue() {
 void Assassin::epilogue() {
     Thread *active = scheduler.active();
     if (active->dying()) {
+        active->mutex_release_all();
         scheduler.exit();
     }
 }

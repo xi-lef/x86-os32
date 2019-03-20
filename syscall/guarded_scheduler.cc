@@ -1,8 +1,11 @@
 #include "syscall/guarded_scheduler.h"
 #include "guard/secure.h"
+#include "user/status/status.h"
 
 void Guarded_Scheduler::exit() {
     Secure s;
+    status.thread_dec();
+    scheduler.active()->mutex_release_all(); // see pthread_exit(3)
     scheduler.exit();
 }
 

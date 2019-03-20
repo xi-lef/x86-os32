@@ -1,67 +1,35 @@
 // vim: set et ts=4 sw=4:
 
+#include "debug/output.h"
+#include "debug/gdb/stub.h"
+#include "device/console.h"
+#include "device/keyboard.h"
+#include "device/watch.h"
 #include "machine/apicsystem.h"
 #include "machine/lapic.h"
-#include "debug/output.h"
 #include "machine/keyctrl.h"
-#include "device/console.h"
-#include "user/time/rtc.h"
 #include "machine/ioapic.h"
 #include "machine/cpu.h"
-#include "device/keyboard.h"
-#include "guard/secure.h"
-#include "user/app1/appl.h"
-#include "user/time/cappl.h"
-#include "thread/scheduler.h"
 #include "syscall/guarded_scheduler.h"
-#include "device/watch.h"
-#include "debug/gdb/stub.h"
+#include "syscall/guarded_keyboard.h"
+#include "thread/scheduler.h"
 #include "thread/assassin.h"
 #include "thread/idlethread.h"
 #include "thread/wakeup.h"
+#include "user/app1/appl.h"
 #include "user/app2/kappl.h"
-#include "syscall/guarded_keyboard.h"
-
-extern APICSystem system;
+#include "user/status/sappl.h"
+#include "user/time/cappl.h"
+#include "user/time/rtc.h"
 
 // Stack fuer max. 7 APs
 static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
-// Stack fuer IdleThreads
-static unsigned char idle_stack[8 * CPU_STACK_SIZE];
-static IdleThread idle0(&idle_stack[1 * CPU_STACK_SIZE - 4]);
-static IdleThread idle1(&idle_stack[2 * CPU_STACK_SIZE - 4]);
-static IdleThread idle2(&idle_stack[3 * CPU_STACK_SIZE - 4]);
-static IdleThread idle3(&idle_stack[4 * CPU_STACK_SIZE - 4]);
-static IdleThread idle4(&idle_stack[5 * CPU_STACK_SIZE - 4]);
-static IdleThread idle5(&idle_stack[6 * CPU_STACK_SIZE - 4]);
-static IdleThread idle6(&idle_stack[7 * CPU_STACK_SIZE - 4]);
-static IdleThread idle7(&idle_stack[8 * CPU_STACK_SIZE - 4]);
+Application *app; // to test scheduler.kill() in user/app2
 
-// Stack fuer max. 32 Applications
-static unsigned char app_stack[32 * CPU_STACK_SIZE];
-
-Application a0(&(app_stack[1 * CPU_STACK_SIZE - 4]), 0); // non-static to test kill
-static Application a1(&(app_stack[2 * CPU_STACK_SIZE - 4]), 1);
-static Application a2(&(app_stack[3 * CPU_STACK_SIZE - 4]), 2);
-static Application a3(&(app_stack[4 * CPU_STACK_SIZE - 4]), 3);
-static Application a4(&(app_stack[5 * CPU_STACK_SIZE - 4]), 4);
-static Application a5(&(app_stack[6 * CPU_STACK_SIZE - 4]), 5);
-static Application a6(&(app_stack[7 * CPU_STACK_SIZE - 4]), 6);
-static Application a7(&(app_stack[8 * CPU_STACK_SIZE - 4]), 7);
-static Application a8(&(app_stack[9 * CPU_STACK_SIZE - 4]), 8);
-static Application a9(&(app_stack[10 * CPU_STACK_SIZE - 4]), 9);
-static Application a10(&(app_stack[11 * CPU_STACK_SIZE - 4]), 10);
-//static ClockApplication a11(&(app_stack[12 * CPU_STACK_SIZE - 4]), 11);
-static KeyboardApplication a12(&(app_stack[13 * CPU_STACK_SIZE - 4]), 12);
-
-/*! \brief Einsprungpunkt ins System
- *
- *  Dieser Code wird nur auf der Boot-CPU (diejenige mit der ID 0) ausgeführt.
- */
 extern "C" int main() {
-    // Startmeldung ausgeben
+    // print starting stuff
     APICSystem::SystemType type = system.getSystemType();
     unsigned int numCPUs = system.getNumberOfCPUs();
     DBG_VERBOSE << "Is SMP system? " << (type == APICSystem::MP_APIC) << endl
@@ -81,46 +49,52 @@ extern "C" int main() {
     wakeup.activate();
     assassin.hire();
 
-    // set idle threads
-    scheduler.set_idle_thread(0, &idle0);
-    scheduler.set_idle_thread(1, &idle1);
-    scheduler.set_idle_thread(2, &idle2);
-    scheduler.set_idle_thread(3, &idle3);
-    scheduler.set_idle_thread(4, &idle4);
-    scheduler.set_idle_thread(5, &idle5);
-    scheduler.set_idle_thread(6, &idle6);
-    scheduler.set_idle_thread(7, &idle7);
+    // set up idle threads
+    for (int i = 0; i < CPU_MAX; i++) {
+        char *stack = new char[CPU_STACK_SIZE];
+        IdleThread *idle = new IdleThread(&stack[CPU_STACK_SIZE - 4]);
+        scheduler.set_idle_thread(i, idle);
+    }
 
-    //*
-    Guarded_Scheduler::ready(&a0);
-    Guarded_Scheduler::ready(&a1);
-    Guarded_Scheduler::ready(&a2);
-    Guarded_Scheduler::ready(&a3);
-    Guarded_Scheduler::ready(&a4);
-    Guarded_Scheduler::ready(&a5);
-    Guarded_Scheduler::ready(&a6);
-    Guarded_Scheduler::ready(&a7);
-    Guarded_Scheduler::ready(&a8);
-    Guarded_Scheduler::ready(&a9);
-    Guarded_Scheduler::ready(&a10);//*/
-//    Guarded_Scheduler::ready(&a11); // ClockApplication
-    Guarded_Scheduler::ready(&a12); // KeyboardApplication
+    // set up normal applications
+    int i;
+    for (i = 0; i < 10; i++) {
+        char *stack = new char[CPU_STACK_SIZE];
+        Application *a = new Application(&stack[CPU_STACK_SIZE - 4], i);
+        Guarded_Scheduler::ready(a);
+        if (i == 0) {
+            app = a;
+        }
+    }
+
+    // set up special applications
+    char *stack_kb = new char[CPU_STACK_SIZE];
+    KeyboardApplication *a_kb = new KeyboardApplication(&stack_kb[CPU_STACK_SIZE - 4], i++);
+    Guarded_Scheduler::ready(a_kb);
+
+    char *stack_st = new char[CPU_STACK_SIZE];
+    StatusApplication *a_st = new StatusApplication(&stack_st[CPU_STACK_SIZE - 4], i++);
+    Guarded_Scheduler::ready(a_st);
+
+#if 1
+    char *stack_cl = new char[CPU_STACK_SIZE];
+    ClockApplication *a_cl = new ClockApplication(&stack_cl[CPU_STACK_SIZE - 4], i++);
+    Guarded_Scheduler::ready(a_cl);
+#endif
 
     switch (type) {
-        case APICSystem::MP_APIC:
-            {
-                //Startet die AP-Prozessoren
-                for (unsigned int i = 1; i < numCPUs; i++) {
-                    void* startup_stack = (void *) &(cpu_stack[(i) * CPU_STACK_SIZE]);
-                    DBG_VERBOSE << "Booting CPU " << i << ", Stack: " << startup_stack << endl;
-                    system.bootCPU(i, startup_stack);
-                }
-                break;
-            }
-        case APICSystem::UP_APIC:
-            break;
-        case APICSystem::UNDETECTED:
-            {}
+    case APICSystem::MP_APIC: {
+        //Startet die AP-Prozessoren
+        for (unsigned int i = 1; i < numCPUs; i++) {
+            void *startup_stack = (void *) &(cpu_stack[(i) * CPU_STACK_SIZE]);
+            DBG_VERBOSE << "Booting CPU " << i << ", Stack: " << startup_stack << endl;
+            system.bootCPU(i, startup_stack);
+        }
+        break;
+    }
+    case APICSystem::UP_APIC:
+    case APICSystem::UNDETECTED:
+        break;
     }
 
     CPU::enable_int();
@@ -129,54 +103,12 @@ extern "C" int main() {
     guard.enter();
     scheduler.schedule();
 
-    /*
-    for (int cur_speed = 0, cur_delay = 0; ; ) {
-        Key k = keyboard.key_hit();
-        if (!k.valid()) {
-            continue;
-        }
-
-        //DBG << int(k.scancode()) << endl;
-        if (k.ctrl()) {
-            if (k.ascii() == 't') {
-                Shell shell(kout, keyboard);
-                shell.start();
-            }
-            switch (k.scancode()) {
-                case Key::scan::up:
-                    keyboard.set_repeat_rate((cur_speed == 31) ? 31 : ++cur_speed, cur_delay);
-                    break;
-                case Key::scan::down:
-                    keyboard.set_repeat_rate((cur_speed == 0)  ?  0 : --cur_speed, cur_delay);
-                    break;
-            }
-        } else if (k.alt()) {
-            switch (k.scancode()) {
-                case Key::scan::up:
-                    keyboard.set_repeat_rate(cur_speed, (cur_delay == 3) ? 3 : ++cur_delay);
-                    break;
-                case Key::scan::down:
-                    keyboard.set_repeat_rate(cur_speed, (cur_delay == 0) ? 0 : --cur_delay);
-                    break;
-            }
-        } else {
-            kout << k.ascii();
-            kout << flush;
-        }
-    }
-    //*/
-
     for (;;) { // dont die
         CPU::idle();
     }
     return 0;
 }
 
-/*! \brief Einsprungpunkt für Applikationsprozessoren
- *
- *  Code in dieser Funktion wird auf allen Applikationsprozessoren ausgeführt
- *  (entspricht allen CPUs außer derjenigen mit der ID 0).
- */
 extern "C" int main_ap() {
     DBG << "CPU " << (int) system.getCPUID()
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;

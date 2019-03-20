@@ -18,6 +18,8 @@
 #include "machine/toc.h"
 #include "object/queuelink.h"
 #include "meeting/waitingroom.h"
+//#include "user/mutex/mutex.h"
+class Mutex;
 
 /*! \brief Der Thread ist das Objekt der Ablaufplanung.
  *  \ingroup thread
@@ -39,8 +41,11 @@ public:
     Waitingroom *waitingroom;
 
 private:
-	struct toc regs;
+    struct toc regs;
     volatile bool killed;
+    
+    // everything added to mutex_list will be released upon exiting/killing
+    Queue<Mutex> mutex_list;
 
 public:
 	/*! \brief Aktiviert den ersten Thread auf einem Prozessor.
@@ -74,7 +79,6 @@ public:
 	virtual void action() = 0;
 
     void set_kill_flag();
-
     void reset_kill_flag();
 
     bool dying();
@@ -82,4 +86,8 @@ public:
     Waitingroom *waiting_in();
 
     void waiting_in(Waitingroom *w);
+
+    void mutex_hold(Mutex *m);
+    bool mutex_release(Mutex *m);
+    bool mutex_release_all();
 };

@@ -33,9 +33,7 @@ public:
 	 *
 	 *  \todo Konstruktor implementieren
 	 */
-	Semaphore(int c = 0) {
-        counter = c;
-    }
+	Semaphore(int c = 0) : counter(c) {}
 
 	/*! \brief Warten auf das Freiwerden eines kritischen Abschnitts.
 	 *

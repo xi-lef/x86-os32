@@ -4,18 +4,21 @@
 #include "device/watch.h"
 #include "meeting/bellringer.h"
 #include "debug/output.h"
+#include "user/status/status.h"
 
 void IdleThread::action() {
     for (;;) {
         CPU::disable_int();
         if (scheduler.is_empty()) {
-            if (system.getCPUID() != 0 || !bellringer.bell_pending()) {
+            status.set_idle(true);
+            if (!bellringer.bell_pending() || system.getCPUID() != 0) {
                 watch.block();
                 CPU::idle();
                 watch.unblock();
             } else {
                 CPU::idle();
             }
+            //status.set_idle(false); // done in Scheduler::resume()
         } else {
             CPU::enable_int();
             Guarded_Scheduler::resume();

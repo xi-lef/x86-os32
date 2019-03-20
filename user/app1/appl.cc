@@ -11,8 +11,9 @@
 
 void Application::action() {
     unsigned int ms = Math::pow(2, id) * 8;
+    int limit = 256;
 
-    kout_sem.p();
+    kout_mutex.lock();
 
     int x, y;
     kout.getpos(x, y);
@@ -20,21 +21,27 @@ void Application::action() {
     kout << "App " << id << " (ms: " << ms << "): " << flush;
     kout.setpos(x, y);
 
-    kout_sem.v();
+    kout_mutex.unlock();
 
-    for (int16_t i = 0; ; i++) {
+    for (int16_t i = 0; i < limit ; i++) {
         //DBG << "App " << id << ": action " << flush;
-        kout_sem.p();
+        kout_mutex.lock();
 
         int x, y;
         kout.getpos(x, y);
         kout.setpos(23, id + 2);
         kout << i << flush;
         kout.setpos(x, y);
+        //if (id == 0 && i == 1337) {
+        //    Guarded_Scheduler::exit();
+        //    Guarded_Scheduler::kill(this);
+        //}
 
-        kout_sem.v();
+        kout_mutex.unlock();
         Guarded_Bell::sleep(ms);
     }
+
+    Guarded_Scheduler::exit();
 }
 
 void Application::setID(int i) {

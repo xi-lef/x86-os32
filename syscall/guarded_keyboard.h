@@ -28,6 +28,9 @@ public:
 	 *
 	 */
 	Key getkey();
+
+    void set_repeat_rate(int speed, int delay);
+    void set_led(led_t led, bool on);
 };
 
 extern Guarded_Keyboard keyboard;

@@ -1,9 +1,8 @@
 #include "types.h"
 
-void operator delete(void *ptr)
-{
-	(void)ptr;
-}
+//void operator delete(void *ptr) {
+//	(void)ptr;
+//}
 
 extern "C" int __cxa_atexit(void (*func) (void *), void * arg, void * dso_handle)
 {

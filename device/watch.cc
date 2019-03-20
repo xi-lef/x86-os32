@@ -27,7 +27,7 @@ bool Watch::windup(uint32_t us) {
     divide = 1 << shift;
     //DBG << "Watch: initial_count: " << initial_count << ", divide: " << int(divide) << endl;
 
-    plugbox.assign(Plugbox::Vector::timer, &watch);
+    plugbox.assign(Plugbox::Vector::timer, this);
     return true;
 }
 

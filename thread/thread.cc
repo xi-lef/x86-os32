@@ -3,6 +3,7 @@
 #include "thread/thread.h"
 #include "thread/dispatcher.h"
 #include "debug/output.h"
+#include "user/mutex/mutex.h"
 
 Thread::Thread(void *tos) : waitingroom(0), killed(false) {
     toc_settle(&regs, tos, Dispatcher::kickoff, this);
@@ -37,4 +38,22 @@ Waitingroom *Thread::waiting_in() {
 
 void Thread::waiting_in(Waitingroom *w) {
     waitingroom = w;
+}
+
+void Thread::mutex_hold(Mutex *m) {
+    mutex_list.enqueue(m);
+}
+
+bool Thread::mutex_release(Mutex *m) {
+    return mutex_list.remove(m);
+}
+
+// must be called from epilogue-level!
+// (or: if e.g. kill and exit at same time, v() would called twice)
+bool Thread::mutex_release_all() {
+    bool ret = true;
+    for (Mutex *m : mutex_list) {
+        ret &= m->unlock();
+    }
+    return ret;
 }

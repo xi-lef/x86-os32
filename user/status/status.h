@@ -10,7 +10,7 @@ private:
     friend class StatusApplication;
 
 public:
-    Status() : thread_counter(0) {}
+    Status() : cpu_idle(), thread_counter(0) {}
 
     void set_idle(bool state) {
         cpu_idle[system.getCPUID()] = state;
