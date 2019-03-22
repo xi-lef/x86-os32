@@ -7,6 +7,7 @@
 #include "machine/plugbox.h"
 #include "machine/cpu.h"
 #include "user/status/status.h"
+#include "meeting/bellringer.h"
 
 Scheduler scheduler;
 
@@ -63,7 +64,7 @@ void Scheduler::kill(Thread *that) {
         that->mutex_release_all();
         exit();
     } else {
-        DBG << "Scheduler: kill: sending IPI" << endl;
+        DBG << "Scheduler: kill: IPI to " << (int) dest << endl;
         system.sendCustomIPI(system.getLogicalLAPICID(dest), Plugbox::Vector::assassin);
     }
 }
@@ -78,6 +79,7 @@ void Scheduler::resume() {
             status.set_idle(false);
         }
     } else {
+        prev->mutex_release_all(); // unfortunate scheduling, so IPI misses
         prev->reset_kill_flag();
     }
 
@@ -101,6 +103,8 @@ void Scheduler::set_idle_thread(int cpuid, Thread *thread) {
 
 void Scheduler::wakeup(Thread *customer) {
     if (!customer || !customer->waiting_in()) { // 2nd condition should^tm be unnecessary
+        // could happen if sleeping thread was killed, because bell will
+        // still be in bellringer, and bellringer.check calls wakeup(nullptr)
         return;
     }
     customer->waiting_in()->remove(customer);

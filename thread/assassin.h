@@ -17,9 +17,9 @@ public:
 
     void hire();
 
-    bool prologue();
+    bool prologue() override;
 
-    void epilogue();
+    void epilogue() override;
 };
 
 extern Assassin assassin;

@@ -15,7 +15,7 @@
  * Die Klassen aller Objekte, die in der Plugbox eingetragen werden sollen,
  * müssen von Gate abgeleitet werden.
  *
- * Alle diese Objekte müssen die virtuelle Methode trigger() definieren.
+ * Alle diese Objekte müssen die virtuelle Methode prologue() definieren.
  */
 class Gate {
 	// Verhindere Kopien und Zuweisungen

@@ -76,7 +76,7 @@ extern "C" int main() {
     StatusApplication *a_st = new StatusApplication(&stack_st[CPU_STACK_SIZE - 4], i++);
     Guarded_Scheduler::ready(a_st);
 
-#if 1
+#if 0
     char *stack_cl = new char[CPU_STACK_SIZE];
     ClockApplication *a_cl = new ClockApplication(&stack_cl[CPU_STACK_SIZE - 4], i++);
     Guarded_Scheduler::ready(a_cl);
@@ -99,7 +99,6 @@ extern "C" int main() {
 
     CPU::enable_int();
     watch.activate();
-    //rtc.sleep(3);
     guard.enter();
     scheduler.schedule();
 
@@ -114,17 +113,16 @@ extern "C" int main_ap() {
         << "/LAPIC " << (int) lapic.getLAPICID() << " in main_ap()" << endl;
 
     switch (system.getCPUID()) {
-        case 1:
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
+    case 1:
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
     }
 
     CPU::enable_int();
     watch.activate();
-    //rtc.sleep(1);
     guard.enter();
     scheduler.schedule();
 

@@ -24,7 +24,8 @@ void StatusApplication::action() {
 
         HeapStats stats = get_heap_stats();
         dout_status.setpos(dout_status.to_col - 10, dout_status.from_row);
-        int used = (100 * stats.used) / stats.total;
+        int tmp = (1000 * stats.used) / stats.total;
+        int used = tmp / 10 + (tmp % 10 < 5 ? 0 : 1); // for rounding
         dout_status << "RAM: " << ((used < 10) ? "  " : ((used < 100) ? " " : "")) // whitespace padding
                     << used << '%' << flush;
 

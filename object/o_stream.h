@@ -37,6 +37,7 @@
 #include "strbuf.h"
 #include "types.h"
 #include "user/time/time.h"
+#include "machine/cgascr.h"
 
 /*! \brief Die Aufgaben der Klasse O_Stream entsprechen im Wesentlichen denen der
  *  Klasse ostream der bekannten C++ IO-Streams-Bibliothek.
@@ -87,7 +88,7 @@ public:
 
 	/*! \brief Destruktor
 	 */
-	virtual ~O_Stream () {}
+	virtual ~O_Stream() {}
 
 	/*! \brief Leert den Puffer.
 	 *
@@ -95,7 +96,7 @@ public:
 	 *  wird. Darstellung des Pufferinhalts kann so durch unterschiedliche Kindklassen
 	 *  variiert werden.
 	 */
-	virtual void flush () = 0;
+	virtual void flush() = 0;
 
 	/*! \brief Stellt ein einzelnes Zeichen dar
 	 *
@@ -104,10 +105,10 @@ public:
 	 *  \param c Darzustellendes Zeichen
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
-	O_Stream& operator << (char c);
+	O_Stream& operator <<(char c);
     //
 	/// \copydoc O_Stream::operator<<(char)
-	O_Stream& operator << (unsigned char c);
+	O_Stream& operator <<(unsigned char c);
 
 	/*! \brief Darstellung einer nullterminierten Zeichenkette
 	 *
@@ -116,7 +117,7 @@ public:
 	 *  \param string Darzustellende Zeichenkette.
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
-	O_Stream& operator << (const char* string);
+	O_Stream& operator <<(const char* string);
 
 	/*! \brief Stellt ein Boolean dar
 	 *
@@ -125,7 +126,7 @@ public:
 	 *  \param b Darzustellendes Boolean
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
-	O_Stream& operator << (bool b);
+	O_Stream& operator <<(bool b);
 
 	/*! \brief Darstellung ganzer Zahlen im Zahlensystem zur Basis base
 	 *
@@ -134,22 +135,22 @@ public:
 	 *  \param ival Darzustellende Zahl
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
-	O_Stream& operator << (short ival);
+	O_Stream& operator <<(short ival);
 
 	/// \copydoc O_Stream::operator<<(short)
-	O_Stream& operator << (unsigned short ival);
+	O_Stream& operator <<(unsigned short ival);
 
 	/// \copydoc O_Stream::operator<<(short)
-	O_Stream& operator << (int ival);
+	O_Stream& operator <<(int ival);
 
 	/// \copydoc O_Stream::operator<<(short)
-	O_Stream& operator << (unsigned int ival);
+	O_Stream& operator <<(unsigned int ival);
 
 	/// \copydoc O_Stream::operator<<(short)
-	O_Stream& operator << (long ival);
+	O_Stream& operator <<(long ival);
 
 	/// \copydoc O_Stream::operator<<(short)
-	O_Stream& operator << (unsigned long ival);
+	O_Stream& operator <<(unsigned long ival);
 
 	/*! \brief Darstellung eines Zeigers als hexadezimale ganze Zahl
 	 *
@@ -158,7 +159,7 @@ public:
 	 *  \param ptr Darzustellender Pointer
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
-	O_Stream& operator << (const void* ptr);
+	O_Stream& operator <<(const void* ptr);
 
 	/*! \brief Aufruf einer Manipulatorfunktion
 	 *
@@ -171,7 +172,7 @@ public:
 	 *  \param f Anzuwendende Manipulatorfunktion
 	 *  \return Referenz auf ein O_Stream Objekt, um Operatoren konkatenieren zu können.
 	 */
-	O_Stream& operator << (O_Stream& (*f) (O_Stream&));
+	O_Stream& operator <<(O_Stream& (*f) (O_Stream&));
 
 #define TIME_DISPLAY_LENGTH 25
 
@@ -179,7 +180,10 @@ public:
      * Darstellung der Uhrzeit und des Datums.
      * Beansprucht TIME_DISPLAY_LENGTH viele Zeichen.
      */
-    O_Stream& operator << (Time t);
+    O_Stream& operator <<(Time t);
+
+    // necessary because c++
+    virtual O_Stream& operator <<(CGA_Screen::Attribute& attr);
 
 private:
     /*!

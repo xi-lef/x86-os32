@@ -31,7 +31,7 @@ public:
 	 *  \todo Methode implementieren
 	 *
 	 */
-    bool prologue();
+    bool prologue() override;
 };
 
 extern Panic panic;

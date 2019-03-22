@@ -24,5 +24,5 @@ class IdleThread : public Thread {
 public:
     IdleThread(void *tos) : Thread(tos) {}
 
-    void action();
+    void action() override;
 };

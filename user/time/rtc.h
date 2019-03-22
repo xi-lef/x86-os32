@@ -32,8 +32,8 @@ public:
 
 	void init_RTC(bool enable_update_irq = true, CMOS_irq_freq periodic_irq_freq = freq_0hz);
 
-    bool prologue();
-    void epilogue();
+    bool prologue() override;
+    void epilogue() override;
 
     /*
      * RTC starts weeks at sunday. :(

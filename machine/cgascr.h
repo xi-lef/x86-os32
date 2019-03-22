@@ -57,7 +57,7 @@ public:
 	static const int ROWS = 25;    // 25 Zeilen
 	static const int COLUMNS = 80; // 80 Spalten
     
-#define BASE_ADDRESS (char *) 0xb8000
+#define CGA_BASE_ADDRESS (char *) 0xb8000
 
 	/*! \brief CGA-Farben
 	 *
@@ -109,7 +109,7 @@ public:
 	 *  \param x Spalte im Fenster
 	 *  \param y Zeile im Fenster
 	 */
-	void setpos (int x, int y);
+	void setpos(int x, int y);
 
 	/*! \brief Abfragen der Cursorpostion
 	 *
@@ -121,7 +121,7 @@ public:
 	 *  \param x Spalte im Fenster
 	 *  \param y Zeile im Fenster
 	 */
-	void getpos (int& x, int& y);
+	void getpos(int& x, int& y);
 
     /*! \brief Bewegt den Bildschirminhalt eine Zeile nach oben
      *
@@ -172,7 +172,7 @@ public:
 	 *  \param length Länge der Zeichenkette
 	 *  \param attrib Farbattribut zur Darstellung
 	 */
-	void print (char* string, int length, Attribute attrib = Attribute());
+	void print(char* string, int length, Attribute attrib = Attribute());
 
 	/*! \brief Löschen des Inhalts und Zurücksetzen des Cursors
 	 *
@@ -202,7 +202,6 @@ public:
 	 *  \param character Zeichen, welches dargestellt werden soll
 	 *  \param attrib Farbattribut zur Darstellung
 	 */
-	static void show (int x, int y, char character, Attribute attrib = Attribute());
-
+	static void show(int x, int y, char character, Attribute attrib = Attribute());
 };
 

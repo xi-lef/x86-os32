@@ -58,7 +58,7 @@ public:
 	 *  \todo Methode implementieren
 	 *
 	 */
-	bool prologue();
+	bool prologue() override;
 
 	/*! \brief In dieser Methode wird der Threadwechsel ausgelöst.
 	 *
@@ -66,7 +66,7 @@ public:
 	 *  \todo Methode implementieren
 	 *
 	 */
-	void epilogue();
+	void epilogue() override;
 
 	/*! \brief Gibt an, welches Unterbrechungsintervall eingestellt wurde.
 	 *  \return Eingestelltes Unterbrechungsintervall

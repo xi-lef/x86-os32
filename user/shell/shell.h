@@ -5,16 +5,17 @@
 
 class Shell {
 private:
-    CGA_Stream &stream;
+    CGA_Stream &out;
     CGA_Stream &dbg;
 
-    void screen_backup();
     void screen_backup(CGA_Stream& str);
-    void screen_restore();
     void screen_restore(CGA_Stream& str);
 
+    void backup();
+    void restore();
+
 public:
-    Shell(CGA_Stream &str, CGA_Stream &dbg) : stream(str), dbg(dbg) {}
+    Shell(CGA_Stream &out, CGA_Stream &dbg) : out(out), dbg(dbg) {}
 
     String *read(size_t count);
 

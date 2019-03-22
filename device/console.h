@@ -25,12 +25,11 @@
 class Console
 	: public O_Stream, public Serial, public Gate
 {
-//BEGIN_SOLUTION(1-)
 private:
 	/*! \brief Mehrstellige Zahl als ASCII schreiben
 	 */
 	void write_number(int x);
-//END_SOLUTION(1-)
+
 public:
 	/*! \brief Attribtue
 	 *
@@ -82,7 +81,7 @@ public:
 	 *
 	 * \opt Methode implementieren
 	 */
-	virtual void flush();
+	virtual void flush() override;
 
 	/*! \brief Vordergrundfarbe (für alle nachfolgenden Ausgaben) ändern
 	 *
@@ -156,9 +155,9 @@ public:
 	 */
 	void print (char* string, int length);
 
-    bool prologue();
+    bool prologue() override;
 
-    void epilogue();
+    void epilogue() override;
 
     void listen();
 };

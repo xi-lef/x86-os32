@@ -102,8 +102,6 @@ bool Console::prologue() {
     return true;
 }
 
-extern CGA_Stream kout;
-
 void Console::epilogue() {
     char c;
 

@@ -24,9 +24,9 @@ void KeyboardApplication::action() {
 
     // this writes in a 36 columns and 11 rows big area of kout
     for (int pos = 0; ; ++pos %= 36 * 11) {
-        char *test = new char[r.number() % (1024 * 900)];
+        //char *test = new char[r.number() % (1024 * 900)];
         Key k = keyboard.getkey();
-        delete[] test;
+        //delete[] test;
 
         //DBG << int(k.scancode()) << endl;
         if (k.ctrl()) {

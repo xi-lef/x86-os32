@@ -36,7 +36,7 @@ public:
 	 *
 	 *
 	 */
-	bool prologue();
+	bool prologue() override;
 };
 
 extern WakeUp wakeup;

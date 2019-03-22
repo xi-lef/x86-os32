@@ -29,7 +29,7 @@ public:
 	/*! \brief Enthält den Code der Anwendung
 	 *
 	 */
-	void action();
+	void action() override;
 
     /*! \brief Setzt eine Instanz-ID
      *

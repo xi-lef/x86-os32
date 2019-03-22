@@ -27,7 +27,7 @@ public:
 	/*! \brief Enthält den Code der Anwendung
 	 *
 	 */
-	void action();
+	void action() override;
 
     void setID(int i);
 };

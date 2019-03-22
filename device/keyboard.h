@@ -63,9 +63,9 @@ public:
 	 */
 	void trigger();
 
-    bool prologue();
+    bool prologue() override;
 
-    void epilogue();
+    void epilogue() override;
 
     Key getkey();
 };

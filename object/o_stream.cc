@@ -2,55 +2,56 @@
 
 #include "o_stream.h"
 #include "types.h"
+#include "debug/output.h"
 
-O_Stream& O_Stream::operator << (char c) {
+O_Stream& O_Stream::operator <<(char c) {
 	put(c);
 	return *this;
 }
 
-O_Stream& O_Stream::operator << (unsigned char c) {
+O_Stream& O_Stream::operator <<(unsigned char c) {
 	put(c);
 	return *this;
 }
 
-O_Stream& O_Stream::operator << (const char* string) {
+O_Stream& O_Stream::operator <<(const char* string) {
 	for (const char *c = string; *c != '\0'; c++) {
 		put(*c);
 	}
 	return *this;
 }
 
-O_Stream& O_Stream::operator << (bool b) {
+O_Stream& O_Stream::operator <<(bool b) {
     *this << (b ? "true" : "false");
 	return *this;
 }
 
-O_Stream& O_Stream::operator << (short ival) {
+O_Stream& O_Stream::operator <<(short ival) {
     put_signed(ival);
     return *this;
 }
 
-O_Stream& O_Stream::operator << (unsigned short ival) {
+O_Stream& O_Stream::operator <<(unsigned short ival) {
     put_unsigned(ival);
     return *this;
 }
 
-O_Stream& O_Stream::operator << (int ival) {
+O_Stream& O_Stream::operator <<(int ival) {
     put_signed(ival);
     return *this;
 }
 
-O_Stream& O_Stream::operator << (unsigned int ival) {
+O_Stream& O_Stream::operator <<(unsigned int ival) {
     put_unsigned(ival);
     return *this;
 }
 
-O_Stream& O_Stream::operator << (long ival) {
+O_Stream& O_Stream::operator <<(long ival) {
     put_signed(ival);
     return *this;
 }
 
-O_Stream& O_Stream::operator << (unsigned long ival) {
+O_Stream& O_Stream::operator <<(unsigned long ival) {
     put_unsigned(ival);
     return *this;
 }
@@ -108,6 +109,10 @@ void O_Stream::put_signed(long ival) {
             put(cur + ((cur < 10) ? '0' : ('a' - 10)));
         }
     }
+
+    if (!print) {
+        put('0');
+    }
 }
 
 void O_Stream::put_unsigned(unsigned long ival) {
@@ -158,9 +163,13 @@ void O_Stream::put_unsigned(unsigned long ival) {
             put(cur + ((cur < 10) ? '0' : ('a' - 10)));
         }
     }
+
+    if (!print) {
+        put('0');
+    }
 }
 
-O_Stream& O_Stream::operator << (const void* ptr) {
+O_Stream& O_Stream::operator <<(const void* ptr) {
     intptr_t ptr_long = intptr_t(ptr);
     int save_base = base;
 
@@ -171,11 +180,11 @@ O_Stream& O_Stream::operator << (const void* ptr) {
 	return *this;
 }
 
-O_Stream& O_Stream::operator << (O_Stream& (*f) (O_Stream&)) {
+O_Stream& O_Stream::operator <<(O_Stream& (*f) (O_Stream&)) {
 	return f(*this);
 }
 
-O_Stream& O_Stream::operator << (Time t) {
+O_Stream& O_Stream::operator <<(Time t) {
     *this << Time::get_weekday_string(t.weekday)
           << ((t.day     < 10) ? "  " : " ") << t.day
           << " " << t.get_month_string(t.month)
@@ -185,6 +194,12 @@ O_Stream& O_Stream::operator << (Time t) {
           << ((t.minute  < 10) ? ":0" : ":") << t.minute
           << ((t.second  < 10) ? ":0" : ":") << t.second;
 
+    return *this;
+}
+
+O_Stream& O_Stream::operator <<(CGA_Screen::Attribute& attr) {
+    (void) attr;
+    DBG << "No colors supported!" << endl;
     return *this;
 }
 

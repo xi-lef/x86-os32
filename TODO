@@ -1,7 +1,9 @@
 lapic timer freq mit msr (1331, 838H)
 
-race condition: kill per IPI + gleichzeitig tippen = deadlock
+//race condition: kill per IPI + gleichzeitig tippen = deadlock
+//farben gut ermoeglichen, z.b. kout << green << "hi"
 backspace in shell zumindest
+includes alphabetisch sortieren
 //thread counter
 //fix idle cpu status
 //kill waehrend semaphore gehalten wird?
