@@ -95,6 +95,8 @@ void Shell::process_input(String *s) {
         keyboard.reboot();
     } else if (streq(*s, "nullptr")) {
         out << "nullptr: " << (void *) nullptr << endl;
+    } else if (streq(*s, "hex")) {
+        out << hex << -1 << dec << endl;
     }
 }
 

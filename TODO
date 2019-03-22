@@ -8,7 +8,7 @@ includes alphabetisch sortieren
 //fix idle cpu status
 //kill waehrend semaphore gehalten wird?
 //heap fuer threads
-zahlenausgabe schoener, fix nullptr ausgabe
+//zahlenausgabe schoener, fix nullptr ausgabe
 operator>> fuer eingabe
 shell
 rtc/cmos init besser aufteilen usw.
