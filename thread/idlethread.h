@@ -23,6 +23,7 @@
 class IdleThread : public Thread {
 public:
     IdleThread(void *tos) : Thread(tos) {}
+    IdleThread() : Thread() {}
 
     void action() override;
 };

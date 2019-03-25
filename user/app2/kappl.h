@@ -23,6 +23,7 @@ public:
 	 * \param i Instanz-ID
 	 */
     KeyboardApplication(void *tos, int i = 0) : Thread(tos), id(i) {}
+    KeyboardApplication(int i = 0) : Thread(), id(i) {}
 
 	/*! \brief Enthält den Code der Anwendung
 	 *

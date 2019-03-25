@@ -9,11 +9,11 @@
 #include "user/time/rtc.h"
 #include "syscall/guarded_bell.h"
 
-extern Application *app;
+extern Thread *victim;
 
 void ClockApplication::action() {
     Guarded_Bell::sleep(1000);
-    Guarded_Scheduler::kill(app);
+    Guarded_Scheduler::kill(victim);
     Guarded_Scheduler::exit();
 
     for (;;) {

@@ -23,7 +23,7 @@ void Application::action() {
 
     kout_mutex.unlock();
 
-    for (int16_t i = 0; i < limit ; i++) {
+    for (int16_t i = 0; i < limit; i++) {
         //DBG << "App " << id << ": action " << flush;
         kout_mutex.lock();
 

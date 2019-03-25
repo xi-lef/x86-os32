@@ -23,7 +23,7 @@ void Console::write_number(int x) {
         write_number(x / 10);
     }
 
-    write(r + 48, true);
+    write(r + '0', true);
 }
 
 void Console::flush() {
@@ -71,10 +71,10 @@ bool Console::getpos(int& x, int& y) {
     }
 
     while (read(true) != ';') {
-        tmp_y *= 10 + int(read(true) - 48);
+        tmp_y *= 10 + int(read(true) - '0');
     }
     while (read(true) != 'R') {
-        tmp_x *= 10 + int(read(true) - 48);
+        tmp_x *= 10 + int(read(true) - '0');
     }
     x = tmp_x;
     y = tmp_y;

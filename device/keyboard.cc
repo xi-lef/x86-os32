@@ -52,3 +52,57 @@ Key Keyboard::getkey() {
     buf.consume(k);
     return k;
 }
+
+size_t Keyboard::read(String *s, size_t count, CGA_Stream& out) {
+    size_t i;
+    for (i = 0; i < count; i++) {
+        Key k = keyboard.getkey();
+
+        // ctrl + d makes read terminate
+        if (k.ctrl() && (k.ascii() == 'd' || k.ascii() == 'D')) {
+            break;
+        }
+
+        // catch backspace
+        if (k.ascii() == '\b') {
+            if (!s->pop_back()) {
+                // string already was empty
+                continue;
+            }
+            int x, y;
+            out.getpos(x, y);
+            if (x == out.from_col) {
+                if (y != out.from_col) {
+                    y--;
+                }
+                x = out.to_col;
+            } else {
+                x--;
+            }
+            out.show(x, y, ' ');
+            out.setpos(x, y);
+            continue;
+        }
+
+        s->append(k.ascii());
+        out << k.ascii() << flush;
+
+        if (k.ascii() == '\n') {
+            break;
+        }
+    }
+
+    return i;
+}
+
+Keyboard& Keyboard::operator >>(String& s) {
+    read(&s, STRING_MAX_LENGTH);
+    return *this;
+}
+
+Keyboard& Keyboard::operator >>(long& i) {
+    String s;
+    read(&s, STRING_MAX_LENGTH);
+    i = strtol(s);
+    return *this;
+}

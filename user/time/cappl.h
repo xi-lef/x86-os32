@@ -25,6 +25,7 @@ public:
 	 * \param i Instanz-ID
 	 */
     ClockApplication(void *tos, int i = 0) : Thread(tos), id(i) {}
+    ClockApplication(int i = 0) : Thread(), id(i) {}
 
 	/*! \brief Enthält den Code der Anwendung
 	 *

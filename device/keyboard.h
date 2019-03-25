@@ -11,6 +11,8 @@
 #include "machine/key.h"
 #include "syscall/guarded_semaphore.h"
 #include "object/bbuffer.h"
+#include "user/string/string.h"
+#include "device/cgastr.h"
 
 /*! \brief Die Klasse Keyboard stellt die Abstraktion der Tastatur dar.
  *  \ingroup io
@@ -68,5 +70,10 @@ public:
     void epilogue() override;
 
     Key getkey();
+
+    size_t read(String *s, size_t count, CGA_Stream& out = kout);
+
+    Keyboard& operator >>(String &s);
+    Keyboard& operator >>(long &i);
 };
 

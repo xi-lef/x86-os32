@@ -2,11 +2,26 @@
 
 #include "thread/thread.h"
 #include "thread/dispatcher.h"
+#include "utils/heap.h"
 #include "debug/output.h"
 #include "user/mutex/mutex.h"
 
-Thread::Thread(void *tos) : waitingroom(0), killed(false) {
+
+Thread::Thread(void *tos) : waitingroom(0), stack(nullptr), killed(false) {
     toc_settle(&regs, tos, Dispatcher::kickoff, this);
+}
+
+Thread::Thread() : waitingroom(0), killed(false) {
+    stack = new char[STACK_SIZE];
+    void *tos = &stack[STACK_SIZE - 4];
+    toc_settle(&regs, tos, Dispatcher::kickoff, this);
+}
+
+Thread::~Thread() {
+    if (stack) {
+        delete[] stack;
+    }
+    mutex_release_all();
 }
 
 void Thread::go() {

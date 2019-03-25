@@ -1,7 +1,7 @@
 #pragma once
 
 #include "device/cgastr.h"
-#include "user/io/string.h"
+#include "user/string/string.h"
 
 class Shell {
 private:
@@ -16,8 +16,6 @@ private:
 
 public:
     Shell(CGA_Stream &out, CGA_Stream &dbg) : out(out), dbg(dbg) {}
-
-    String *read(size_t count);
 
     void process_input(String *s);
 

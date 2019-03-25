@@ -26,7 +26,7 @@
 static const unsigned long CPU_STACK_SIZE = 4096;
 static unsigned char cpu_stack[(CPU_MAX - 1) * CPU_STACK_SIZE];
 
-Application *app; // to test scheduler.kill() in user/app2
+Thread *victim; // to test scheduler.kill() in user/app2
 
 extern "C" int main() {
     // print starting stuff
@@ -51,34 +51,31 @@ extern "C" int main() {
 
     // set up idle threads
     for (int i = 0; i < CPU_MAX; i++) {
-        char *stack = new char[CPU_STACK_SIZE];
-        IdleThread *idle = new IdleThread(&stack[CPU_STACK_SIZE - 4]);
+        IdleThread *idle = new IdleThread;
         scheduler.set_idle_thread(i, idle);
     }
 
     // set up normal applications
-    int i;
-    for (i = 0; i < 10; i++) {
-        char *stack = new char[CPU_STACK_SIZE];
-        Application *a = new Application(&stack[CPU_STACK_SIZE - 4], i);
+    int i = 0;
+#if 1
+    for (; i < 10; i++) {
+        Application *a = new Application(i);
         Guarded_Scheduler::ready(a);
         if (i == 0) {
-            app = a;
+            victim = a;
         }
     }
+#endif
 
     // set up special applications
-    char *stack_kb = new char[CPU_STACK_SIZE];
-    KeyboardApplication *a_kb = new KeyboardApplication(&stack_kb[CPU_STACK_SIZE - 4], i++);
+    KeyboardApplication *a_kb = new KeyboardApplication(i++);
     Guarded_Scheduler::ready(a_kb);
 
-    char *stack_st = new char[CPU_STACK_SIZE];
-    StatusApplication *a_st = new StatusApplication(&stack_st[CPU_STACK_SIZE - 4], i++);
+    StatusApplication *a_st = new StatusApplication(i++);
     Guarded_Scheduler::ready(a_st);
 
 #if 0
-    char *stack_cl = new char[CPU_STACK_SIZE];
-    ClockApplication *a_cl = new ClockApplication(&stack_cl[CPU_STACK_SIZE - 4], i++);
+    ClockApplication *a_cl = new ClockApplication(i++);
     Guarded_Scheduler::ready(a_cl);
 #endif
 

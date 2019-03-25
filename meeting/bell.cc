@@ -6,7 +6,12 @@
 #include "debug/output.h"
 
 void Bell::ring() {
-    scheduler.wakeup(Queue::first());
+    Thread *t;
+    // this also considers the possibility that no thread was in the queue,
+    // which might happen if the only thread in the queue was killed.
+    while ((t = dequeue())) {
+        scheduler.wakeup(t);
+    }
 }
 
 void Bell::sleep(unsigned int ms) {

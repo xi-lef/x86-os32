@@ -1,16 +1,8 @@
 lapic timer freq mit msr (1331, 838H)
 
-//race condition: kill per IPI + gleichzeitig tippen = deadlock
-//farben gut ermoeglichen, z.b. kout << green << "hi"
-backspace in shell zumindest
 includes alphabetisch sortieren
-//thread counter
-//fix idle cpu status
-//kill waehrend semaphore gehalten wird?
-//heap fuer threads
-//zahlenausgabe schoener, fix nullptr ausgabe
-operator>> fuer eingabe
-shell
+shell history lul
+//shell: new app, jobs, kill
 rtc/cmos init besser aufteilen usw.
 clock set funktionen
 //change README?

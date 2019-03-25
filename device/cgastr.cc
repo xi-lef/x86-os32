@@ -22,6 +22,8 @@ DECL_COLOR(YELLOW);
 DECL_COLOR(WHITE);
 DECL_COLOR(BLACK, LIGHT_GREY);
 
+CGA_Screen::Attribute COLOR_RESET(CGA_Screen::WHITE, CGA_Screen::WHITE, true); // invalid color
+
 CGA_Stream kout(0,  79,  0, 14, true);
 Guarded_Mutex kout_mutex;
 
@@ -39,8 +41,6 @@ void CGA_Stream::flush() {
     print(buffer, pos, attrib);
     pos = 0;
 }
-
-CGA_Screen::Attribute COLOR_RESET(CGA_Screen::WHITE, CGA_Screen::WHITE, true); // invalid color
 
 O_Stream& CGA_Stream::operator <<(Attribute& attr) {
     flush();

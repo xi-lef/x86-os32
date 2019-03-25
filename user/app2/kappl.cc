@@ -8,6 +8,7 @@
 #include "user/shell/shell.h"
 
 void KeyboardApplication::action() {
+#if 0
     kout_mutex.lock();
 
     int x, y;
@@ -17,13 +18,15 @@ void KeyboardApplication::action() {
     kout.setpos(x, y);
 
     kout_mutex.unlock();
+#endif
 
     Random r(1337);
     int cur_speed = 0;
     int cur_delay = 0;
 
     // this writes in a 36 columns and 11 rows big area of kout
-    for (int pos = 0; ; ++pos %= 36 * 11) {
+    //for (int pos = 0; ; ++pos %= 36 * 11) {
+    for (;;) {
         //char *test = new char[r.number() % (1024 * 900)];
         Key k = keyboard.getkey();
         //delete[] test;
@@ -60,11 +63,12 @@ void KeyboardApplication::action() {
 
         kout_mutex.lock();
 
-        int x, y;
-        kout.getpos(x, y);
-        kout.setpos(40 + pos % 36, 2 + pos / 36);
+        //int x_save, y_save;
+        //kout.getpos(x_save, y_save);
+        //kout.setpos(x, y);
         kout << k.ascii() << flush;
-        kout.setpos(x, y);
+        //kout.getpos(x, y);
+        //kout.setpos(x_save, y_save);
 
         kout_mutex.unlock();
     }

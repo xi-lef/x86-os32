@@ -18,7 +18,7 @@
 #include "machine/toc.h"
 #include "object/queuelink.h"
 #include "meeting/waitingroom.h"
-//#include "user/mutex/mutex.h"
+
 class Mutex;
 
 /*! \brief Der Thread ist das Objekt der Ablaufplanung.
@@ -26,6 +26,8 @@ class Mutex;
  */
 class Thread {
 public:
+    static const unsigned long STACK_SIZE = 8 * 1024;
+
 	/*! \brief Konstruktor.
 	 *
 	 *
@@ -33,7 +35,11 @@ public:
 	 *  \param tos Top of Stack, also die höchste Adresse des Speicherbereiches,
 	 *  der als Stack für diesen Thread fungieren soll.
 	 */
-	Thread(void* tos);
+	Thread(void *tos);
+    // allocates memory for stack itself
+    Thread();
+
+    ~Thread();
 
 	/*! \brief Verkettungszeiger für Scheduler und Waitingroom */
 	QueueLink<Thread> queue_link;
@@ -41,6 +47,7 @@ public:
     Waitingroom *waitingroom;
 
 private:
+    char *stack;
     struct toc regs;
     volatile bool killed;
     

@@ -31,7 +31,7 @@ void Scheduler::kill(Thread *that) {
     // check ready_list for "that"
     if (ready_list.remove(that) != 0) {
         DBG << "Scheduler: kill: was in ready_list" << endl;
-        that->mutex_release_all();
+        that->Thread::~Thread();
         return;
     }
 
@@ -39,8 +39,8 @@ void Scheduler::kill(Thread *that) {
     if (Waitingroom *w = that->waiting_in()) {
         DBG << "Scheduler: kill: was in waitingroom" << endl;
         w->remove(that);
-        that->waiting_in(nullptr);
-        that->mutex_release_all();
+        //that->waiting_in(nullptr);
+        that->Thread::~Thread();
         return;
     }
 
@@ -61,7 +61,7 @@ void Scheduler::kill(Thread *that) {
     }
 
     if (dest == system.getCPUID()) {
-        that->mutex_release_all();
+        that->Thread::~Thread();
         exit();
     } else {
         DBG << "Scheduler: kill: IPI to " << (int) dest << endl;
@@ -79,8 +79,8 @@ void Scheduler::resume() {
             status.set_idle(false);
         }
     } else {
-        prev->mutex_release_all(); // unfortunate scheduling, so IPI misses
-        prev->reset_kill_flag();
+        //prev->reset_kill_flag();
+        prev->Thread::~Thread();
     }
 
     exit();
@@ -102,11 +102,6 @@ void Scheduler::set_idle_thread(int cpuid, Thread *thread) {
 }
 
 void Scheduler::wakeup(Thread *customer) {
-    if (!customer || !customer->waiting_in()) { // 2nd condition should^tm be unnecessary
-        // could happen if sleeping thread was killed, because bell will
-        // still be in bellringer, and bellringer.check calls wakeup(nullptr)
-        return;
-    }
     customer->waiting_in()->remove(customer);
     customer->waiting_in(nullptr);
     status.thread_dec();

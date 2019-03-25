@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "types.h"
+
 /*! \brief Abstraktion des CGA-Textmodus.
  *  \ingroup io
  *
@@ -57,8 +59,6 @@ public:
 	static const int ROWS = 25;    // 25 Zeilen
 	static const int COLUMNS = 80; // 80 Spalten
     
-#define CGA_BASE_ADDRESS (char *) 0xb8000
-
 	/*! \brief CGA-Farben
 	 *
 	 *  Konstanten fuer die moeglichen Farben im Attribut-Byte. Für die
@@ -96,6 +96,16 @@ public:
         }
 	} __attribute__((packed)); // sorgt dafür, dass der Übersetzter keinen Speicher auffüllt
 
+    union Pixel {
+        struct {
+            char ascii;
+            char attrib; // char instead of Attribute because c++
+        } __attribute__((packed));
+        uint16_t val;
+    } __attribute__((packed));
+
+    static Pixel * const CGA_BASE;
+
 	/*! \brief Setzen des Cursors im Fenster auf Spalte \p x und Zeile \p y.
 	 *
 	 *  Abhängig vom Konstruktorparameter \c use_cursor wird hier entweder der
@@ -129,7 +139,7 @@ public:
      *
      * Hilfsmethode für print.
      */
-    void move_up_one_line(void);
+    void move_up_one_line(Attribute attrib = Attribute());
     
     /*! \brief Line Feed.
      *
@@ -145,7 +155,7 @@ public:
      * \param x x-Position des Cursors
      * \param y y-Position des Cursors
      */
-    void LF(int& x, int& y);
+    void LF(int& x, int& y, Attribute attrib = Attribute());
 
 	/*! \brief Anzeige mehrerer Zeichen im Fenster ab der aktuellen Cursorposition
 	 *

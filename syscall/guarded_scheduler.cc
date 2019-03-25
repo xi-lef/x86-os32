@@ -5,7 +5,9 @@
 void Guarded_Scheduler::exit() {
     Secure s;
     status.thread_dec();
-    scheduler.active()->mutex_release_all(); // see pthread_exit(3)
+    Thread *active = scheduler.active();
+    active->mutex_release_all(); // see pthread_exit(3)
+    active->Thread::~Thread();
     scheduler.exit();
 }
 

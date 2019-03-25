@@ -25,6 +25,7 @@ public:
 	 * \param i Instanz-ID
 	 */
     StatusApplication(void *tos, int i = 0) : Thread(tos), id(i) {}
+    StatusApplication(int i = 0) : Thread(), id(i) {}
 
 	/*! \brief Enthält den Code der Anwendung
 	 *

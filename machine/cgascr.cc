@@ -8,12 +8,14 @@
 static IO_Port index(0x3d4);
 static IO_Port data(0x3d5);
 
+CGA_Screen::Pixel * const CGA_Screen::CGA_BASE = (Pixel * const) 0xb8000;
+
 CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool use_cursor) :
     cur_x(from_col), cur_y(from_row), from_col(from_col), to_col(to_col), from_row(from_row),
     to_row(to_row), use_cursor(use_cursor) {}
 
 void CGA_Screen::setpos(int x, int y) {
-    // to account for negative x and y
+    // account for negative x and y
 	if (x < 0) {
 		x += COLUMNS;
 	}
@@ -46,59 +48,55 @@ void CGA_Screen::getpos(int& x, int& y) {
 		index.outb(14);
 		cursor |= data.inb() << 8;
 
-        // sanity check in case of unfortunate scheduling
-        if (cursor < from_col * from_row || cursor > to_col * to_row) {
+		x = cursor % COLUMNS;
+		y = cursor / COLUMNS;
+        // sanity checks in case of unfortunate scheduling
+        if (x < from_col || x > to_col || y < from_row || y > to_row) {
             DBG << "CGA_S: invalid getpos" << endl;
             x = 0;
             y = 0;
-            return;
         }
-
-		x = cursor % COLUMNS;
-		y = int(cursor / COLUMNS);
 	} else {
 		x = cur_x;
 		y = cur_y;
 	}
 }
 
-void CGA_Screen::move_up_one_line(void) {
-    uint16_t *base = (uint16_t *) CGA_BASE_ADDRESS;
-
+void CGA_Screen::move_up_one_line(Attribute attrib) {
     for (int x = from_col; x <= to_col; x++) {
 		for (int y = from_row; y <= to_row - 1; y++) {
-		    base[y * COLUMNS + x] = base[(y + 1) * COLUMNS + x];
+		    CGA_BASE[y * COLUMNS + x] = CGA_BASE[(y + 1) * COLUMNS + x];
         }
-        // set last row to nothing with no color
-        base[to_row * COLUMNS + x] = 0;
+        // set last (new) row to nothing with correct Attribute
+        CGA_BASE[to_row * COLUMNS + x] = {{' ', attrib}};
 	}
 }
 
-void CGA_Screen::LF(int& x, int& y) {
+void CGA_Screen::LF(int& x, int& y, Attribute attrib) {
     x = from_col;
     if (++y > to_row) {
-        move_up_one_line();
+        move_up_one_line(attrib);
         y--;
     }
 }
 
-void CGA_Screen::print(char* string, int length, Attribute attrib) {
+void CGA_Screen::print(char *string, int length, Attribute attrib) {
 	int x, y;
 	getpos(x, y);
     if (x < from_col || x > to_col || y < from_row || y > to_row) {
         DBG << "CGA_S: invalid print (x: " << x << ", y: " << y << ")" << endl;
         return;
     }
-	
+
 	for (int i = 0; i < length; i++) {
 		if (string[i] == '\n') {
-			LF(x, y);
+			LF(x, y, attrib);
             continue;
 		}
 
 		show(x, y, string[i], attrib);
 		if (++x > to_col) {
-            LF(x, y);
+            LF(x, y, attrib);
         }
 	}
 
@@ -115,7 +113,7 @@ void CGA_Screen::reset(char character, Attribute attrib) {
 }
 
 void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
-	// to account for negative x or y
+	// account for negative x or y
 	if (x < 0) {
 		x += COLUMNS;
 	}
@@ -129,9 +127,5 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
         return;
     }
 
-	char *base = CGA_BASE_ADDRESS;
-	char *pos  = &(base[(y * COLUMNS + x) * 2]);
-
-	pos[0] = character;
-	pos[1] = char(attrib);
+    CGA_BASE[y * COLUMNS + x] = {{character, attrib}};
 }
