@@ -29,6 +29,10 @@ public:
 	 */
 	Key getkey();
 
+    Guarded_Keyboard& operator >>(char &c);
+    Guarded_Keyboard& operator >>(String &s);
+    Guarded_Keyboard& operator >>(long &i);
+
     void set_repeat_rate(int speed, int delay);
     void set_led(led_t led, bool on);
 };

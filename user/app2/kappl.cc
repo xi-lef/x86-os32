@@ -20,7 +20,7 @@ void KeyboardApplication::action() {
     kout_mutex.unlock();
 #endif
 
-    Random r(1337);
+    //Random r(1337);
     int cur_speed = 0;
     int cur_delay = 0;
 
@@ -31,10 +31,9 @@ void KeyboardApplication::action() {
         Key k = keyboard.getkey();
         //delete[] test;
 
-        //DBG << int(k.scancode()) << endl;
         if (k.ctrl()) {
             if (k.ascii() == 't') {
-                Shell shell(kout, DBG);
+                Shell shell(kout);
                 kout_mutex.lock();
                 shell.start();
                 kout_mutex.unlock();
@@ -66,7 +65,11 @@ void KeyboardApplication::action() {
         //int x_save, y_save;
         //kout.getpos(x_save, y_save);
         //kout.setpos(x, y);
-        kout << k.ascii() << flush;
+        if (k.ascii() == '\b') {
+            keyboard.handle_backspace(nullptr, kout);
+        } else {
+            kout << k.ascii() << flush;
+        }
         //kout.getpos(x, y);
         //kout.setpos(x_save, y_save);
 

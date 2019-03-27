@@ -10,6 +10,24 @@ Key Guarded_Keyboard::getkey() {
     return Keyboard::getkey();
 }
 
+Guarded_Keyboard& Guarded_Keyboard::operator >>(char &c) {
+    Secure s;
+    Keyboard::operator>>(c);
+    return *this;
+}
+
+Guarded_Keyboard& Guarded_Keyboard::operator >>(String &s) {
+    Secure se;
+    Keyboard::operator>>(s);
+    return *this;
+}
+
+Guarded_Keyboard& Guarded_Keyboard::operator >>(long &i) {
+    Secure s;
+    Keyboard::operator>>(i);
+    return *this;
+}
+
 void Guarded_Keyboard::set_repeat_rate(int speed, int delay) {
     Secure s;
     Keyboard::set_repeat_rate(speed, delay);

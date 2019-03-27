@@ -8,17 +8,25 @@ class String {
 private:
     char   data[STRING_MAX_LENGTH];
     size_t len;
-    size_t MAX_LENGTH = STRING_MAX_LENGTH;
+
+    size_t save_index; // for strtok
+    friend String strtok(String& str, const String& delim);
 
 public:
+    static const size_t MAX_LENGTH = STRING_MAX_LENGTH;
+
     String();
     String(char *s);
 
     operator char*();
 
+    String& operator =(const String& str);
+
     char at(size_t i) const;
     char& operator [](size_t i);
     const char& operator [](size_t i) const;
+
+    bool operator ==(const String& str) const;
 
     // pos is 0-indicated and inclusive
     String from(size_t pos) const;
@@ -31,19 +39,32 @@ public:
     void remove_lf();
 
     bool append(char c);
-    bool append(const String& s);
+    bool append(const String& str);
     String& operator +=(char c);
-    String& operator +=(const String& s);
+    String& operator +=(const String& str);
 
     bool push_back(char c);
     bool pop_back();
+
+    size_t find_first_of(char c, size_t pos = 0) const;
+    size_t find_first_of(const String& str, size_t pos = 0) const;
+    String tok(const String& delim);
 
     void empty();
     bool is_empty() const;
 };
 
-bool streq(String s1, String s2);
+size_t strlen(const char *s);
 
-// base 0 means 'figure it out yourself'.
+char *strcpy(char *dest, const char *src);
+char *strncpy(char *dest, const char *src, size_t size);
+
+bool streq(const String& str1, const String& str2);
+
+// returns an empty string at the end
+String strtok(String& str, const String& delim);
+
+// base 0 means "figure it out yourself" (only 2, 8, 10, 16).
+// supported bases are [2, 36].
 // returns SSIZE_MAX on overflow
-long strtol(const String& s, bool *error = nullptr, int base = 0);
+long strtol(const String& str, bool *error = nullptr, int base = 0);

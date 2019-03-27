@@ -1,10 +1,11 @@
 #include "user/string/string.h"
 #include "debug/output.h"
 #include "utils/math.h"
+#include "utils/memutil.h"
 
-String::String() : len(0) {}
+String::String() : len(0), save_index(0) {}
 
-String::String(char *s) {
+String::String(char *s) : save_index(0) {
     int i;
     for (i = 0; s[i] != '\0'; i++) {
         data[i] = s[i];
@@ -17,6 +18,12 @@ String::operator char*() {
         data[i] = '\0';
     }
     return data;
+}
+
+String& String::operator =(const String& str) {
+    strncpy(data, str.data, str.length());
+    len = str.len;
+    return *this;
 }
 
 char String::at(size_t i) const {
@@ -40,16 +47,22 @@ const char& String::operator [](size_t i) const {
     return data[i];
 }
 
+bool String::operator ==(const String& str) const {
+    return streq(*this, str);
+}
+
 String String::from(size_t pos) const {
     if (pos == 0) {
         return *this;
+    } else if (pos > len) {
+        return String();
     }
 
     String new_str(*this);
     for (size_t i = 0; i < this->length() - pos; i++) {
         new_str[i] = new_str[i + pos];
     }
-    new_str.len = Math::max(new_str.len - pos, (size_t) 0);
+    new_str.len -= pos;
     return new_str;
 }
 
@@ -100,9 +113,9 @@ bool String::append(char c) {
     return true;
 }
 
-bool String::append(const String& s) {
-    for (size_t i = 0; i < s.length(); i++) {
-        if (!append(s[i])) {
+bool String::append(const String& str) {
+    for (size_t i = 0; i < str.length(); i++) {
+        if (!append(str[i])) {
             return false;
         }
     }
@@ -114,8 +127,8 @@ String& String::operator +=(char c) {
     return *this;
 }
 
-String& String::operator +=(const String& s) {
-    append(s);
+String& String::operator +=(const String& str) {
+    append(str);
     return *this;
 }
 
@@ -131,6 +144,30 @@ bool String::pop_back() {
     return false;
 }
 
+size_t String::find_first_of(char c, size_t pos) const {
+    for (size_t i = pos; i < len; i++) {
+        if (data[i] == c) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+size_t String::find_first_of(const String& str, size_t pos) const {
+    for (size_t i = pos; i < len; i++) {
+        for (size_t j = 0; j < str.length(); j++) {
+            if (data[i] == str[j]) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+String String::tok(const String& delim) {
+    return strtok(*this, delim);
+}
+
 void String::empty() {
     len = 0;
 }
@@ -139,19 +176,52 @@ bool String::is_empty() const {
     return len == 0;
 }
 
-bool streq(String s1, String s2) {
-    if (s1.length() != s2.length()) {
+size_t strlen(const char *s) {
+    size_t ret = 0;
+    while (*s != '\0') {
+        ret++;
+        s++;
+    }
+    return ret;
+}
+
+char *strcpy(char *dest, const char *src) {
+    return strncpy(dest, src, strlen(src));
+}
+
+char *strncpy(char *dest, const char *src, size_t size) {
+    return (char *) memcpy(dest, src, size);
+}
+
+bool streq(const String& str1, const String& str2) {
+    if (str1.length() != str2.length()) {
         return false;
     }
-    for (size_t i = 0; i < s1.length(); i++) {
-        if (s1[i] != s2[i]) {
+    for (size_t i = 0; i < str1.length(); i++) {
+        if (str1[i] != str2[i]) {
             return false;
         }
     }
     return true;
 }
 
-long strtol(const String& s, bool *error, int base) {
+String strtok(String& str, const String& delim) {
+    size_t pos;
+    // skip leading delimiting chars
+    while ((pos = str.find_first_of(delim, str.save_index)) == str.save_index) {
+        str.save_index++;
+    }
+    if (pos == (size_t) -1) {
+        // no delimiting char could be found
+        pos = str.length();
+    }
+
+    String ret = str.to(pos - 1).from(str.save_index);
+    str.save_index = pos + 1;
+    return ret;
+}
+
+long strtol(const String& str, bool *error, int base) {
     // initialize error for proper error handling
     if (error) {
         *error = false;
@@ -159,45 +229,45 @@ long strtol(const String& s, bool *error, int base) {
 
     // skip leading whitespace
     size_t i;
-    for (i = 0; s[i] == ' '; i++);
+    for (i = 0; i < str.length() && str[i] == ' '; i++);
 
     // check if the number is negative
     bool negative = false;
-    if (s[i] == '-') {
+    if (i < str.length() && str[i] == '-') {
         negative = true;
         i++;
     }
 
     // check for prefixes for binary, octal, or hexadecimal.
     // check hexadecimal before octal, or else we would mistake 0x as octal!
-    if ((base == 0 || base == 2)
-        && s[i] == '0' && (s[i + 1] == 'b' || s[i + 1] == 'B')) {
+    if ((base == 0 || base == 2) && (i + 1) < str.length()
+        && str[i] == '0' && (str[i + 1] == 'b' || str[i + 1] == 'B')) {
         i += 2;
         base = 2;
-    } else if ((base == 0 || base == 16)
-        && s[i] == '0' && (s[i + 1] == 'x' || s[i + 1] == 'X')) {
+    } else if ((base == 0 || base == 16) && (i + 1) < str.length()
+        && str[i] == '0' && (str[i + 1] == 'x' || str[i + 1] == 'X')) {
         i += 2;
         base = 16;
-    } else if ((base == 0 || base == 8)
-        && s[i] == '0') {
+    } else if ((base == 0 || base == 8) && i < str.length()
+        && str[i] == '0') {
         i += 1;
         base = 8;
-    } else {
+    } else if (base == 0) {
         base = 10;
     }
 
     // do the actual conversion
     unsigned long res = 0;
-    for (; i < s.length(); i++) {
-        char cur = s[i];
+    for (; i < str.length(); i++) {
+        char cur = str[i];
         unsigned long tmp = res;
 
         // take min(base, 10) or else we would accept "digits" like ';'
         if (cur >= '0' && cur <= ('0' + Math::min(base, 10) - 1)) {
             res = base * res + (cur - '0');
-        } else if (base == 16 && ((cur >= 'a' && cur <= 'f')
-                                  || (cur >= 'A' && cur <= 'F'))) {
-            bool small = cur >= 'a' && cur <= 'f';
+        } else if (base > 10 && ((cur >= 'a' && cur <= 'a' + base)
+                                 || (cur >= 'A' && cur <= 'A' + base))) {
+            bool small = cur >= 'a' && cur <= 'a' + base;
             res = base * res + (10 + cur - (small ? 'a' : 'A'));
         } else {
             if (error) {
@@ -211,12 +281,10 @@ long strtol(const String& s, bool *error, int base) {
         }
     }
 
-    long ret;
-    if (__builtin_add_overflow(res, 0, &ret)) {
+    if (res > SSIZE_MAX) {
         goto overflow;
     }
-
-    return negative ? ret * -1 : ret;
+    return negative ? (long) res * -1 : res;
 
 overflow:
     if (error) {

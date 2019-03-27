@@ -53,10 +53,30 @@ Key Keyboard::getkey() {
     return k;
 }
 
+void Keyboard::handle_backspace(String *s, CGA_Stream& out) {
+    if (s && !s->pop_back()) {
+        // string already was empty
+        return;
+    }
+
+    int x, y;
+    out.getpos(x, y);
+    if (x == out.from_col) {
+        if (y != out.from_row) {
+            y--;
+        }
+        x = out.to_col;
+    } else {
+        x--;
+    }
+    out.show(x, y, ' ');
+    out.setpos(x, y);
+}
+
 size_t Keyboard::read(String *s, size_t count, CGA_Stream& out) {
     size_t i;
     for (i = 0; i < count; i++) {
-        Key k = keyboard.getkey();
+        Key k = getkey();
 
         // ctrl + d makes read terminate
         if (k.ctrl() && (k.ascii() == 'd' || k.ascii() == 'D')) {
@@ -65,22 +85,7 @@ size_t Keyboard::read(String *s, size_t count, CGA_Stream& out) {
 
         // catch backspace
         if (k.ascii() == '\b') {
-            if (!s->pop_back()) {
-                // string already was empty
-                continue;
-            }
-            int x, y;
-            out.getpos(x, y);
-            if (x == out.from_col) {
-                if (y != out.from_col) {
-                    y--;
-                }
-                x = out.to_col;
-            } else {
-                x--;
-            }
-            out.show(x, y, ' ');
-            out.setpos(x, y);
+            handle_backspace(s, out);
             continue;
         }
 
@@ -93,6 +98,11 @@ size_t Keyboard::read(String *s, size_t count, CGA_Stream& out) {
     }
 
     return i;
+}
+
+Keyboard& Keyboard::operator >>(char& c) {
+    c = getkey().ascii();
+    return *this;
 }
 
 Keyboard& Keyboard::operator >>(String& s) {

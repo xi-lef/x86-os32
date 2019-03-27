@@ -71,8 +71,10 @@ public:
 
     Key getkey();
 
+    static void handle_backspace(String *s, CGA_Stream& out);
     size_t read(String *s, size_t count, CGA_Stream& out = kout);
 
+    Keyboard& operator >>(char &c);
     Keyboard& operator >>(String &s);
     Keyboard& operator >>(long &i);
 };
