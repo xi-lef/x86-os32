@@ -132,6 +132,22 @@ String& String::operator +=(const String& str) {
     return *this;
 }
 
+String& String::insert(size_t pos, char c) {
+    String end = from(pos);
+    resize(pos);
+    append(c);
+    append(end);
+    return *this;
+}
+
+String& String::insert(size_t pos, const String& str) {
+    String end = from(pos);
+    resize(pos);
+    append(str);
+    append(end);
+    return *this;
+}
+
 bool String::push_back(char c) {
     return append(c);
 }
@@ -142,6 +158,19 @@ bool String::pop_back() {
         return true;
     }
     return false;
+}
+
+bool String::compare(size_t pos, const String& str) const {
+    if (pos + str.length() > len) {
+        return false;
+    }
+
+    for (size_t i = pos; i < len; i++) {
+        if (data[i] != str[i - pos]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 size_t String::find_first_of(char c, size_t pos) const {
@@ -156,7 +185,7 @@ size_t String::find_first_of(char c, size_t pos) const {
 size_t String::find_first_of(const String& str, size_t pos) const {
     for (size_t i = pos; i < len; i++) {
         for (size_t j = 0; j < str.length(); j++) {
-            if (data[i] == str[j]) {
+            if (compare(i, str)) {
                 return i;
             }
         }

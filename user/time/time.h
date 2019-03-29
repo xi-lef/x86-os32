@@ -21,16 +21,16 @@ private:
     };
 
 public:
-    volatile uint16_t second;
-    volatile uint16_t minute;
-    volatile uint16_t hour;
-    volatile uint16_t day;
-    volatile uint16_t month;
-    volatile uint16_t year;
-    volatile uint16_t weekday;
-    volatile uint16_t century;
+    uint16_t second;
+    uint16_t minute;
+    uint16_t hour;
+    uint16_t day;
+    uint16_t month;
+    uint16_t year;
+    uint16_t weekday;
+    uint16_t century;
 
-    int16_t timezone;
+    const int16_t timezone;
 
     Time(int16_t timezone = 1) : timezone(timezone) {}
 
@@ -47,9 +47,9 @@ public:
     /*
      * This adds i (or 1) seconds to the time.
      */
-    Time& operator+(uint32_t i);
-    Time& operator++();      // prefix
-    Time  operator++(int);   // postfix
+    Time& operator +=(unsigned int i);
+    Time& operator ++();      // prefix
+    Time  operator ++(int);   // postfix
 
     /*
      * Returns the string representation of a weekday.

@@ -1,6 +1,8 @@
 lapic timer freq mit msr (1331, 838H)
 
+FIX string[i]
 includes alphabetisch sortieren
+shell: links rechts pfeiltasten
 //shell: new app, jobs, kill
 rtc/cmos init besser aufteilen usw.
 clock set funktionen

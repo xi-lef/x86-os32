@@ -43,9 +43,13 @@ public:
     String& operator +=(char c);
     String& operator +=(const String& str);
 
+    String& insert(size_t pos, char c);
+    String& insert(size_t pos, const String& str);
+
     bool push_back(char c);
     bool pop_back();
 
+    bool compare(size_t pos, const String& str) const;
     size_t find_first_of(char c, size_t pos = 0) const;
     size_t find_first_of(const String& str, size_t pos = 0) const;
     String tok(const String& delim);

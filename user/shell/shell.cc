@@ -80,8 +80,8 @@ size_t Shell::read(String *s, size_t count) {
     int x_start, y_start;
     out.getpos(x_start, y_start);
 
-    size_t i;
-    for (i = 0; i < count; i++) {
+    s->empty();
+    while (s->length() < count) {
         Key k = keyboard.getkey();
 
         // ctrl + d makes read terminate
@@ -142,7 +142,7 @@ size_t Shell::read(String *s, size_t count) {
         }
     }
 
-    return i;
+    return s->length();
 }
 
 void Shell::process_input(String *s) {
@@ -187,6 +187,12 @@ void Shell::process_input(String *s) {
         while (!(arg = s->tok(" ")).is_empty()) {
             out << arg << endl;
         }
+    } else if (streq(cmd, "insert")) {
+        String str = s->tok(" ");
+        String ins = s->tok(" ");
+        long pos = strtol(s->tok(" "));
+        out << "inserting " << ins << " into " << str << " at " << pos << ":" << endl
+            << str.insert(pos, ins) << endl;
     } else {
         out << cmd << ": command not found" << endl;
     }

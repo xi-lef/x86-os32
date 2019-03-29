@@ -6,15 +6,12 @@
 
 // might be overkill xdd
 void Time::increment_seconds(uint32_t amount) {
-    uint32_t next;
-#if __GNUC__ >= 7     // CIP uses gcc 6 :/
-    if (__builtin_add_overflow_p(second, amount, next)) {
-        DBG << "What the fuck are you doing?" << endl;
+    uint32_t next = second + amount;
+    if (next < second) {
+        DBG << "Time: overflow" << endl;
         return;
     }
-#endif
 
-    next = second + amount;
     while (next >= 60) {
         next -= 60;
         if ((++minute %= 60) != 0) continue;
@@ -31,19 +28,19 @@ void Time::increment_seconds(uint32_t amount) {
     second = next;
 }
 
-Time& Time::operator+(uint32_t i) {
+Time& Time::operator +=(unsigned int i) {
     increment_seconds(i);
-    return *this;
+    return *this;;
 }
 
 // prefix
-Time& Time::operator++() {
+Time& Time::operator ++() {
     increment_seconds(1);
     return *this;
 }
 
 // postfix
-Time Time::operator++(int) {
+Time Time::operator ++(int) {
     Time ans = *this;
     increment_seconds(1);
     return ans;

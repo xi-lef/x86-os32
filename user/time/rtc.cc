@@ -77,7 +77,7 @@ void RTC::set_time() {
     time.century = get_century();
     
     // set timezone
-    time = time + HOURS_TO_SECONDS(time.timezone);
+    time += HOURS_TO_SECONDS(time.timezone);
 }
 
 void RTC::sleep(unsigned int t) {
