@@ -10,15 +10,18 @@
 
 RTC rtc;
 static Ticketlock tlock;
-static bool init;
+
+/*Time RTC::get_time() const {
+    return time;
+}*/
+
+int32_t RTC::get_freq() const {
+    return hz;
+}
 
 void RTC::init_RTC(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
-    if (init) {
-        DBG << "RTC: tried to init multiple times" << endl;
-        return;
-    }
     hz = init_CMOS(enable_update_irq, periodic_irq_freq);
-    set_time();
+    update_time();
 
     Plugbox::Vector rtc_vector = Plugbox::Vector::rtc;
     unsigned char   rtc_slot   = system.getIOAPICSlot(APICSystem::Device::rtc);
@@ -28,14 +31,12 @@ void RTC::init_RTC(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
     ioapic.allow(rtc_slot);
     clear_statusC();
 
-    init = true;
     DBG << "RTC: init done (" << hz << "hz)" << endl;
 }
 
 bool RTC::prologue() {
-    jiffies = (jiffies + 1) % hz;
     if (is_update_irq()) {
-        time++;
+        increment_seconds();
         return true;
     }
     return false;
@@ -43,13 +44,14 @@ bool RTC::prologue() {
 
 void RTC::epilogue() {
     dout_clock.reset();
-    dout_clock << time << flush;
+    dout_clock << *this << flush;
 }
 
 uint16_t RTC::get_value(CMOS_offset offset) {
-    // wait until the RTC is done updating the values, then read it.
-    // lock in case multiple CPUs try to read at the same time.
-    // this should not happen, but it would be racey.
+    // Wait until the RTC is done updating the values, then read it. This is
+    // not ideal, but the ideal way is slow.
+    // Lock in case multiple CPUs try to read at the same time.
+    // This should not happen, but it would be racey.
     tlock.lock();
     while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
     uint16_t ret = read_port(offset);
@@ -57,40 +59,55 @@ uint16_t RTC::get_value(CMOS_offset offset) {
     return bcd_to_int(ret);
 }
 
-uint16_t RTC::get_second () { return get_value(offset_second);  }
-uint16_t RTC::get_minute () { return get_value(offset_minute);  }
-uint16_t RTC::get_hour   () { return get_value(offset_hour);    }
-uint16_t RTC::get_day    () { return get_value(offset_day);     }
-uint16_t RTC::get_month  () { return get_value(offset_month);   }
-uint16_t RTC::get_year   () { return get_value(offset_year);    }
-uint16_t RTC::get_weekday() { return get_value(offset_weekday); }
-uint16_t RTC::get_century() { return get_value(offset_century); }
+uint16_t RTC::get_second()  {return get_value(offset_second);}
+uint16_t RTC::get_minute()  {return get_value(offset_minute);}
+uint16_t RTC::get_hour()    {return get_value(offset_hour);}
+uint16_t RTC::get_day()     {return get_value(offset_day);}
+uint16_t RTC::get_month()   {return get_value(offset_month);}
+uint16_t RTC::get_year()    {return get_value(offset_year);}
+uint16_t RTC::get_weekday() {return get_value(offset_weekday);}
+uint16_t RTC::get_century() {return get_value(offset_century);}
 
-void RTC::set_time() {
-    time.second  = get_second ();
-    time.minute  = get_minute ();
-    time.hour    = get_hour   ();
-    time.day     = get_day    ();
-    time.month   = get_month  ();
-    time.year    = get_year   ();
-    time.weekday = get_weekday();
-    time.century = get_century();
-    
-    // set timezone
-    time += HOURS_TO_SECONDS(time.timezone);
+uint16_t RTC::get_real_year() {
+    return get_century() * 100 + get_year();
 }
 
-void RTC::sleep(unsigned int t) {
-    // if RTC was not initialized, time will not be updated through update IRQ
-    if (init) {
-        uint16_t end = (time.second + t) % 60;
-        while (time.second != end) { // '!=' instead of '<' in case starting time is e.g. 59
-            Guarded_Scheduler::resume(); // do not waste CPU time
-        }
-    } else {
-        uint16_t end = (get_second() + t) % 60;
-        while (get_second() != end) {
-            Guarded_Scheduler::resume();
-        }
+void RTC::set_value(CMOS_offset offset, uint16_t value) {
+    if (value > 99) {
+        DBG << "RTC: invalid value (> 99)" << endl;
+        return;
     }
+
+    tlock.lock();
+    while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
+    write_port(offset, int_to_bcd(value));
+    tlock.unlock();
+}
+
+void RTC::set_second(uint16_t value)  {return set_value(offset_second, value);}
+void RTC::set_minute(uint16_t value)  {return set_value(offset_minute, value);}
+void RTC::set_hour(uint16_t value)    {return set_value(offset_hour, value);}
+void RTC::set_day(uint16_t value)     {return set_value(offset_day, value);}
+void RTC::set_month(uint16_t value)   {return set_value(offset_month, value);}
+void RTC::set_year(uint16_t value)    {return set_value(offset_year, value);}
+void RTC::set_weekday(uint16_t value) {return set_value(offset_weekday, value);}
+void RTC::set_century(uint16_t value) {return set_value(offset_century, value);}
+
+void RTC::set_real_year(uint16_t year) {
+    set_century(year / 100);
+    set_year(year % 100);
+}
+
+void RTC::update_time() {
+    second  = get_second();
+    minute  = get_minute();
+    hour    = get_hour();
+    day     = get_day();
+    month   = get_month();
+    year    = get_year();
+    weekday = get_weekday();
+    century = get_century();
+
+    // set timezone
+    increment_seconds(HOURS_TO_SECONDS(timezone));
 }

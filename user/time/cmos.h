@@ -9,13 +9,12 @@ private:
     // Disallow copies and assignments.
     CMOS(const CMOS&)            = delete;
     CMOS& operator=(const CMOS&) = delete;
-    bool initialized;
 
 public:
     const IO_Port CMOS_ctrl_port;
     const IO_Port CMOS_data_port;
 
-    CMOS() : initialized(false), CMOS_ctrl_port(0x70), CMOS_data_port(0x71) {}
+    CMOS() : CMOS_ctrl_port(0x70), CMOS_data_port(0x71) {}
 
     // Used for CMOS_ctrl_port.
     enum CMOS_offset {
@@ -34,7 +33,7 @@ public:
     };
 
     // Used for manipulating status-register B.
-    enum CMOS_irq_enable_bits{
+    enum CMOS_irq_enable_bits {
         irq_update   = 1 << 4,
         irq_alarm    = 1 << 5,
         irq_periodic = 1 << 6
@@ -67,9 +66,6 @@ public:
      * * set frequency of periodic interrupt to the frequency corresponding
      *   to periodic_irq_freq.
      *
-     * If this method was already called earlier, it does nothing but
-     * print an error message.
-     *
      * Returns the amount of interrupts that will be generated per second.
      */
     uint32_t init_CMOS(bool enable_update_irq = false, CMOS_irq_freq periodic_irq_freq = freq_0hz);
@@ -78,16 +74,18 @@ public:
      * Reads/writes the byte from/to the field specified in offset.
      * You must not use the ports directly. Instead, use these methods.
      *
-     * write_port returns the value from the field specified in offset prior
+     * "write_port" returns the value from the field specified in offset prior
      * to writing.
+     * "select_offset" is just a helper method.
      */
+    void select_offset(CMOS_offset offset);
     uint8_t read_port(CMOS_offset offset);
     uint8_t write_port(CMOS_offset offset, uint8_t value);
 
     /*
      * Helper methods for getting information about an IRQ.
      * One of these functions MUST be called in order to keep interrupts coming.
-     * clear_statusC only reads the register but does nothing with its content.
+     * "clear_statusC" only reads the register but does nothing with its content.
      * The other functions check the respective bits and return the appropriate
      * information.
      */
@@ -97,8 +95,9 @@ public:
     bool is_periodic_irq();
 
     /*
-     * Binary Coded Decimal to Integer conversion.
+     * Binary Coded Decimal to Integer conversion (and vice versa).
      * Assumes an 8 bit BCD, so only values from 0 to 99 are supported.
      */
     uint16_t bcd_to_int(uint8_t bcd);
+    uint16_t int_to_bcd(uint8_t i);
 };

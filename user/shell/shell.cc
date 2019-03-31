@@ -75,6 +75,10 @@ void Shell::history_add(String *s) {
     }
 }
 
+void Shell::perror(String cmd, char *error) const {
+    out << cmd << ": " << error << endl;
+}
+
 size_t Shell::read(String *s, size_t count) {
     History_Entry *cur = nullptr; // for browsing shell history
     int x_start, y_start;
@@ -152,12 +156,13 @@ void Shell::process_input(String *s) {
     }
 
     String cmd = s->tok(" ");
+    //DBG << "cmd: " << cmd << endl;
     if (streq(cmd, "test")) {
         out << COLOR_GREEN << "success :)" << COLOR_RESET << endl;
     } else if (streq(cmd, "yes")) {
         out << COLOR_YELLOW << "no" << COLOR_RESET << endl;
     } else if (streq(cmd, "time") || streq(cmd, "date")) {
-        out << rtc.get_time() << endl;
+        out << rtc << endl;
     } else if (streq(cmd, "cpu0")) {
         dout_CPU0 << "sup bitch" << endl;
     } else if (streq(cmd, "cpu1")) {
@@ -193,8 +198,41 @@ void Shell::process_input(String *s) {
         long pos = strtol(s->tok(" "));
         out << "inserting " << ins << " into " << str << " at " << pos << ":" << endl
             << str.insert(pos, ins) << endl;
+    } else if (streq(cmd, "settime")) {
+        String hour_s   = s->tok(" :/-,.");
+        String minute_s = s->tok(" :/-,.");
+        String second_s = s->tok(" :/-,.");
+        if (hour_s.is_empty() || minute_s.is_empty() || second_s.is_empty()) {
+            perror(cmd, "invalid format (use hour:minute:second)");
+            return;
+        }
+
+        rtc.set_hour(strtol(hour_s));
+        rtc.set_minute(strtol(minute_s));
+        rtc.set_second(strtol(second_s));
+        rtc.update_time();
+    } else if (streq(cmd, "settimezone")) {
+        String zone_s = s->tok(" ");
+        if (zone_s.is_empty()) {
+            perror(cmd, "missing timezone");
+        }
+        rtc.set_timezone(strtol(zone_s));
+        rtc.update_time();
+    } else if (streq(cmd, "setdate")) {
+        String day_s   = s->tok(" :/-,.");
+        String month_s = s->tok(" :/-,.");
+        String year_s  = s->tok(" :/-,.");
+        if (day_s.is_empty() || month_s.is_empty() || year_s.is_empty()) {
+            perror(cmd, "invalid format (use day/month/year)");
+            return;
+        }
+
+        rtc.set_day(strtol(day_s));
+        rtc.set_month(strtol(month_s));
+        rtc.set_real_year(strtol(year_s));
+        rtc.update_time();
     } else {
-        out << cmd << ": command not found" << endl;
+        perror(cmd, "command not found");
     }
 }
 

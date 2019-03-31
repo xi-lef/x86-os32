@@ -185,7 +185,7 @@ size_t String::find_first_of(char c, size_t pos) const {
 size_t String::find_first_of(const String& str, size_t pos) const {
     for (size_t i = pos; i < len; i++) {
         for (size_t j = 0; j < str.length(); j++) {
-            if (compare(i, str)) {
+            if (data[i] == str[j]) {
                 return i;
             }
         }
@@ -206,12 +206,11 @@ bool String::is_empty() const {
 }
 
 size_t strlen(const char *s) {
-    size_t ret = 0;
-    while (*s != '\0') {
-        ret++;
-        s++;
+    const char *p = s;
+    while (*p != '\0') {
+        p++;
     }
-    return ret;
+    return p - s;
 }
 
 char *strcpy(char *dest, const char *src) {

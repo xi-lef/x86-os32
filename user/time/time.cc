@@ -4,7 +4,11 @@
 #include "utils/math.h"
 #include "device/cgastr.h"
 
-// might be overkill xdd
+void Time::set_timezone(int16_t zone) {
+    timezone = zone;
+}
+
+// might be overkill xd
 void Time::increment_seconds(uint32_t amount) {
     uint32_t next = second + amount;
     if (next < second) {
@@ -14,14 +18,17 @@ void Time::increment_seconds(uint32_t amount) {
 
     while (next >= 60) {
         next -= 60;
+
         if ((++minute %= 60) != 0) continue;
         if ((++hour %= 24) != 0) continue;
 
         weekday = weekday % 7 + 1;
         if ((++day %= get_days_per_month(month, year, century) + 1) != 0) continue;
-        day++; // day is 0, so increment it for 1-indexing
+        day++; // Day is 0, so increment it for 1-indexing.
+
         if ((++month %= 12 + 1) != 0) continue;
-        month++; // month is 0, so increment it for 1-indexing
+        month++; // Month is 0, so increment it for 1-indexing.
+
         if ((++year %= 100) != 0) continue;
         if ((++century %= 100) == 0) DBG << "Time: Nice cheats" << endl;
     }
@@ -33,20 +40,20 @@ Time& Time::operator +=(unsigned int i) {
     return *this;;
 }
 
-// prefix
+// Prefix
 Time& Time::operator ++() {
     increment_seconds(1);
     return *this;
 }
 
-// postfix
+// Postfix
 Time Time::operator ++(int) {
-    Time ans = *this;
+    Time ans(*this);
     increment_seconds(1);
     return ans;
 }
 
-// this is necessary due to C++11 :(
+// This is necessary due to C++11 :(
 constexpr const char * const Time::weekday_string[];
 constexpr const char * const Time::month_string[];
 constexpr const uint16_t Time::days_per_month[];
@@ -60,8 +67,8 @@ const char *Time::get_month_string(uint16_t month) {
 }
 
 uint16_t Time::get_days_per_month(uint16_t month, uint16_t year, uint16_t century) {
-    // is it february in a leap year?
-    // keep in mind how the RTC stores the year: it uses year and century.
+    // Is it february in a leap year?
+    // Keep in mind how the RTC stores the year: it uses year and century.
     if (month == 2 && year % 4 == 0 && (year != 0 || century % 4 == 0)) {
         return days_per_month[month] + 1; // = 29
     }

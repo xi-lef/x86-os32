@@ -21,6 +21,11 @@ private:
     };
 
 public:
+    /*
+     * These values are uint16_t instead of uint8_t because a uint8_t would be
+     * printed as a character, and thus requires a cast. Casts are annoying,
+     * so we rather waste some bytes.
+     */
     uint16_t second;
     uint16_t minute;
     uint16_t hour;
@@ -30,9 +35,11 @@ public:
     uint16_t weekday;
     uint16_t century;
 
-    const int16_t timezone;
+    int16_t timezone;
 
-    Time(int16_t timezone = 1) : timezone(timezone) {}
+    Time(int16_t timezone) : timezone(timezone) {}
+
+    void set_timezone(int16_t zone);
 
 // Converts hours to seconds. Useful for increment_seconds.
 #define HOURS_TO_SECONDS(x) ((x) * 60 * 60)

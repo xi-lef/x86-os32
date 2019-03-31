@@ -30,6 +30,8 @@ private:
 public:
     Shell(CGA_Stream &out) : out(out), history_head(nullptr), history_tail(nullptr) {}
 
+    void perror(String cmd, char *error) const;
+
     size_t read(String *s, size_t count);
     void process_input(String *s);
 

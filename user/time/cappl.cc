@@ -18,9 +18,9 @@ void ClockApplication::action() {
 
     for (;;) {
         //DBG << "Clock_App " << id << ": action " << flush;
-        rtc.set_time();
+        rtc.update_time();
         dout_clock.reset();
-        dout_clock << rtc.get_time() << flush;
+        dout_clock << rtc << flush;
     }
 }
 
