@@ -26,22 +26,22 @@ String& String::operator =(const String& str) {
     return *this;
 }
 
-char String::at(size_t i) const {
-    if (i >= len) {
+char String::at(int i) const {
+    if (i < 0 || (size_t) i >= len) {
         DBG << "String: at: invalid index" << endl;
     }
     return data[i];
 }
 
-char& String::operator [](size_t i) {
-    if (i >= len) {
+char& String::operator [](int i) {
+    if (i < 0 || (size_t) i >= len) {
         DBG << "String: []: invalid index" << endl;
     }
     return data[i];
 }
 
-const char& String::operator [](size_t i) const {
-    if (i >= len) {
+const char& String::operator [](int i) const {
+    if (i < 0 || (size_t) i >= len) {
         DBG << "String: []: invalid index" << endl;
     }
     return data[i];

@@ -9,7 +9,7 @@ private:
     char   data[STRING_MAX_LENGTH];
     size_t len;
 
-    size_t save_index; // for strtok
+    size_t save_index; // For strtok.
     friend String strtok(String& str, const String& delim);
 
 public:
@@ -22,13 +22,14 @@ public:
 
     String& operator =(const String& str);
 
-    char at(size_t i) const;
-    char& operator [](size_t i);
-    const char& operator [](size_t i) const;
+    // Use int instead of size_t because of g++.
+    char at(int i) const;
+    char& operator [](int i);
+    const char& operator [](int i) const;
 
     bool operator ==(const String& str) const;
 
-    // pos is 0-indicated and inclusive
+    // "pos" is 0-indicated and inclusive.
     String from(size_t pos) const;
     String to(size_t pos) const;
     void resize(size_t n, char c = ' ');
@@ -65,10 +66,10 @@ char *strncpy(char *dest, const char *src, size_t size);
 
 bool streq(const String& str1, const String& str2);
 
-// returns an empty string at the end
+// Returns an empty string at the end.
 String strtok(String& str, const String& delim);
 
-// base 0 means "figure it out yourself" (only 2, 8, 10, 16).
-// supported bases are [2, 36].
-// returns SSIZE_MAX on overflow
+// Base 0 means "figure it out yourself" (only 2, 8, 10, 16).
+// Supported bases are [2, 36].
+// Returns SSIZE_MAX on overflow.
 long strtol(const String& str, bool *error = nullptr, int base = 0);
