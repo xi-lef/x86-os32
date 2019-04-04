@@ -42,8 +42,43 @@ void CGA_Stream::flush() {
     pos = 0;
 }
 
+void CGA_Stream::reset(char c) {
+    CGA_Screen::reset(c, attrib);
+}
+
+void CGA_Stream::backspace(String *str, size_t pos) {
+    if (str) {
+        if (str->empty()) {
+            return;
+        }
+        str->erase(pos, 1);
+    }
+
+    int x, y;
+    getpos(x, y);
+    if (x == from_col) {
+        if (y != from_row) {
+            y--;
+        }
+        x = to_col;
+    } else {
+        x--;
+    }
+    show(x, y, ' ');
+    setpos(x, y);
+}
+
 O_Stream& CGA_Stream::operator <<(Attribute& attr) {
     flush();
     attrib = (attr == COLOR_RESET) ? orig_attrib : attr;
     return *this;
+}
+
+O_Stream& CGA_Stream::operator <<(O_Stream& (*f) (CGA_Stream&)) {
+    return f(*this);
+}
+
+O_Stream& backspace(CGA_Stream& os) {
+    os.backspace();
+    return os;
 }

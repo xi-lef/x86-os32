@@ -54,9 +54,9 @@ Time Time::operator ++(int) {
 }
 
 // This is necessary due to C++11 :(
-constexpr const char * const Time::weekday_string[];
-constexpr const char * const Time::month_string[];
-constexpr const uint16_t Time::days_per_month[];
+constexpr const char *Time::weekday_string[];
+constexpr const char *Time::month_string[];
+constexpr uint16_t Time::days_per_month[];
 
 const char *Time::get_weekday_string(uint16_t weekday) {
     return weekday_string[weekday];

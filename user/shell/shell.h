@@ -32,8 +32,8 @@ public:
 
     void perror(String cmd, char *error) const;
 
-    size_t read(String *s, size_t count);
-    void process_input(String *s);
+    size_t read(String *str, size_t count);
+    void process_input(String *str);
 
     void start();
 };

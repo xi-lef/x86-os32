@@ -11,10 +11,6 @@
 RTC rtc;
 static Ticketlock tlock;
 
-/*Time RTC::get_time() const {
-    return time;
-}*/
-
 int32_t RTC::get_freq() const {
     return hz;
 }
@@ -29,6 +25,7 @@ void RTC::init_RTC(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
     plugbox.assign(rtc_vector, &rtc);
     ioapic.config(rtc_slot, rtc_vector);
     ioapic.allow(rtc_slot);
+
     clear_statusC();
 
     DBG << "RTC: init done (" << hz << "hz)" << endl;
@@ -108,6 +105,6 @@ void RTC::update_time() {
     weekday = get_weekday();
     century = get_century();
 
-    // set timezone
+    // Set timezone.
     increment_seconds(HOURS_TO_SECONDS(timezone));
 }

@@ -11,13 +11,11 @@ private:
 	RTC(const RTC&)            = delete;
 	RTC& operator=(const RTC&) = delete;
 
-    //Time time;
     int32_t hz;
 
 public:
     RTC(int16_t timezone = 2) : Time(timezone), hz(-1) {}
 
-    //Time get_time() const;
     int32_t get_freq() const;
 
 	void init_RTC(bool enable_update_irq = true, CMOS_irq_freq periodic_irq_freq = freq_0hz);

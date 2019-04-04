@@ -1,11 +1,9 @@
 lapic timer freq mit msr (1331, 838H)
 
 includes alphabetisch sortieren
-shell: links rechts pfeiltasten
+string: dynamic length
 //shell: new app, jobs, kill
-rtc/cmos init besser aufteilen usw.
-negative timezones
-//change README?
+//negative timezones
 
 aufgabe7:
 analog clock display

@@ -8,18 +8,6 @@
 #include "user/shell/shell.h"
 
 void KeyboardApplication::action() {
-#if 0
-    kout_mutex.lock();
-
-    int x, y;
-    kout.getpos(x, y);
-    kout.setpos(40, 1);
-    kout << "KB_App: " << flush;
-    kout.setpos(x, y);
-
-    kout_mutex.unlock();
-#endif
-
     //Random r(1337);
     int cur_speed = 0;
     int cur_delay = 0;
@@ -66,7 +54,7 @@ void KeyboardApplication::action() {
         //kout.getpos(x_save, y_save);
         //kout.setpos(x, y);
         if (k.ascii() == '\b') {
-            keyboard.handle_backspace(nullptr, kout);
+            kout << backspace;
         } else {
             kout << k.ascii() << flush;
         }

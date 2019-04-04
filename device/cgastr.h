@@ -14,6 +14,7 @@
 #include "object/o_stream.h"
 #include "machine/cgascr.h"
 #include "syscall/guarded_mutex.h"
+#include "user/string/string.h"
 
 /*! \brief Darstellung verschiedener Datentypen auf dem Bildschrim
  *  \ingroup io
@@ -29,6 +30,7 @@ class CGA_Stream : public O_Stream, public CGA_Screen {
 	// Verhindere Kopien und Zuweisungen
 	CGA_Stream(const CGA_Stream&)            = delete;
 	CGA_Stream& operator=(const CGA_Stream&) = delete;
+
 private:
     const Attribute orig_attrib;
     Attribute attrib;
@@ -50,25 +52,17 @@ public:
 	 */
 	virtual void flush() override;
 
-    void reset(char c = ' ') {
-        CGA_Screen::reset(c, attrib);
-    }
+    void reset(char c = ' ');
+
+    // "pos" is the position in "str" that will be erased by the backspace.
+    void backspace(String *str = nullptr, size_t pos = String::npos);
 
     using O_Stream::operator<<; // necessary because c++
     O_Stream& operator <<(Attribute& attr) override;
+    O_Stream& operator <<(O_Stream& (*f) (CGA_Stream&));
 };
 
-#define GET_MACRO(_1, _2, _3, NAME, ...) NAME
-
-#define DECL_EXT_COLOR1(fg)            extern CGA_Screen::Attribute COLOR_##fg
-#define DECL_EXT_COLOR2(fg, bg)        extern CGA_Screen::Attribute COLOR_##fg##_##bg
-#define DECL_EXT_COLOR3(fg, bg, blink) extern CGA_Screen::Attribute COLOR_##fg##_##bg##blink
-#define DECL_EXT_COLOR(...) GET_MACRO(__VA_ARGS__, DECL_EXT_COLOR3, DECL_EXT_COLOR2, DECL_EXT_COLOR1)(__VA_ARGS__)
-
-#define DECL_COLOR1(fg)            CGA_Screen::Attribute COLOR_##fg(CGA_Screen::fg)
-#define DECL_COLOR2(fg, bg)        CGA_Screen::Attribute COLOR_##fg##_##bg(CGA_Screen::fg, CGA_Screen::bg)
-#define DECL_COLOR3(fg, bg, blink) CGA_Screen::Attribute COLOR_##fg##_##bg##blink(CGA_Screen::fg, CGA_Screen::bg, blink)
-#define DECL_COLOR(...) GET_MACRO(__VA_ARGS__, DECL_COLOR3, DECL_COLOR2, DECL_COLOR1)(__VA_ARGS__)
+O_Stream& backspace(CGA_Stream& os);
 
 DECL_EXT_COLOR(BLACK);
 DECL_EXT_COLOR(BLUE);

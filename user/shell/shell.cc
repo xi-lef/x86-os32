@@ -79,13 +79,15 @@ void Shell::perror(String cmd, char *error) const {
     out << cmd << ": " << error << endl;
 }
 
-size_t Shell::read(String *s, size_t count) {
+size_t Shell::read(String *str, size_t count) {
     History_Entry *cur = nullptr; // for browsing shell history
-    int x_start, y_start;
+    int x_start, y_start; // start position; to take shell prompt into account
     out.getpos(x_start, y_start);
 
-    s->empty();
-    while (s->length() < count) {
+    str->clear();
+    size_t cursor = 0;
+
+    while (str->length() < count) {
         Key k = keyboard.getkey();
 
         // ctrl + d makes read terminate
@@ -93,72 +95,105 @@ size_t Shell::read(String *s, size_t count) {
             break;
         }
 
-        // catch backspace
-        if (k.ascii() == '\b') {
-            Keyboard::handle_backspace(s, out);
-            continue;
+        // catch newline
+        if (k.ascii() == '\n') {
+            str->append('\n');
+            out << endl;
+            break;
         }
 
-        // catch arrow keys (for shell history)
+        /// catch "special" keys
         bool hist = false;
-        if (k.scancode() == Key::scan::up) {
+        bool curs = false;
+
+        switch (k.scancode()) {
+        // catch arrow keys for shell history
+        case Key::scan::up: {
+            hist = true;
             if (!cur) {
                 cur = history_tail;
-                hist = true;
             } else if (!cur->prev) {
                 continue;
             } else {
                 cur = cur->prev;
-                hist = true;
             }
-        } else if (k.scancode() == Key::scan::down) {
+        } break;
+        case Key::scan::down: {
+            hist = true;
             if (!cur) {
                 continue;
             } else {
                 cur = cur->next;
-                hist = true;
             }
+        } break;
+
+        // catch arrow keys for changing cursor
+        case Key::scan::left: {
+            curs = true;
+            if (cursor == 0) {
+                continue;
+            }
+            cursor--;
+        } break;
+        case Key::scan::right: {
+            curs = true;
+            if (cursor >= str->length()) {
+                continue;
+            }
+            cursor++;
+        } break;
+        } // switch (k.scancode())
+
+        // catch backspace
+        if (k.ascii() == '\b') {
+            out.backspace(str, cursor - 1);
+            if (cursor != 0) {
+                cursor--;
+            }
+        } else if (!hist && !curs) {
+            str->insert(cursor, k.ascii());
+            cursor++;
         }
+
+        // erase currently displayed string if the string changed
+        if (!curs) {
+            out.setpos(x_start, y_start);
+            // "+ 1" in case there was a backspace in the middle of the string
+            for (size_t i = 0; i < str->length() + 1; i++) {
+                out << ' ';
+            }
+            out << flush;
+        }
+
+        // change str if a different command was selected from shell history
         if (hist) {
-            // "erase" currently displayed string
-            int x, y;
-            out.getpos(x, y);
-            while (x != x_start || y != y_start) {
-                if (--x < out.from_col) {
-                    y--;
-                    x = out.to_col;
-                }
-                out.show(x, y, ' ');
-            }
-            out.setpos(x, y);
-
-            // print new string
-            *s = *cur->str;
-            out << *s << flush;
-            continue;
+            *str = *cur->str;
+            cursor = str->length();
         }
 
-        s->append(k.ascii());
-        out << k.ascii() << flush;
-
-        if (k.ascii() == '\n') {
-            break;
-        }
+        // print new string
+        out.setpos(x_start, y_start);
+        out << *str << flush;
+        out.setpos((x_start + cursor) % out.width,
+                    y_start + cursor  / out.width);
     }
 
-    return s->length();
+    return str->length();
 }
 
-void Shell::process_input(String *s) {
-    s->remove_lf();
-    if (!s->is_empty()) {
-        history_add(s);
+void Shell::process_input(String *str) {
+    str->remove_lf();
+    if (!str->empty()) {
+        history_add(str);
     }
 
-    String cmd = s->tok(" ");
+    String cmd = str->tok(" ");
     //DBG << "cmd: " << cmd << endl;
     if (streq(cmd, "test")) {
         out << COLOR_GREEN << "success :)" << COLOR_RESET << endl;
+        String s("hallo welt");
+        out << s.substr(4, 5) << endl;
+        out << s.erase(2, 4) << endl;
     } else if (streq(cmd, "yes")) {
         out << COLOR_YELLOW << "no" << COLOR_RESET << endl;
     } else if (streq(cmd, "time") || streq(cmd, "date")) {
@@ -178,32 +213,37 @@ void Shell::process_input(String *s) {
     } else if (streq(cmd, "hex")) {
         out << hex << -1 << dec << endl;
     } else if (streq(cmd, "strtol")) {
-        String num = s->tok(" ");
-        String tmp = s->tok(" ");
+        String num = str->tok(" ");
+        String tmp = str->tok(" ");
         bool error;
         int base = strtol(tmp, &error);
         if (error) {
-            out << "base invalid, using 0" << endl;
+            out << "base invalid, using autodetect" << endl;
             base = 0;
         }
         out << strtol(num, &error, base) << (error ? " (error!)" : "") << endl;
     } else if (streq(cmd, "strtok")) {
         String arg;
-        while (!(arg = s->tok(" ")).is_empty()) {
+        while (!(arg = str->tok(" ")).empty()) {
             out << arg << endl;
         }
     } else if (streq(cmd, "insert")) {
-        String str = s->tok(" ");
-        String ins = s->tok(" ");
-        long pos = strtol(s->tok(" "));
-        out << "inserting " << ins << " into " << str << " at " << pos << ":" << endl
-            << str.insert(pos, ins) << endl;
+        String s     = str->tok(" ");
+        String ins   = str->tok(" ");
+        String pos_s = str->tok(" ");
+        if (s.empty() || ins.empty()) {
+            perror(cmd, "invalid format: use insert <str> <insert_str> <pos>");
+            return;
+        }
+        long pos = strtol(pos_s);
+        out << "inserting " << ins << " into " << s << " at " << pos << ":" << endl
+            << s.insert(pos, ins) << endl;
     } else if (streq(cmd, "settime")) {
-        String hour_s   = s->tok(" :/-,.");
-        String minute_s = s->tok(" :/-,.");
-        String second_s = s->tok(" :/-,.");
-        if (hour_s.is_empty() || minute_s.is_empty() || second_s.is_empty()) {
-            perror(cmd, "invalid format (use hour:minute:second)");
+        String hour_s   = str->tok(" :/-,.");
+        String minute_s = str->tok(" :/-,.");
+        String second_s = str->tok(" :/-,.");
+        if (hour_s.empty() || minute_s.empty() || second_s.empty()) {
+            perror(cmd, "invalid format: use hour:minute:second");
             return;
         }
 
@@ -212,18 +252,18 @@ void Shell::process_input(String *s) {
         rtc.set_second(strtol(second_s));
         rtc.update_time();
     } else if (streq(cmd, "settimezone")) {
-        String zone_s = s->tok(" ");
-        if (zone_s.is_empty()) {
+        String zone_s = str->tok(" ");
+        if (zone_s.empty()) {
             perror(cmd, "missing timezone");
         }
         rtc.set_timezone(strtol(zone_s));
         rtc.update_time();
     } else if (streq(cmd, "setdate")) {
-        String day_s   = s->tok(" :/-,.");
-        String month_s = s->tok(" :/-,.");
-        String year_s  = s->tok(" :/-,.");
-        if (day_s.is_empty() || month_s.is_empty() || year_s.is_empty()) {
-            perror(cmd, "invalid format (use day/month/year)");
+        String day_s   = str->tok(" :/-,.");
+        String month_s = str->tok(" :/-,.");
+        String year_s  = str->tok(" :/-,.");
+        if (day_s.empty() || month_s.empty() || year_s.empty()) {
+            perror(cmd, "invalid format: use day/month/year");
             return;
         }
 
@@ -244,12 +284,12 @@ void Shell::start() {
     for (;;) {
         out << prompt << flush;
 
-        String *s = new String;
-        if (!read(s, s->MAX_LENGTH)) {
+        String *str = new String;
+        if (!read(str, str->MAX_LENGTH)) {
             break;
         }
 
-        process_input(s);
+        process_input(str);
     }
 
     history_destroy();

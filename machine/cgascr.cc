@@ -12,7 +12,7 @@ CGA_Screen::Pixel * const CGA_Screen::CGA_BASE = (Pixel * const) 0xb8000;
 
 CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool use_cursor) :
     cur_x(from_col), cur_y(from_row), from_col(from_col), to_col(to_col), from_row(from_row),
-    to_row(to_row), use_cursor(use_cursor) {}
+    to_row(to_row), height(to_row - from_row), width(to_col - from_col), use_cursor(use_cursor) {}
 
 void CGA_Screen::setpos(int x, int y) {
     // account for negative x and y

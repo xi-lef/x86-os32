@@ -149,6 +149,6 @@ GDB_Stub::GDB_Stub(bool wait, bool debugOutput, Serial::comPort port, Serial::ba
 	if (wait){
 		breakpoint();
 	}
-    DBG << "GDB_Stub: init done" << endl;
+    DBG_VERBOSE << "GDB_Stub: init done" << endl;
 }
 

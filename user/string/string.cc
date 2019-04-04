@@ -13,17 +13,18 @@ String::String(char *s) : save_index(0) {
     len = i;
 }
 
+String& String::operator =(const String& str) {
+    strncpy(data, str.data, str.length());
+    len = str.len;
+    save_index = 0;
+    return *this;
+}
+
 String::operator char*() {
     for (int i = len; i < STRING_MAX_LENGTH; i++) {
         data[i] = '\0';
     }
     return data;
-}
-
-String& String::operator =(const String& str) {
-    strncpy(data, str.data, str.length());
-    len = str.len;
-    return *this;
 }
 
 char String::at(int i) const {
@@ -51,29 +52,17 @@ bool String::operator ==(const String& str) const {
     return streq(*this, str);
 }
 
-String String::from(size_t pos) const {
-    if (pos == 0) {
-        return *this;
-    } else if (pos > len) {
-        return String();
-    }
-
-    String new_str(*this);
-    for (size_t i = 0; i < this->length() - pos; i++) {
-        new_str[i] = new_str[i + pos];
-    }
-    new_str.len -= pos;
-    return new_str;
+size_t String::length() const {
+    return len;
 }
 
-String String::to(size_t pos) const {
-    if (pos >= len) {
-        return *this;
-    }
-    
-    String new_str(*this);
-    new_str.len = pos + 1;
-    return new_str;
+void String::clear() {
+    len = 0;
+    save_index = 0;
+}
+
+bool String::empty() const {
+    return len == 0;
 }
 
 void String::resize(size_t n, char c) {
@@ -85,8 +74,79 @@ void String::resize(size_t n, char c) {
     len = n;
 }
 
-size_t String::length() const {
-    return len;
+String String::substr(size_t pos, size_t len) const {
+    if (pos == 0 && len >= this->len) {
+        return *this;
+    } else if (pos > this->len) {
+        return String();
+    }
+
+    String new_str;
+    for (size_t i = 0; i < Math::min(len, this->len - pos); i++) {
+        new_str += at(pos + i);
+    }
+    return new_str;
+}
+
+String& String::append(char c) {
+    if (len == STRING_MAX_LENGTH) {
+        DBG << "String: append: full" << endl;
+        return *this;
+    }
+    data[len++] = c;
+    return *this;
+}
+
+String& String::append(const String& str) {
+    for (size_t i = 0; i < str.length(); i++) {
+        append(str[i]);
+    }
+    return *this;
+}
+
+String& String::operator +=(char c) {
+    append(c);
+    return *this;
+}
+
+String& String::operator +=(const String& str) {
+    append(str);
+    return *this;
+}
+
+String& String::insert(size_t pos, char c) {
+    String end = substr(pos);
+    resize(pos);
+    append(c);
+    append(end);
+    return *this;
+}
+
+String& String::insert(size_t pos, const String& str) {
+    String end = substr(pos);
+    resize(pos);
+    append(str);
+    append(end);
+    return *this;
+}
+
+String& String::erase(size_t pos, size_t len) {
+    String new_str = (pos == 0) ? String() : substr(0, pos); // 1st part
+    new_str.append(substr(pos + len));                       // 2nd part
+    *this = new_str;
+    return *this;
+}
+
+bool String::push_back(char c) {
+    return append(c);
+}
+
+bool String::pop_back() {
+    if (len > 0) {
+        resize(len - 1);
+        return true;
+    }
+    return false;
 }
 
 String String::without_lf() const {
@@ -105,61 +165,6 @@ void String::remove_lf() {
     }
 }
 
-bool String::append(char c) {
-    if (len == STRING_MAX_LENGTH) {
-        return false;
-    }
-    data[len++] = c;
-    return true;
-}
-
-bool String::append(const String& str) {
-    for (size_t i = 0; i < str.length(); i++) {
-        if (!append(str[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-String& String::operator +=(char c) {
-    append(c);
-    return *this;
-}
-
-String& String::operator +=(const String& str) {
-    append(str);
-    return *this;
-}
-
-String& String::insert(size_t pos, char c) {
-    String end = from(pos);
-    resize(pos);
-    append(c);
-    append(end);
-    return *this;
-}
-
-String& String::insert(size_t pos, const String& str) {
-    String end = from(pos);
-    resize(pos);
-    append(str);
-    append(end);
-    return *this;
-}
-
-bool String::push_back(char c) {
-    return append(c);
-}
-
-bool String::pop_back() {
-    if (len > 0) {
-        resize(len - 1);
-        return true;
-    }
-    return false;
-}
-
 bool String::compare(size_t pos, const String& str) const {
     if (pos + str.length() > len) {
         return false;
@@ -173,13 +178,22 @@ bool String::compare(size_t pos, const String& str) const {
     return true;
 }
 
+size_t String::find(const String& str, size_t pos) const {
+    for (size_t i = pos; i < len; i++) {
+        if (compare(i, str)) {
+            return i;
+        }
+    }
+    return npos;
+}
+
 size_t String::find_first_of(char c, size_t pos) const {
     for (size_t i = pos; i < len; i++) {
         if (data[i] == c) {
             return i;
         }
     }
-    return -1;
+    return npos;
 }
 
 size_t String::find_first_of(const String& str, size_t pos) const {
@@ -190,19 +204,11 @@ size_t String::find_first_of(const String& str, size_t pos) const {
             }
         }
     }
-    return -1;
+    return npos;
 }
 
 String String::tok(const String& delim) {
     return strtok(*this, delim);
-}
-
-void String::empty() {
-    len = 0;
-}
-
-bool String::is_empty() const {
-    return len == 0;
 }
 
 size_t strlen(const char *s) {
@@ -239,12 +245,12 @@ String strtok(String& str, const String& delim) {
     while ((pos = str.find_first_of(delim, str.save_index)) == str.save_index) {
         str.save_index++;
     }
-    if (pos == (size_t) -1) {
+    if (pos == String::npos) {
         // no delimiting char could be found
         pos = str.length();
     }
 
-    String ret = str.to(pos - 1).from(str.save_index);
+    String ret = str.substr(0, pos).substr(str.save_index);
     str.save_index = pos + 1;
     return ret;
 }

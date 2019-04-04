@@ -37,6 +37,8 @@ public:
     const int to_col;
     const int from_row;
     const int to_row;
+    const int height;
+    const int width;
     const bool use_cursor;
 
 	/*! \brief Konstruktor
@@ -53,7 +55,7 @@ public:
 	 *  \todo Konstruktor implementieren
 	 *
 	 */
-	CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool use_cursor=false);
+	CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool use_cursor = false);
 
 	/// Groesse des kompletten CGA-Bildschirms
 	static const int ROWS = 25;    // 25 Zeilen
@@ -95,6 +97,18 @@ public:
             return ((foreground & 0xf) | ((background & 0x7) << 4) | ((blink & 0x1) << 7));
         }
 	} __attribute__((packed)); // sorgt dafür, dass der Übersetzter keinen Speicher auffüllt
+
+#define GET_MACRO(_1, _2, _3, NAME, ...) NAME
+
+#define DECL_EXT_COLOR1(fg)            extern CGA_Screen::Attribute COLOR_##fg
+#define DECL_EXT_COLOR2(fg, bg)        extern CGA_Screen::Attribute COLOR_##fg##_##bg
+#define DECL_EXT_COLOR3(fg, bg, blink) extern CGA_Screen::Attribute COLOR_##fg##_##bg##blink
+#define DECL_EXT_COLOR(...) GET_MACRO(__VA_ARGS__, DECL_EXT_COLOR3, DECL_EXT_COLOR2, DECL_EXT_COLOR1)(__VA_ARGS__)
+
+#define DECL_COLOR1(fg)            CGA_Screen::Attribute COLOR_##fg(CGA_Screen::fg)
+#define DECL_COLOR2(fg, bg)        CGA_Screen::Attribute COLOR_##fg##_##bg(CGA_Screen::fg, CGA_Screen::bg)
+#define DECL_COLOR3(fg, bg, blink) CGA_Screen::Attribute COLOR_##fg##_##bg##blink(CGA_Screen::fg, CGA_Screen::bg, blink)
+#define DECL_COLOR(...) GET_MACRO(__VA_ARGS__, DECL_COLOR3, DECL_COLOR2, DECL_COLOR1)(__VA_ARGS__)
 
     union Pixel {
         struct {

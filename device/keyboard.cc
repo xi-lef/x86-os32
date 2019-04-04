@@ -53,26 +53,6 @@ Key Keyboard::getkey() {
     return k;
 }
 
-void Keyboard::handle_backspace(String *s, CGA_Stream& out) {
-    if (s && !s->pop_back()) {
-        // string already was empty
-        return;
-    }
-
-    int x, y;
-    out.getpos(x, y);
-    if (x == out.from_col) {
-        if (y != out.from_row) {
-            y--;
-        }
-        x = out.to_col;
-    } else {
-        x--;
-    }
-    out.show(x, y, ' ');
-    out.setpos(x, y);
-}
-
 size_t Keyboard::read(String *s, size_t count, CGA_Stream& out) {
     size_t i;
     for (i = 0; i < count; i++) {
@@ -85,7 +65,7 @@ size_t Keyboard::read(String *s, size_t count, CGA_Stream& out) {
 
         // catch backspace
         if (k.ascii() == '\b') {
-            handle_backspace(s, out);
+            out.backspace(s);
             continue;
         }
 
