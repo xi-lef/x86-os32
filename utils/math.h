@@ -42,14 +42,14 @@ class Math
 		return quot;
 	}
 
-	template <typename T>
-	static T min(T a, T b)
+	template <typename T, typename U>
+	static T min(T a, U b)
 	{
 		return a > b ? b : a;
 	}
-	
-	template <typename T>
-	static T max(T a, T b)
+
+	template <typename T, typename U>
+	static T max(T a, U b)
 	{
 		return a > b ? a : b;
 	}

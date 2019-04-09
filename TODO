@@ -1,7 +1,9 @@
 lapic timer freq mit msr (1331, 838H)
 
-includes alphabetisch sortieren
 string: dynamic length
+string iterator
+shell: fix last line
+includes alphabetisch sortieren
 //shell: new app, jobs, kill
 //negative timezones
 

@@ -71,8 +71,10 @@ extern "C" int main() {
     KeyboardApplication *a_kb = new KeyboardApplication(i++);
     Guarded_Scheduler::ready(a_kb);
 
+#if 1
     StatusApplication *a_st = new StatusApplication(i++);
     Guarded_Scheduler::ready(a_st);
+#endif
 
 #if 0
     ClockApplication *a_cl = new ClockApplication(i++);

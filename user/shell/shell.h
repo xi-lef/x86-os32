@@ -21,14 +21,13 @@ private:
         History_Entry *next;
     };
 
-    History_Entry *history_head;
     History_Entry *history_tail;
 
     void history_destroy();
     void history_add(String *s);
 
 public:
-    Shell(CGA_Stream &out) : out(out), history_head(nullptr), history_tail(nullptr) {}
+    Shell(CGA_Stream &out) : out(out), history_tail(nullptr) {}
 
     void perror(String cmd, char *error) const;
 

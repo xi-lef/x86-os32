@@ -36,8 +36,7 @@ public:
 	 *  der als Stack für diesen Thread fungieren soll.
 	 */
 	Thread(void *tos);
-    // allocates memory for stack itself
-    Thread();
+    Thread(); // allocates memory for stack itself
 
     ~Thread();
 

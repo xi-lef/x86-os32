@@ -2,31 +2,50 @@
 
 #include "types.h"
 
-#define STRING_MAX_LENGTH 256
-
 class String {
 private:
-    char   data[STRING_MAX_LENGTH];
+    // Pseudo-struct for use in sizeof.
+    struct long_data {
+        char *data;
+        size_t capacity;
+    };
+    static const size_t long_data_size = sizeof(long_data);
+
+    union {
+        struct {
+            char   *data;
+            size_t capacity;
+        };
+        mutable char short_data[long_data_size];
+    };
+    bool use_heap;
     size_t len;
 
     size_t save_index; // For strtok.
     friend String strtok(String& str, const String& delim);
 
+    // (At least) doubles the capacity of the "data" array.
+    // "cap" is the minimum for the newly required capacity.
+    void __maybe_resize(size_t l);
+
 public:
-    static const size_t MAX_LENGTH = STRING_MAX_LENGTH;
     static const size_t npos = (size_t) -1;
 
     /// Constructors etc.
     String();
     String(char *s);
+    String(const String& str);
+
+    ~String();
 
     String& operator =(const String& str);
 
-    operator char*();
+    operator const char*();
 
     /// Element access.
     // Use int instead of size_t because of g++.
-    char at(int i) const;
+    char& at(int i);
+    const char& at(int i) const;
     char& operator [](int i);
     const char& operator [](int i) const;
 
@@ -37,6 +56,8 @@ public:
     void clear();
     bool empty() const;
     void resize(size_t n, char c = ' ');
+
+    void shrink_to_fit();
 
     String substr(size_t pos = 0, size_t len = npos) const;
 
@@ -51,19 +72,24 @@ public:
 
     String& erase(size_t pos = 0, size_t len = npos);
 
-    bool push_back(char c);
-    bool pop_back();
+    void push_back(char c);
+    void pop_back();
 
     String without_lf() const;
     void remove_lf();
 
     /// String operations.
+    // Compare this string, starting at "pos", with "str".
+    // "pos" is checked for validity.
     bool compare(size_t pos, const String& str) const;
 
     size_t find(const String& str, size_t pos = 0) const;
     size_t find_first_of(char c, size_t pos = 0) const;
     size_t find_first_of(const String& str, size_t pos = 0) const;
     String tok(const String& delim);
+
+    // Copy the string into "s".
+    size_t copy(char *s, size_t len = npos, size_t pos = 0) const;
 };
 
 size_t strlen(const char *s);

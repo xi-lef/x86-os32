@@ -86,13 +86,13 @@ Keyboard& Keyboard::operator >>(char& c) {
 }
 
 Keyboard& Keyboard::operator >>(String& s) {
-    read(&s, STRING_MAX_LENGTH);
+    read(&s, 4096);
     return *this;
 }
 
 Keyboard& Keyboard::operator >>(long& i) {
     String s;
-    read(&s, STRING_MAX_LENGTH);
+    read(&s, 4096);
     i = strtol(s);
     return *this;
 }

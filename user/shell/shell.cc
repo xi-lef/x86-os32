@@ -46,10 +46,10 @@ void Shell::restore() {
 }
 
 void Shell::history_destroy() {
-    for (History_Entry *e = history_head; e;) {
+    for (History_Entry *e = history_tail; e;) {
         delete e->str;
         History_Entry *tmp = e;
-        e = e->next;
+        e = e->prev;
         delete tmp;
     }
 }
@@ -62,8 +62,7 @@ void Shell::history_add(String *s) {
 
     History_Entry *new_entry = new History_Entry;
     new_entry->str = s;
-    if (!history_head) {
-        history_head = new_entry;
+    if (!history_tail) {
         history_tail = new_entry;
         new_entry->prev = nullptr;
         new_entry->next = nullptr;
@@ -155,10 +154,16 @@ size_t Shell::read(String *str, size_t count) {
             cursor++;
         }
 
+        // TODO detect scrollup (when at bottom of out).
+        // in that case y_start (and x_start ?) will not be correct
+        if (y_start == out.to_row && x_start + str->length() >= (unsigned int) out.to_col) {
+            y_start -= (x_start + str->length()) / out.width;
+        }
+
         // erase currently displayed string if the string changed
         if (!curs) {
             out.setpos(x_start, y_start);
-            // "+ 1" in case there was a backspace in the middle of the string
+            // "+ 1" in case "k" is a backspace in the middle of the string
             for (size_t i = 0; i < str->length() + 1; i++) {
                 out << ' ';
             }
@@ -174,8 +179,9 @@ size_t Shell::read(String *str, size_t count) {
         // print new string
         out.setpos(x_start, y_start);
         out << *str << flush;
-        out.setpos((x_start + cursor) % out.width,
-                    y_start + cursor  / out.width);
+        out.setpos(Math::min((unsigned int) out.to_col, (x_start + cursor) % out.width),
+                   Math::min((unsigned int) out.to_row, (x_start + cursor) / out.width + y_start));
+        //DBG << "c: " << cursor << ' ' << flush;
     }
 
     return str->length();
@@ -188,12 +194,15 @@ void Shell::process_input(String *str) {
     }
 
     String cmd = str->tok(" ");
-    //DBG << "cmd: " << cmd << endl;
     if (streq(cmd, "test")) {
         out << COLOR_GREEN << "success :)" << COLOR_RESET << endl;
-        String s("hallo welt");
+        /*String s("hallo welt");
         out << s.substr(4, 5) << endl;
         out << s.erase(2, 4) << endl;
+        String a = s.tok(" ");
+        String b = s.tok(" ");
+        out << a << endl;
+        out << b << endl;*/
     } else if (streq(cmd, "yes")) {
         out << COLOR_YELLOW << "no" << COLOR_RESET << endl;
     } else if (streq(cmd, "time") || streq(cmd, "date")) {
@@ -217,7 +226,7 @@ void Shell::process_input(String *str) {
         String tmp = str->tok(" ");
         bool error;
         int base = strtol(tmp, &error);
-        if (error) {
+        if (!tmp.empty() && error) {
             out << "base invalid, using autodetect" << endl;
             base = 0;
         }
@@ -285,7 +294,7 @@ void Shell::start() {
         out << prompt << flush;
 
         String *str = new String;
-        if (!read(str, str->MAX_LENGTH)) {
+        if (!read(str, 4096)) {
             break;
         }
 

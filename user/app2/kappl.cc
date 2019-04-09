@@ -8,16 +8,17 @@
 #include "user/shell/shell.h"
 
 void KeyboardApplication::action() {
-    //Random r(1337);
     int cur_speed = 0;
     int cur_delay = 0;
 
-    // this writes in a 36 columns and 11 rows big area of kout
-    //for (int pos = 0; ; ++pos %= 36 * 11) {
     for (;;) {
-        //char *test = new char[r.number() % (1024 * 900)];
         Key k = keyboard.getkey();
-        //delete[] test;
+
+        /*String str("hallo du");
+        kout << COLOR_YELLOW << str << COLOR_RESET << ' ';
+        String sub = str.substr(2, 3);
+        kout << COLOR_YELLOW << sub << COLOR_RESET << endl;
+        continue;*/
 
         if (k.ctrl()) {
             if (k.ascii() == 't') {
