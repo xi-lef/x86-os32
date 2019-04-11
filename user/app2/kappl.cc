@@ -20,14 +20,15 @@ void KeyboardApplication::action() {
         kout << COLOR_YELLOW << sub << COLOR_RESET << endl;
         continue;*/
 
+        if (k.ascii() == 't') {
+            Shell shell(kout);
+            kout_mutex.lock();
+            shell.start();
+            kout_mutex.unlock();
+            continue;
+        }
+
         if (k.ctrl()) {
-            if (k.ascii() == 't') {
-                Shell shell(kout);
-                kout_mutex.lock();
-                shell.start();
-                kout_mutex.unlock();
-                continue;
-            }
             switch (k.scancode()) {
             case Key::scan::up:
                 keyboard.set_repeat_rate((cur_speed == 31) ? 31 : ++cur_speed, cur_delay);

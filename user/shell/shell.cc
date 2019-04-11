@@ -156,8 +156,15 @@ size_t Shell::read(String *str, size_t count) {
 
         // TODO detect scrollup (when at bottom of out).
         // in that case y_start (and x_start ?) will not be correct
-        if (y_start == out.to_row && x_start + str->length() >= (unsigned int) out.to_col) {
+        /*if (y_start == out.to_row && x_start + str->length() >= (unsigned int) out.to_col) {
             y_start -= (x_start + str->length()) / out.width;
+        }*/
+        size_t num_rows = (x_start + str->length() - 1) / (out.width - 1);
+        if (num_rows > (unsigned int) out.to_row - y_start) {
+            DBG << "num_rows(" << num_rows << ") " << flush;
+            //y_start -= num_rows;
+            y_start--;
+            //out.move_up_one_line();
         }
 
         // erase currently displayed string if the string changed
@@ -170,6 +177,8 @@ size_t Shell::read(String *str, size_t count) {
             out << flush;
         }
 
+        // TODO scrollup here?
+
         // change str if a different command was selected from shell history
         if (hist) {
             *str = *cur->str;
@@ -181,6 +190,7 @@ size_t Shell::read(String *str, size_t count) {
         out << *str << flush;
         out.setpos(Math::min((unsigned int) out.to_col, (x_start + cursor) % out.width),
                    Math::min((unsigned int) out.to_row, (x_start + cursor) / out.width + y_start));
+
         //DBG << "c: " << cursor << ' ' << flush;
     }
 
@@ -230,6 +240,7 @@ void Shell::process_input(String *str) {
             out << "base invalid, using autodetect" << endl;
             base = 0;
         }
+
         out << strtol(num, &error, base) << (error ? " (error!)" : "") << endl;
     } else if (streq(cmd, "strtok")) {
         String arg;
@@ -241,9 +252,10 @@ void Shell::process_input(String *str) {
         String ins   = str->tok(" ");
         String pos_s = str->tok(" ");
         if (s.empty() || ins.empty()) {
-            perror(cmd, "invalid format: use insert <str> <insert_str> <pos>");
+            perror(cmd, "usage: insert <str> <insert_str> <pos>");
             return;
         }
+
         long pos = strtol(pos_s);
         out << "inserting " << ins << " into " << s << " at " << pos << ":" << endl
             << s.insert(pos, ins) << endl;
@@ -252,7 +264,7 @@ void Shell::process_input(String *str) {
         String minute_s = str->tok(" :/-,.");
         String second_s = str->tok(" :/-,.");
         if (hour_s.empty() || minute_s.empty() || second_s.empty()) {
-            perror(cmd, "invalid format: use hour:minute:second");
+            perror(cmd, "usage: settime <hour> <minute> <second>");
             return;
         }
 
@@ -263,22 +275,27 @@ void Shell::process_input(String *str) {
     } else if (streq(cmd, "settimezone")) {
         String zone_s = str->tok(" ");
         if (zone_s.empty()) {
-            perror(cmd, "missing timezone");
+            perror(cmd, "usage: settimezone <timezone> (only positive values!)");
         }
+
         rtc.set_timezone(strtol(zone_s));
         rtc.update_time();
     } else if (streq(cmd, "setdate")) {
-        String day_s   = str->tok(" :/-,.");
-        String month_s = str->tok(" :/-,.");
-        String year_s  = str->tok(" :/-,.");
+        String day_s    = str->tok(" :/-,.");
+        String month_s  = str->tok(" :/-,.");
+        String year_s   = str->tok(" :/-,.");
+        String weekday_s = str->tok(" :/-,.");
         if (day_s.empty() || month_s.empty() || year_s.empty()) {
-            perror(cmd, "invalid format: use day/month/year");
+            perror(cmd, "usage: setdate <day> <month> <year> [<numeric weekday>]");
             return;
         }
 
         rtc.set_day(strtol(day_s));
         rtc.set_month(strtol(month_s));
         rtc.set_real_year(strtol(year_s));
+        if (!weekday_s.empty()) {
+            rtc.set_weekday(strtol(weekday_s));
+        }
         rtc.update_time();
     } else {
         perror(cmd, "command not found");
