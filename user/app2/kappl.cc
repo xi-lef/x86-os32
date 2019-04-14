@@ -19,6 +19,11 @@ void KeyboardApplication::action() {
         String sub = str.substr(2, 3);
         kout << COLOR_YELLOW << sub << COLOR_RESET << endl;
         continue;*/
+        /*String str("test123");
+        for (char c : str) {
+        //for (auto c = str.begin(); c != str.end(); c++) {
+            DBG << c << ' ' << flush;
+        }*/
 
         if (k.ascii() == 't') {
             Shell shell(kout);

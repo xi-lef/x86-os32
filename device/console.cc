@@ -130,6 +130,6 @@ void Console::listen() {
     unsigned char console_slot = system.getIOAPICSlot(dev);
 
     plugbox.assign(console_vector, this);
-    ioapic.config(console_slot, console_vector, TRIGGER_MODE_LEVEL); // TODO POLARITY_LOW?
+    ioapic.config(console_slot, console_vector, TRIGGER_MODE_LEVEL);
     receiveInterrupt(true);
 }

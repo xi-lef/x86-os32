@@ -1,11 +1,8 @@
 lapic timer freq mit msr (1331, 838H)
 
-string: dynamic length
-string iterator
-shell: fix last line
+//timezone ist schwierig
 includes alphabetisch sortieren
 //shell: new app, jobs, kill
-//negative timezones
 
 aufgabe7:
 analog clock display

@@ -90,7 +90,7 @@ O_Stream& O_Stream::operator <<(O_Stream& (*f) (O_Stream&)) {
 	return f(*this);
 }
 
-O_Stream& O_Stream::operator <<(Time t) {
+O_Stream& O_Stream::operator <<(Time& t) {
     *this << Time::get_weekday_string(t.weekday)
           << ((t.day     < 10) ? "  " : " ") << t.day
           << " " << t.get_month_string(t.month)

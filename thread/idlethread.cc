@@ -18,7 +18,7 @@ void IdleThread::action() {
             } else {
                 CPU::idle();
             }
-            //status.set_idle(false); // done in Scheduler::resume()
+            //status.set_idle(false); is done in Scheduler::resume()
         } else {
             CPU::enable_int();
             Guarded_Scheduler::resume();

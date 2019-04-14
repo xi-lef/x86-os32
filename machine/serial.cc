@@ -65,7 +65,7 @@ bool Serial::receiveInterrupt(bool enable) {
     // enable interrupt when data is available
     bool old = readReg(ier) & 0x01;
     writeReg(ier, enable ? 0x01 : 0x00);
-    // weird stuff, idk TODO
+    // weird stuff, idk
     writeReg(mcr, 0x0b);
 
     // configure IOAPIC

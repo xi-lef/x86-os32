@@ -5,19 +5,19 @@
 void Guarded_Scheduler::exit() {
     Secure s;
     status.thread_dec();
-    Thread *active = scheduler.active();
-    active->mutex_release_all(); // see pthread_exit(3)
-    active->Thread::~Thread();
+    scheduler.active()->Thread::~Thread();
     scheduler.exit();
 }
 
 void Guarded_Scheduler::kill(Thread *that) {
     Secure s;
+    status.thread_dec();
     scheduler.kill(that);
 }
 
 void Guarded_Scheduler::ready(Thread *that) {
     Secure s;
+    status.thread_inc();
     scheduler.ready(that);
 }
 

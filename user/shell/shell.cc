@@ -55,7 +55,7 @@ void Shell::history_destroy() {
 }
 
 void Shell::history_add(String *s) {
-    // dont add the same command twice
+    // dont add the same command twice in a row.
     if (*s == *history_tail->str) {
         return;
     }
@@ -78,35 +78,37 @@ void Shell::perror(String cmd, char *error) const {
     out << cmd << ": " << error << endl;
 }
 
+// this seems really fucking ugly. i have not found a way to do this any better
+// because of stuff like pressing backspace in the middle of the input, or
+// because of the shell history.
 size_t Shell::read(String *str, size_t count) {
-    History_Entry *cur = nullptr; // for browsing shell history
-    int x_start, y_start; // start position; to take shell prompt into account
+    History_Entry *cur = nullptr; // for browsing shell history.
+    int x_start, y_start; // start position; to take shell prompt into account.
     out.getpos(x_start, y_start);
 
     str->clear();
-    size_t cursor = 0;
+    size_t cursor = 0; // keep track of the current cursor position.
 
     while (str->length() < count) {
         Key k = keyboard.getkey();
 
-        // ctrl + d makes read terminate
+        // ctrl + d makes read terminate.
         if (k.ctrl() && (k.ascii() == 'd' || k.ascii() == 'D')) {
             break;
         }
 
-        // catch newline
+        // catch newline.
         if (k.ascii() == '\n') {
             str->append('\n');
-            out << endl;
             break;
         }
 
-        /// catch "special" keys
+        /// catch "special" keys.
         bool hist = false;
         bool curs = false;
 
         switch (k.scancode()) {
-        // catch arrow keys for shell history
+        // catch arrow keys for shell history.
         case Key::scan::up: {
             hist = true;
             if (!cur) {
@@ -126,7 +128,7 @@ size_t Shell::read(String *str, size_t count) {
             }
         } break;
 
-        // catch arrow keys for changing cursor
+        // catch arrow keys for changing cursor.
         case Key::scan::left: {
             curs = true;
             if (cursor == 0) {
@@ -143,7 +145,7 @@ size_t Shell::read(String *str, size_t count) {
         } break;
         } // switch (k.scancode())
 
-        // catch backspace
+        // catch backspace.
         if (k.ascii() == '\b') {
             out.backspace(str, cursor - 1);
             if (cursor != 0) {
@@ -154,45 +156,60 @@ size_t Shell::read(String *str, size_t count) {
             cursor++;
         }
 
-        // TODO detect scrollup (when at bottom of out).
-        // in that case y_start (and x_start ?) will not be correct
-        /*if (y_start == out.to_row && x_start + str->length() >= (unsigned int) out.to_col) {
-            y_start -= (x_start + str->length()) / out.width;
-        }*/
-        size_t num_rows = (x_start + str->length() - 1) / (out.width - 1);
-        if (num_rows > (unsigned int) out.to_row - y_start) {
-            DBG << "num_rows(" << num_rows << ") " << flush;
-            //y_start -= num_rows;
-            y_start--;
-            //out.move_up_one_line();
+        // detect scrollup (when at bottom of out).
+        // in that case y_start will not be correct, as it moved up by one line.
+        bool scrollup = false;
+        size_t num_rows = (x_start + str->length()) / out.width;
+
+        if (y_start + num_rows > (unsigned int) out.to_row) {
+            scrollup = true;
         }
 
-        // erase currently displayed string if the string changed
-        if (!curs) {
+        // erase currently displayed string if necessary.
+        if (hist || scrollup || k.ascii() == '\b') {
             out.setpos(x_start, y_start);
-            // "+ 1" in case "k" is a backspace in the middle of the string
+            // "+ 1" in case "k" is a backspace *in the middle* of the string.
             for (size_t i = 0; i < str->length() + 1; i++) {
                 out << ' ';
             }
             out << flush;
         }
 
-        // TODO scrollup here?
+        // do this after erasing the current string. otherwise, a wrong y_start
+        // is used in out.setpos above.
+        if (scrollup) {
+            y_start--;
+        }
 
-        // change str if a different command was selected from shell history
+        // change str if a different command was selected from shell history.
         if (hist) {
             *str = *cur->str;
             cursor = str->length();
         }
 
-        // print new string
+        // print new string.
         out.setpos(x_start, y_start);
         out << *str << flush;
         out.setpos(Math::min((unsigned int) out.to_col, (x_start + cursor) % out.width),
                    Math::min((unsigned int) out.to_row, (x_start + cursor) / out.width + y_start));
 
-        //DBG << "c: " << cursor << ' ' << flush;
+        // if were at the bottom of out and the new command from history
+        // requires more lines than the old one, we need to adapt y_start
+        // here, so there are no spurious scrollups detected, which would
+        // mess up the output.
+        if (hist) {
+            size_t num_rows_new = (x_start + cur->str->length()) / out.width;
+            if (y_start + num_rows == (unsigned int) out.to_row
+                && num_rows_new > num_rows) {
+                y_start -= (num_rows_new - num_rows);
+            }
+        }
     }
+
+    // set cursor to end of input and print newline.
+    out.setpos(Math::min((unsigned int) out.to_col, (x_start + str->length()) % out.width),
+               Math::min((unsigned int) out.to_row, (x_start + str->length()) / out.width + y_start));
+    out << endl;
 
     return str->length();
 }
@@ -259,44 +276,53 @@ void Shell::process_input(String *str) {
         long pos = strtol(pos_s);
         out << "inserting " << ins << " into " << s << " at " << pos << ":" << endl
             << s.insert(pos, ins) << endl;
-    } else if (streq(cmd, "settime")) {
-        String hour_s   = str->tok(" :/-,.");
-        String minute_s = str->tok(" :/-,.");
-        String second_s = str->tok(" :/-,.");
-        if (hour_s.empty() || minute_s.empty() || second_s.empty()) {
-            perror(cmd, "usage: settime <hour> <minute> <second>");
-            return;
-        }
+    } else if (streq(cmd, "set")) {
+        String subcmd = str->tok(" ");
 
-        rtc.set_hour(strtol(hour_s));
-        rtc.set_minute(strtol(minute_s));
-        rtc.set_second(strtol(second_s));
-        rtc.update_time();
-    } else if (streq(cmd, "settimezone")) {
-        String zone_s = str->tok(" ");
-        if (zone_s.empty()) {
-            perror(cmd, "usage: settimezone <timezone> (only positive values!)");
-        }
+        if (streq(subcmd, "time")) {
+            String hour_s   = str->tok(" :/-,.");
+            String minute_s = str->tok(" :/-,.");
+            String second_s = str->tok(" :/-,.");
+            if (hour_s.empty() || minute_s.empty() || second_s.empty()) {
+                perror(cmd, "usage: set time <hour> <minute> <second>");
+                return;
+            }
 
-        rtc.set_timezone(strtol(zone_s));
-        rtc.update_time();
-    } else if (streq(cmd, "setdate")) {
-        String day_s    = str->tok(" :/-,.");
-        String month_s  = str->tok(" :/-,.");
-        String year_s   = str->tok(" :/-,.");
-        String weekday_s = str->tok(" :/-,.");
-        if (day_s.empty() || month_s.empty() || year_s.empty()) {
-            perror(cmd, "usage: setdate <day> <month> <year> [<numeric weekday>]");
-            return;
-        }
+            rtc.set_local_hour(strtol(hour_s));
+            rtc.set_minute(strtol(minute_s));
+            rtc.set_second(strtol(second_s));
 
-        rtc.set_day(strtol(day_s));
-        rtc.set_month(strtol(month_s));
-        rtc.set_real_year(strtol(year_s));
-        if (!weekday_s.empty()) {
-            rtc.set_weekday(strtol(weekday_s));
+            rtc.update_time();
+        } else if (streq(subcmd, "timezone")) {
+            String zone_s = str->tok(" ");
+            if (zone_s.empty()) {
+                perror(cmd, "usage: set timezone <timezone> (only positive values!)");
+            }
+
+            rtc.set_timezone(strtol(zone_s));
+
+            rtc.update_time();
+        } else if (streq(subcmd, "date")) {
+            String day_s     = str->tok(" :/-,.");
+            String month_s   = str->tok(" :/-,.");
+            String year_s    = str->tok(" :/-,.");
+            String weekday_s = str->tok(" :/-,.");
+            if (day_s.empty() || month_s.empty() || year_s.empty()) {
+                perror(cmd, "usage: set date <day> <month> <year> [<numeric weekday>]");
+                return;
+            }
+
+            rtc.set_day(strtol(day_s));
+            rtc.set_month(strtol(month_s));
+            rtc.set_real_year(strtol(year_s));
+            if (!weekday_s.empty()) {
+                rtc.set_weekday(strtol(weekday_s));
+            }
+
+            rtc.update_time();
+        } else {
+            perror(cmd, "usage: set <time|timezone|date>");
         }
-        rtc.update_time();
     } else {
         perror(cmd, "command not found");
     }

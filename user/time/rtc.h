@@ -78,6 +78,8 @@ public:
     void set_year(uint16_t value);
     void set_weekday(uint16_t value);
     void set_century(uint16_t value);
+
+    void set_local_hour(uint16_t hour);
     void set_real_year(uint16_t year);
 
     /*

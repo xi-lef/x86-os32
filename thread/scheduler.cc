@@ -11,23 +11,24 @@
 
 Scheduler scheduler;
 
+void Scheduler::dispatch_next() {
+    dispatch(is_empty() ? idlethread[system.getCPUID()] : ready_list.dequeue());
+}
+
 void Scheduler::schedule() {
     go(is_empty() ? idlethread[system.getCPUID()] : ready_list.dequeue());
 }
 
 void Scheduler::ready(Thread *that) {
-    status.thread_inc();
     ready_list.enqueue(that);
     system.sendCustomIPI((1 << system.getNumberOfOnlineCPUs()) - 1, Plugbox::Vector::wakeup);
 }
 
 void Scheduler::exit() {
-    dispatch(is_empty() ? idlethread[system.getCPUID()] : ready_list.dequeue());
+    dispatch_next();
 }
 
 void Scheduler::kill(Thread *that) {
-    status.thread_dec();
-
     // check ready_list for "that"
     if (ready_list.remove(that) != 0) {
         DBG << "Scheduler: kill: was in ready_list" << endl;
@@ -62,7 +63,7 @@ void Scheduler::kill(Thread *that) {
 
     if (dest == system.getCPUID()) {
         that->Thread::~Thread();
-        exit();
+        dispatch_next();
     } else {
         DBG << "Scheduler: kill: IPI to " << (int) dest << endl;
         system.sendCustomIPI(system.getLogicalLAPICID(dest), Plugbox::Vector::assassin);
@@ -71,26 +72,26 @@ void Scheduler::kill(Thread *that) {
 
 void Scheduler::resume() {
     Thread *prev = active();
-    if (!prev->dying()) {
+    if (prev->dying()) {
+        //prev->reset_kill_flag();
+        prev->Thread::~Thread();
+    } else {
         // dont queue idlethreads! but update the status correctly.
         if (prev != idlethread[system.getCPUID()]) {
             ready_list.enqueue(prev);
         } else {
             status.set_idle(false);
         }
-    } else {
-        //prev->reset_kill_flag();
-        prev->Thread::~Thread();
     }
 
-    exit();
+    dispatch_next();
 }
 
 void Scheduler::block(Waitingroom *w) {
     Thread *t = active();
     w->enqueue(t);
     t->waiting_in(w);
-    exit();
+    dispatch_next();
 }
 
 bool Scheduler::is_empty() {
@@ -104,6 +105,5 @@ void Scheduler::set_idle_thread(int cpuid, Thread *thread) {
 void Scheduler::wakeup(Thread *customer) {
     customer->waiting_in()->remove(customer);
     customer->waiting_in(nullptr);
-    status.thread_dec();
     ready(customer);
 }

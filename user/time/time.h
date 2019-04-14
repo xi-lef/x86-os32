@@ -41,22 +41,31 @@ public:
 
     void set_timezone(int16_t zone);
 
-// Converts hours to seconds. Useful for increment_seconds.
+    /*
+     * Applies the value of "timezone", i.e. "hour" is changed appropriately.
+     */
+    void apply_timezone();
+
+// Converts hours to seconds. Useful for e.g. increment_seconds.
 #define HOURS_TO_SECONDS(x) ((x) * 60 * 60)
 
     /*
-     * Increments the seconds by amount.
-     * If you want to call this from anywhere else than an interrupt
-     * handler, you need to disable interrupts for synchronization.
+     * Increments/decrements the seconds by amount.
      */
     void increment_seconds(uint32_t amount = 1);
+    void decrement_seconds(int32_t amount = 1);
 
     /*
-     * This adds i (or 1) seconds to the time.
+     * This adds/subtracts i (or 1) seconds to the time.
      */
     Time& operator +=(unsigned int i);
-    Time& operator ++();      // prefix
-    Time  operator ++(int);   // postfix
+    Time& operator ++();      // Prefix
+    Time  operator ++(int);   // Postfix
+
+    Time& operator -=(int i);
+    Time& operator --();      // Prefix
+    Time  operator --(int);   // Postfix
+
 
     /*
      * Returns the string representation of a weekday.

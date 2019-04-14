@@ -90,6 +90,12 @@ void RTC::set_year(uint16_t value)    {return set_value(offset_year, value);}
 void RTC::set_weekday(uint16_t value) {return set_value(offset_weekday, value);}
 void RTC::set_century(uint16_t value) {return set_value(offset_century, value);}
 
+void RTC::set_local_hour(uint16_t hour) {
+    long h = (hour - timezone) % 24;
+    while (h < 0) h += 24;
+    set_hour(h);
+}
+
 void RTC::set_real_year(uint16_t year) {
     set_century(year / 100);
     set_year(year % 100);
@@ -106,5 +112,5 @@ void RTC::update_time() {
     century = get_century();
 
     // Set timezone.
-    increment_seconds(HOURS_TO_SECONDS(timezone));
+    apply_timezone();
 }

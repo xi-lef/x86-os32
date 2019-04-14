@@ -180,7 +180,7 @@ public:
      * Darstellung der Uhrzeit und des Datums.
      * Beansprucht TIME_DISPLAY_LENGTH viele Zeichen.
      */
-    O_Stream& operator <<(Time t);
+    O_Stream& operator <<(Time& t);
 
     // necessary because c++
     virtual O_Stream& operator <<(CGA_Screen::Attribute& attr);

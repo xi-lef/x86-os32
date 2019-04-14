@@ -26,7 +26,7 @@ private:
 
     // (At least) doubles the capacity of the "data" array.
     // "cap" is the minimum for the newly required capacity.
-    void __maybe_resize(size_t l);
+    void __maybe_resize(size_t cap);
 
 public:
     static const size_t npos = (size_t) -1;
@@ -90,6 +90,56 @@ public:
 
     // Copy the string into "s".
     size_t copy(char *s, size_t len = npos, size_t pos = 0) const;
+
+    class Iterator {
+    private:
+        String *str;
+        size_t pos;
+
+    public:
+        Iterator() : str(nullptr), pos(0) {}
+        Iterator(String *str) : str(str), pos(0) {}
+
+        char& operator *() const {
+            return str->at(pos);
+        }
+
+        // Prefix
+        Iterator& operator ++() {
+            if (!str) {
+                return *this;
+            }
+
+            if (++pos == str->length()) {
+                str = nullptr;
+                pos = 0;
+            }
+            return *this;
+        }
+
+        // Postfix
+        Iterator operator ++(int) {
+            Iterator ans(*this);
+            ++(*this);
+            return ans;
+        }
+
+        bool operator ==(const Iterator& it) const {
+            return str == it.str && pos == it.pos;
+        }
+
+        bool operator !=(const Iterator& it) const {
+            return !(*this == it);
+        }
+    };
+
+    Iterator begin() {
+        return Iterator(this);
+    }
+
+    Iterator end() {
+        return Iterator();
+    }
 };
 
 size_t strlen(const char *s);

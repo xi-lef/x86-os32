@@ -32,6 +32,8 @@ private:
     Queue<Thread> ready_list;
     Thread *idlethread[CPU_MAX];
 
+    void dispatch_next();
+
 public:
 	/*! \brief Konstruktor
 	 *
