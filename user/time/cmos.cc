@@ -3,32 +3,36 @@
 
 uint32_t CMOS::init_CMOS(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
     uint8_t statusB_flags = 0;
+    uint32_t irqs_per_second = 0;
 
-    // set frequency of periodic interrupt to periodic_irq_freq
-    statusB_flags |= irq_periodic;
+    // set up periodic interrupt
+    if (periodic_irq_freq != freq_0hz) {
+        statusB_flags |= irq_periodic;
+        // set frequency of periodic interrupt to periodic_irq_freq
+        uint8_t statusA_old = read_port(offset_statusA);
+        // the top four bits should not be changed
+        write_port(offset_statusA, (statusA_old & 0xf0) | periodic_irq_freq);
 
-    uint8_t statusA_old = read_port(offset_statusA);
-    write_port(offset_statusA, (statusA_old & 0xf0) | periodic_irq_freq);
+        irqs_per_second += CMOS_CALC_FREQ(periodic_irq_freq);
+    }
 
-    uint32_t jiffies_per_second = CMOS_CALC_FREQ(periodic_irq_freq);
-
-    // possibly enable update interrupt and periodic interrupt
+    // set up update interrupt
     if (enable_update_irq) {
         statusB_flags |= irq_update;
-        jiffies_per_second++;
+        irqs_per_second++;
     }
+
     uint8_t statusB_old = read_port(offset_statusB);
     write_port(offset_statusB, statusB_old | statusB_flags);
 
     DBG_VERBOSE << "CMOS: init done" << endl;
-
-    return jiffies_per_second;
+    return irqs_per_second;
 }
 
 void CMOS::select_offset(CMOS_offset offset) {
-    // bit 7 (MSB) must NOT be changed! (NMI)
     uint8_t ctrl_orig = CMOS_ctrl_port.inb();
-    uint8_t ctrl_new = (ctrl_orig & (1 << 7)) | offset;
+    // bit 7 (nmi_bit) must NOT be changed!
+    uint8_t ctrl_new = (ctrl_orig & nmi_bit) | (offset & ~nmi_bit);
 
     CMOS_ctrl_port.outb(ctrl_new);
 }
@@ -50,15 +54,15 @@ void CMOS::clear_statusC() {
 }
 
 bool CMOS::is_update_irq() {
-    return (read_port(offset_statusC) & (1 << 4));
+    return (read_port(offset_statusC) & irq_update);
 }
 
 bool CMOS::is_alarm_irq() {
-    return (read_port(offset_statusC) & (1 << 5));
+    return (read_port(offset_statusC) & irq_alarm);
 }
 
 bool CMOS::is_periodic_irq() {
-    return (read_port(offset_statusC) & (1 << 6));
+    return (read_port(offset_statusC) & irq_periodic);
 }
 
 uint16_t CMOS::bcd_to_int(uint8_t bcd) {

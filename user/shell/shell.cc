@@ -288,6 +288,7 @@ void Shell::process_input(String *str) {
                 return;
             }
 
+            Secure s;
             rtc.set_local_hour(strtol(hour_s));
             rtc.set_minute(strtol(minute_s));
             rtc.set_second(strtol(second_s));
@@ -299,6 +300,7 @@ void Shell::process_input(String *str) {
                 perror(cmd, "usage: set timezone <timezone> (only positive values!)");
             }
 
+            Secure s;
             rtc.set_timezone(strtol(zone_s));
 
             rtc.update_time();
@@ -312,6 +314,7 @@ void Shell::process_input(String *str) {
                 return;
             }
 
+            Secure s;
             rtc.set_day(strtol(day_s));
             rtc.set_month(strtol(month_s));
             rtc.set_real_year(strtol(year_s));

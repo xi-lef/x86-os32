@@ -9,7 +9,6 @@
 #include "syscall/guarded_scheduler.h"
 
 RTC rtc;
-static Ticketlock tlock;
 
 int32_t RTC::get_freq() const {
     return hz;
@@ -47,12 +46,8 @@ void RTC::epilogue() {
 uint16_t RTC::get_value(CMOS_offset offset) {
     // Wait until the RTC is done updating the values, then read it. This is
     // not ideal, but the ideal way is slow.
-    // Lock in case multiple CPUs try to read at the same time.
-    // This should not happen, but it would be racey.
-    tlock.lock();
     while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
     uint16_t ret = read_port(offset);
-    tlock.unlock();
     return bcd_to_int(ret);
 }
 
@@ -75,10 +70,8 @@ void RTC::set_value(CMOS_offset offset, uint16_t value) {
         return;
     }
 
-    tlock.lock();
     while ((read_port(offset_statusA) & (1 << 7)) == 1) ;
     write_port(offset, int_to_bcd(value));
-    tlock.unlock();
 }
 
 void RTC::set_second(uint16_t value)  {return set_value(offset_second, value);}

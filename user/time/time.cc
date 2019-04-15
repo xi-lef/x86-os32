@@ -23,7 +23,8 @@ void Time::increment_seconds(uint32_t amount) {
         return;
     }
 
-    for (; second + amount > 60; amount -= 60) {
+    // unsigned underflow will happen if amount < 60, but thats fine
+    for (; second + amount >= 60; amount -= 60) {
         if ((++minute %= 60) != 0) continue;
         if ((++hour %= 24) != 0) continue;
 
@@ -112,13 +113,13 @@ Time Time::operator --(int) {
     return ans;
 }
 
-// This is necessary due to C++11 :(
+// This is necessary due to C++11. :(
 constexpr const char *Time::weekday_string[8];
 constexpr const char *Time::month_string[13];
 constexpr uint16_t Time::days_per_month[13];
 
 const char *Time::get_weekday_string(uint16_t weekday) {
-    return weekday_string[(weekday < 8) ?  weekday : 0];
+    return weekday_string[(weekday < 8) ? weekday : 0];
 }
 
 const char *Time::get_month_string(uint16_t month) {

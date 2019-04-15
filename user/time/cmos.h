@@ -28,8 +28,9 @@ public:
         offset_statusA = 0x0a,
         offset_statusB = 0x0b,
         offset_statusC = 0x0c,
-        offste_statusD = 0x0d,
-        offset_century = 0x32
+        offset_statusD = 0x0d,
+        offset_century = 0x32,
+        nmi_bit        = 1 << 7
     };
 
     // Used for manipulating status-register B.
@@ -39,8 +40,8 @@ public:
         irq_periodic = 1 << 6
     };
 
-//Frequency is 2^16 / 2^CMOS_irq_freq::freq_xhz.
-#define CMOS_CALC_FREQ(freq) ((freq == freq_0hz) ? 0 : (Math::pow(2, 16) / Math::pow(2, freq)))
+//Frequency is 65536 / 2^CMOS_irq_freq::freq_xhz.
+#define CMOS_CALC_FREQ(freq) ((freq == freq_0hz) ? 0 : (65536 / Math::pow(2, freq)))
 
     // Used for manipulating status-register A.
     enum CMOS_irq_freq {
