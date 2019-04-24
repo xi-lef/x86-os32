@@ -62,6 +62,10 @@ public:
     String substr(size_t pos = 0, size_t len = npos) const;
 
     /// String manipulation.
+private:
+    void __append(char c);
+    void __append_nullbyte();
+public:
     String& append(char c);
     String& append(const String& str);
     String& operator +=(char c);
@@ -89,7 +93,7 @@ public:
     String tok(const String& delim);
 
     // Copy the string into "s".
-    size_t copy(char *s, size_t len = npos, size_t pos = 0) const;
+    size_t copy(char *s, size_t len, size_t pos = 0) const;
 
     class Iterator {
     private:

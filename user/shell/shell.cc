@@ -47,29 +47,24 @@ void Shell::restore() {
 
 void Shell::history_destroy() {
     for (History_Entry *e = history_tail; e;) {
-        delete e->str;
         History_Entry *tmp = e;
         e = e->prev;
         delete tmp;
     }
 }
 
-void Shell::history_add(String *s) {
+void Shell::history_add(String *str) {
     // dont add the same command twice in a row.
-    if (*s == *history_tail->str) {
+    if (*str == *history_tail->str) {
         return;
     }
 
-    History_Entry *new_entry = new History_Entry;
-    new_entry->str = s;
+    History_Entry *new_entry = new History_Entry(str);
     if (!history_tail) {
         history_tail = new_entry;
-        new_entry->prev = nullptr;
-        new_entry->next = nullptr;
     } else {
         history_tail->next = new_entry;
         new_entry->prev = history_tail;
-        new_entry->next = nullptr;
         history_tail = new_entry;
     }
 }
@@ -83,6 +78,7 @@ void Shell::perror(String cmd, char *error) const {
 // because of the shell history.
 size_t Shell::read(String *str, size_t count) {
     History_Entry *cur = nullptr; // for browsing shell history.
+    History_Entry *tmp; // for backing up the current (i.e. new) command.
     int x_start, y_start; // start position; to take shell prompt into account.
     out.getpos(x_start, y_start);
 
@@ -112,6 +108,8 @@ size_t Shell::read(String *str, size_t count) {
         case Key::scan::up: {
             hist = true;
             if (!cur) {
+                // back up the currently typed command in tmp.
+                tmp = new History_Entry(str);
                 cur = history_tail;
             } else if (!cur->prev) {
                 continue;
@@ -123,8 +121,11 @@ size_t Shell::read(String *str, size_t count) {
             hist = true;
             if (!cur) {
                 continue;
-            } else {
+            } else if (cur->next) {
                 cur = cur->next;
+            } else {
+                // restore the "current" (i.e. new) command.
+                cur = tmp;
             }
         } break;
 
@@ -185,6 +186,13 @@ size_t Shell::read(String *str, size_t count) {
         if (hist) {
             *str = *cur->str;
             cursor = str->length();
+
+            // if cur points to tmp, we dont really browse the history anymore,
+            // so we reset cur after restoring str.
+            if (cur == tmp) {
+                delete tmp;
+                cur = nullptr;
+            }
         }
 
         // print new string.
@@ -198,7 +206,7 @@ size_t Shell::read(String *str, size_t count) {
         // here, so there are no spurious scrollups detected, which would
         // mess up the output.
         if (hist) {
-            size_t num_rows_new = (x_start + cur->str->length()) / out.width;
+            size_t num_rows_new = (x_start + str->length()) / out.width;
             if (y_start + num_rows == (unsigned int) out.to_row
                 && num_rows_new > num_rows) {
                 y_start -= (num_rows_new - num_rows);
@@ -337,14 +345,16 @@ void Shell::start() {
     out << "Welcome " << (char) 1 << endl;
 
     for (;;) {
-        out << prompt << flush;
+        out << COLOR_WHITE << prompt << COLOR_RESET << flush;
 
         String *str = new String;
-        if (!read(str, 4096)) {
+        if (!read(str, 512)) {
+            delete str; // TODO or not?
             break;
         }
 
         process_input(str);
+        //delete str; // TODO without this, it kinda works
     }
 
     history_destroy();

@@ -15,19 +15,20 @@ void String::__maybe_resize(size_t cap) {
     if (!use_heap) {
         // initial switch from "short string" to "long string".
         // use "tmp" so we can copy the string content.
-        size_t new_cap = 2 * cap;
-        char *tmp = (char *) malloc(new_cap);
-        copy(tmp);
+        size_t new_capacity = 2 * long_data_size; // 16
+        //size_t new_capacity = 2 * cap;
+        char *tmp = (char *) malloc(new_capacity);
+        copy(tmp, new_capacity);
 
         data = tmp;
-        capacity = new_cap;
+        capacity = new_capacity;
         use_heap = true;
     }
 
     while (capacity < cap) {
         capacity *= 2;
         char *tmp = (char *) realloc(data, capacity);
-        copy(tmp);
+        copy(tmp, capacity);
         data = tmp;
     }
 }
@@ -41,6 +42,7 @@ String::String(char *s) : use_heap(false), len(0), save_index(0) {
 }
 
 String::String(const String& str) : use_heap(false), len(0), save_index(0) {
+    //DBG << &use_heap << ' ' << &len << endl; // TODO this fucks EVERYTHING
     append(str);
 }
 
@@ -58,35 +60,33 @@ String& String::operator =(const String& str) {
 }
 
 String::operator const char*() {
-    at(len) = '\0';
+    __append_nullbyte();
     return use_heap ? data : short_data;
 }
 
 char& String::at(int i) {
     assert(i >= 0);
-
     size_t index = (size_t) i;
     assert(index <= len);
 
-    char *s = use_heap ? data : short_data;
     if (index == len) {
-        s[index] = '\0';
+        __append_nullbyte();
     }
 
+    char *s = use_heap ? data : short_data;
     return s[index];
 }
 
 const char& String::at(int i) const {
     assert(i >= 0);
-
     size_t index = (size_t) i;
-    assert(index <= len);
+    assert(index < len); // TODO
+
+    /*if (index == len) {
+        __append_nullbyte(); // TODO
+    }*/
 
     char *s = use_heap ? data : short_data;
-    if (index == len) {
-        s[index] = '\0';
-    }
-
     return s[index];
     //return ((String) *this).at(i); // TODO hm
 }
@@ -135,36 +135,49 @@ void String::shrink_to_fit() {
 
     capacity = len;
     char *tmp = (char *) realloc(data, capacity);
-    copy(tmp);
+    copy(tmp, capacity);
     data = tmp;
 }
 
 String String::substr(size_t pos, size_t len) const {
-    if (pos == 0 && len >= this->len) {
+    if (pos == 0 && len >= length()) {
         return *this;
-    } else if (pos >= this->len) {
+    } else if (pos >= length()) {
         return String();
     }
 
     String new_str;
     // if len == npos, then pos + len would most likely overflow
-    size_t limit = (len == npos) ? this->len : Math::min(pos + len, this->len);
+    size_t limit = (len == npos) ? length() : Math::min(pos + len, length());
     for (size_t i = pos; i < limit; i++) {
         new_str += at(i);
     }
     return new_str;
 }
 
+void String::__append(char c) {
+    at(len++) = c;
+}
+
+void String::__append_nullbyte() {
+    // '\0' requires one byte, but doesnt increase the length of the string
+    __maybe_resize(len + 1);
+
+    // using at() would result in a loop, so we use the data directly
+    char *s = use_heap ? data : short_data;
+    s[len] = '\0';
+}
+
 String& String::append(char c) {
     __maybe_resize(len + 1);
-    at(len++) = c;
+    __append(c);
     return *this;
 }
 
 String& String::append(const String& str) {
     __maybe_resize(len + str.length());
     for (size_t i = 0; i < str.length(); i++) {
-        append(str[i]);
+        __append(str[i]);
     }
     return *this;
 }
@@ -280,7 +293,10 @@ String String::tok(const String& delim) {
 
 size_t String::copy(char *s, size_t len, size_t pos) const {
     size_t i;
-    for (i = 0; i < Math::min(len, this->len - pos); i++) {
+    // we need to check pos, or weird things could happen in case of underflow
+    size_t limit = (pos >= length()) ? 0 : Math::min(len, length() - pos);
+
+    for (i = 0; i < limit; i++) {
         s[i] = at(pos + i);
     }
     return i;

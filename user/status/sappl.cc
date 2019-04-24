@@ -17,17 +17,18 @@ void StatusApplication::action() {
                 dout_status << ' ';
             }
         }
-        dout_status.flush();
+        dout_status << flush;
 
         dout_status.setpos(dout_status.from_col + 20, dout_status.from_row);
         dout_status << "#threads: " << status.thread_counter << flush;
 
         HeapStats stats = get_heap_stats();
-        dout_status.setpos(dout_status.to_col - 10, dout_status.from_row);
+        dout_status.setpos(dout_status.to_col - 19, dout_status.from_row);
         int tmp = (1000 * stats.used) / stats.total;
         int used = tmp / 10 + (tmp % 10 < 5 ? 0 : 1); // for rounding
         dout_status << "RAM: " << ((used < 10) ? "  " : ((used < 100) ? " " : "")) // whitespace padding
-                    << used << '%' << flush;
+                    << used << '%' << " (" << stats.used_blocks << '/' << stats.used_blocks + stats.free_blocks << ')'
+                    << flush;
 
         Guarded_Bell::sleep(100); // 10 fps
     }
