@@ -4,6 +4,8 @@
 #include "utils/heap.h"
 #include "utils/memutil.h"
 
+#define used_data (use_heap ? data : short_data)
+
 void String::__maybe_resize(size_t cap) {
     assert(cap >= len);
 
@@ -16,7 +18,6 @@ void String::__maybe_resize(size_t cap) {
         // initial switch from "short string" to "long string".
         // use "tmp" so we can copy the string content.
         size_t new_capacity = 2 * long_data_size; // 16
-        //size_t new_capacity = 2 * cap;
         char *tmp = (char *) malloc(new_capacity);
         copy(tmp, new_capacity);
 
@@ -27,9 +28,7 @@ void String::__maybe_resize(size_t cap) {
 
     while (capacity < cap) {
         capacity *= 2;
-        char *tmp = (char *) realloc(data, capacity);
-        copy(tmp, capacity);
-        data = tmp;
+        data = (char *) realloc(data, capacity);
     }
 }
 
@@ -42,7 +41,6 @@ String::String(char *s) : use_heap(false), len(0), save_index(0) {
 }
 
 String::String(const String& str) : use_heap(false), len(0), save_index(0) {
-    //DBG << &use_heap << ' ' << &len << endl; // TODO this fucks EVERYTHING
     append(str);
 }
 
@@ -61,7 +59,7 @@ String& String::operator =(const String& str) {
 
 String::operator const char*() {
     __append_nullbyte();
-    return use_heap ? data : short_data;
+    return used_data;
 }
 
 char& String::at(int i) {
@@ -73,21 +71,19 @@ char& String::at(int i) {
         __append_nullbyte();
     }
 
-    char *s = use_heap ? data : short_data;
-    return s[index];
+    return used_data[index];
 }
 
 const char& String::at(int i) const {
     assert(i >= 0);
     size_t index = (size_t) i;
-    assert(index < len); // TODO
+    assert(index <= len);
 
-    /*if (index == len) {
-        __append_nullbyte(); // TODO
-    }*/
+    if (index == len) {
+        //__append_nullbyte(); // TODO
+    }
 
-    char *s = use_heap ? data : short_data;
-    return s[index];
+    return used_data[index];
     //return ((String) *this).at(i); // TODO hm
 }
 
@@ -133,22 +129,30 @@ void String::shrink_to_fit() {
         return;
     }
 
-    capacity = len;
-    char *tmp = (char *) realloc(data, capacity);
-    copy(tmp, capacity);
-    data = tmp;
+    if (len <= 8) {
+        char *tmp = data;
+        strcpy(short_data, tmp);
+
+        use_heap = false;
+        free(tmp);
+    } else {
+        capacity = len;
+        data = (char *) realloc(data, capacity);
+    }
 }
 
 String String::substr(size_t pos, size_t len) const {
     if (pos == 0 && len >= length()) {
         return *this;
-    } else if (pos >= length()) {
+    }
+    if (pos >= length()) {
         return String();
     }
 
+    // check for potential overflow
+    size_t limit = (pos + len < pos) ? length() : Math::min(pos + len, length());
+
     String new_str;
-    // if len == npos, then pos + len would most likely overflow
-    size_t limit = (len == npos) ? length() : Math::min(pos + len, length());
     for (size_t i = pos; i < limit; i++) {
         new_str += at(i);
     }
@@ -164,8 +168,7 @@ void String::__append_nullbyte() {
     __maybe_resize(len + 1);
 
     // using at() would result in a loop, so we use the data directly
-    char *s = use_heap ? data : short_data;
-    s[len] = '\0';
+    used_data[len] = '\0';
 }
 
 String& String::append(char c) {
@@ -215,6 +218,18 @@ String& String::insert(size_t pos, const String& str) {
 }
 
 String& String::erase(size_t pos, size_t len) {
+    if (pos >= length()) {
+        return *this;
+    }
+    if (len == npos) {
+        *this = substr(0, pos);
+        return *this;
+    }
+    // catch overflow
+    if (pos + len < pos) {
+        return *this;
+    }
+
     String new_str = substr(0, pos);   // 1st part
     new_str.append(substr(pos + len)); // 2nd part
     *this = new_str;
@@ -292,11 +307,13 @@ String String::tok(const String& delim) {
 }
 
 size_t String::copy(char *s, size_t len, size_t pos) const {
-    size_t i;
     // we need to check pos, or weird things could happen in case of underflow
-    size_t limit = (pos >= length()) ? 0 : Math::min(len, length() - pos);
+    if (pos >= length()) {
+        return 0;
+    }
 
-    for (i = 0; i < limit; i++) {
+    size_t i;
+    for (i = 0; i < Math::min(len, length() - pos); i++) {
         s[i] = at(pos + i);
     }
     return i;

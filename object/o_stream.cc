@@ -103,6 +103,13 @@ O_Stream& O_Stream::operator <<(Time& t) {
     return *this;
 }
 
+O_Stream& O_Stream::operator <<(String& str) {
+    for (char c : str) {
+        *this << c;
+    }
+    return *this;
+}
+
 O_Stream& O_Stream::operator <<(CGA_Screen::Attribute& attr) {
     (void) attr;
     DBG << "No colors supported!" << endl;

@@ -37,6 +37,7 @@
 #include "strbuf.h"
 #include "types.h"
 #include "user/time/time.h"
+#include "user/string/string.h"
 #include "machine/cgascr.h"
 
 /*! \brief Die Aufgaben der Klasse O_Stream entsprechen im Wesentlichen denen der
@@ -181,6 +182,8 @@ public:
      * Beansprucht TIME_DISPLAY_LENGTH viele Zeichen.
      */
     O_Stream& operator <<(Time& t);
+
+    O_Stream& operator <<(String &str);
 
     // necessary because c++
     virtual O_Stream& operator <<(CGA_Screen::Attribute& attr);

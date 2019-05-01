@@ -14,16 +14,34 @@ void KeyboardApplication::action() {
     for (;;) {
         Key k = keyboard.getkey();
 
-        /*String str("hallo du");
-        kout << COLOR_YELLOW << str << COLOR_RESET << ' ';
-        String sub = str.substr(2, 3);
-        kout << COLOR_YELLOW << sub << COLOR_RESET << endl;
-        continue;*/
-        /*String str("test123");
+#if 0
+        //DBG << "pre" << endl;
+        String str("abcdabcdabcd");
+        //DBG << "post" << endl;
+        kout << str << " (len=" << str.length() << ")" << endl;
+        continue;
+#endif
+
+#if 0
+        String str("test123");
         for (char c : str) {
         //for (auto c = str.begin(); c != str.end(); c++) {
             DBG << c << ' ' << flush;
-        }*/
+        }
+#endif
+
+#if 0
+        char *bla = (char *) malloc(10);
+        bla[9] = '\0';
+        kout << "0 " << (void *) bla << '=' << bla << endl;
+        //int tmp = String("abcd").copy(bla, 10);
+        //bla[tmp] = '\0';
+        bla[0] = 'a'; bla[1] = 'b'; bla[2] = 'c'; bla[3] = 'd'; bla[4] = '\0';
+        kout << "1 " << (void *) bla << '=' << bla << endl;
+        bla = (char *) realloc(bla, 20);
+        kout << "2 " << (void *) bla << '=' << bla << endl;
+        free(bla);
+#endif
 
         if (k.ascii() == 't') {
             Shell shell(kout);

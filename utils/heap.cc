@@ -323,26 +323,30 @@ static Memblock *__realloc(Memblock *block, size_t size)
 	// first try to merge as much as possible to combat fragmentation
 	// after that if the block is big enough try splitting again
 	// if not relocate (alloc + memcpy + free)
-	// TODO is this really the best order?
+	// TODO is this really the best order? // this isnt even correct, retard // *wasnt
 
-	block = try_merge(block);
+	Memblock *new_block = try_merge(block);
 
-	if (get_size(block) < size) {
+	if (get_size(new_block) < size) {
 		// block size is too small even after merging
-		Memblock *new_block = __malloc(size);
-		memcpy(new_block->mem, block->mem, size);
+		Memblock *res_block = __malloc(size);
+		memcpy(res_block->mem, block->mem, size);
 
 		// this is__kfree without the merge since we already did that
-		mark_free(block);
-		free_list_insert(block);
+		mark_free(new_block);
+		free_list_insert(new_block);
 
-		return new_block;
+		return res_block;
 	}
 
-	// block might be to big after merging or user just wanted to shrink the block
-	block = maybe_split_block(block, size);
+	// block might be too big after merging or user just wanted to shrink the block
+	new_block = maybe_split_block(new_block, size);
 
-	return block;
+    if (new_block != block) {
+        memmove(new_block->mem, block->mem, size);
+    }
+
+	return new_block;
 }
 
 void *realloc(void *ptr, size_t size)

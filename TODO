@@ -1,15 +1,8 @@
 //lapic timer freq mit msr (1331, 838H)
 
 string bug(s):
-in shell zuerst 8 (20) zeichen tippen, enter,
-dann 19 (37) zeichen tippen -> erste 8 zeichen corrupted???
-vll heap corrupted?
-
-//dbg ausgabe in copy constructor fickt alles lol // fixed somehow?
-
-in shell 15. zeichen eingeben -> nichts? -> heap(stats) kaputt
-         16. zeichen eingeben -> realloc -> heap(stats) REPARIERT??????
-lmao.
+einmal hab ich in der mitte der aktuellen eingabe getippt, und die ersten acht
+zeichen wurden corrupted. NICHT REPRODUZIERBAR :(((((((
 
 //timezone ist schwierig
 //includes alphabetisch sortieren

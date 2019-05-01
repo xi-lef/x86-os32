@@ -114,7 +114,7 @@ public:
                 return *this;
             }
 
-            if (++pos == str->length()) {
+            if (++pos >= str->length()) {
                 str = nullptr;
                 pos = 0;
             }
@@ -135,7 +135,7 @@ public:
         bool operator !=(const Iterator& it) const {
             return !(*this == it);
         }
-    };
+    }; // class Iterator
 
     Iterator begin() {
         return Iterator(this);

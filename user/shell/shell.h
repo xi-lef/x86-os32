@@ -22,8 +22,7 @@ private:
 
         History_Entry() : str(nullptr), prev(nullptr), next(nullptr) {}
         History_Entry(String *s) : prev(nullptr), next(nullptr) {
-            //str = new String(*s); // TODO hm
-            str = s;
+            str = new String(*s);
         }
         ~History_Entry() {
             delete str;

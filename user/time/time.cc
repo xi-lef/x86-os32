@@ -43,10 +43,8 @@ void Time::increment_seconds(uint32_t amount) {
 }
 
 void Time::decrement_seconds(int32_t amount) {
-    /*if ((int32_t) second - (int32_t) amount > (int32_t) second) { // TODO
-        DBG << "Time: overflow" << endl;
-        return;
-    }*/
+    assert(amount > 0);
+    // underflow cant happen because second is always >= 0
 
     for (int32_t sec = (int32_t) second; sec - amount < 0; amount -= 60) {
         minute = (minute == 0) ? 59 : minute - 1;

@@ -78,7 +78,8 @@ void Shell::perror(String cmd, char *error) const {
 // because of the shell history.
 size_t Shell::read(String *str, size_t count) {
     History_Entry *cur = nullptr; // for browsing shell history.
-    History_Entry *tmp; // for backing up the current (i.e. new) command.
+    History_Entry *tmp = nullptr; // for backing up the current (i.e. new) command.
+
     int x_start, y_start; // start position; to take shell prompt into account.
     out.getpos(x_start, y_start);
 
@@ -130,26 +131,38 @@ size_t Shell::read(String *str, size_t count) {
         } break;
 
         // catch arrow keys for changing cursor.
+        // shift/ctrl makes cursor change by ten instead of one.
         case Key::scan::left: {
             curs = true;
             if (cursor == 0) {
                 continue;
             }
-            cursor--;
+            if (k.SHIFT() || k.ctrl()) {
+                cursor = (cursor < 10) ? 0 : cursor - 10;
+            } else {
+                cursor--;
+            }
         } break;
         case Key::scan::right: {
             curs = true;
             if (cursor >= str->length()) {
                 continue;
             }
-            cursor++;
+            if (k.SHIFT() || k.ctrl()) {
+                cursor += 10;
+                if (cursor > str->length()) {
+                    cursor = str->length();
+                }
+            } else {
+                cursor++;
+            }
         } break;
         } // switch (k.scancode())
 
         // catch backspace.
         if (k.ascii() == '\b') {
-            out.backspace(str, cursor - 1);
             if (cursor != 0) {
+                out.backspace(str, cursor - 1);
                 cursor--;
             }
         } else if (!hist && !curs) {
@@ -191,6 +204,7 @@ size_t Shell::read(String *str, size_t count) {
             // so we reset cur after restoring str.
             if (cur == tmp) {
                 delete tmp;
+                tmp = nullptr;
                 cur = nullptr;
             }
         }
@@ -219,14 +233,19 @@ size_t Shell::read(String *str, size_t count) {
                Math::min((unsigned int) out.to_row, (x_start + str->length()) / out.width + y_start));
     out << endl;
 
+    // if tmp was not used, it is nullptr, so this is okay.
+    delete tmp;
+
     return str->length();
 }
 
 void Shell::process_input(String *str) {
     str->remove_lf();
-    if (!str->empty()) {
-        history_add(str);
+    if (str->empty()) {
+        return;
     }
+
+    history_add(str);
 
     String cmd = str->tok(" ");
     if (streq(cmd, "test")) {
@@ -305,7 +324,8 @@ void Shell::process_input(String *str) {
         } else if (streq(subcmd, "timezone")) {
             String zone_s = str->tok(" ");
             if (zone_s.empty()) {
-                perror(cmd, "usage: set timezone <timezone> (only positive values!)");
+                out << "current timezone: " << rtc.timezone << endl;
+                return;
             }
 
             Secure s;
@@ -342,19 +362,19 @@ void Shell::process_input(String *str) {
 void Shell::start() {
     backup();
     out.reset();
-    out << "Welcome " << (char) 1 << endl;
+    out << COLOR_GREEN << "Welcome to bsh (Best SHell)! " << (char) 1 << COLOR_RESET << endl;
 
     for (;;) {
         out << COLOR_WHITE << prompt << COLOR_RESET << flush;
 
         String *str = new String;
         if (!read(str, 512)) {
-            delete str; // TODO or not?
+            delete str;
             break;
         }
 
         process_input(str);
-        //delete str; // TODO without this, it kinda works
+        delete str;
     }
 
     history_destroy();
