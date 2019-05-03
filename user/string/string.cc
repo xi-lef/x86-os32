@@ -413,8 +413,8 @@ long strtol(const String& str, bool *error, int base) {
         // take min(base, 10) or else we would accept "digits" like ';'
         if (cur >= '0' && cur <= ('0' + Math::min(base, 10) - 1)) {
             res = base * res + (cur - '0');
-        } else if (base > 10 && ((cur >= 'a' && cur <= 'a' + base)
-                                 || (cur >= 'A' && cur <= 'A' + base))) {
+        } else if (base > 10 && ((cur >= 'a' && cur <= 'a' + base - 10 - 1)
+                                 || (cur >= 'A' && cur <= 'A' + base - 10 - 1))) {
             bool small = cur >= 'a' && cur <= 'a' + base;
             res = base * res + (10 + cur - (small ? 'a' : 'A'));
         } else {
