@@ -110,12 +110,9 @@ public:
 #define DECL_COLOR3(fg, bg, blink) CGA_Screen::Attribute COLOR_##fg##_##bg##blink(CGA_Screen::fg, CGA_Screen::bg, blink)
 #define DECL_COLOR(...) GET_MACRO(__VA_ARGS__, DECL_COLOR3, DECL_COLOR2, DECL_COLOR1)(__VA_ARGS__)
 
-    union Pixel {
-        struct {
-            char ascii;
-            char attrib; // char instead of Attribute because c++
-        } __attribute__((packed));
-        uint16_t val;
+    struct Pixel {
+        char ascii;
+        Attribute attrib;
     } __attribute__((packed));
 
     static Pixel * const CGA_BASE;

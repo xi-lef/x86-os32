@@ -3,7 +3,6 @@
 #include "types.h"
 
 class Time {
-private:
     /*
      * Indexing for these arrays should start at 1.
      */
@@ -37,7 +36,7 @@ public:
 
     int16_t timezone;
 
-    Time(int16_t timezone) : timezone(timezone) {}
+    Time(int16_t timezone = 0) : timezone(timezone) {}
 
     void set_timezone(int16_t zone);
 

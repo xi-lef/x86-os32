@@ -6,7 +6,7 @@
 
 #define used_data (use_heap ? data : short_data)
 
-void String::__maybe_resize(size_t cap) {
+void String::_maybe_resize(size_t cap) {
     assert(cap >= len);
 
     if ((!use_heap && cap <= long_data_size) // !use_heap => long_data_size == capacity
@@ -58,7 +58,7 @@ String& String::operator =(const String& str) {
 }
 
 String::operator const char*() {
-    __append_nullbyte();
+    _append_nullbyte();
     return used_data;
 }
 
@@ -68,7 +68,7 @@ char& String::at(int i) {
     assert(index <= len);
 
     if (index == len) {
-        __append_nullbyte();
+        _append_nullbyte();
     }
 
     return used_data[index];
@@ -80,7 +80,7 @@ const char& String::at(int i) const {
     assert(index <= len);
 
     if (index == len) {
-        //__append_nullbyte(); // TODO
+        //_append_nullbyte(); // TODO
     }
 
     return used_data[index];
@@ -118,7 +118,7 @@ void String::resize(size_t n, char c) {
         return;
     }
 
-    __maybe_resize(n);
+    _maybe_resize(n);
     for (size_t i = len; i < n; i++) {
         append(c);
     }
@@ -159,28 +159,28 @@ String String::substr(size_t pos, size_t len) const {
     return new_str;
 }
 
-void String::__append(char c) {
+void String::_append(char c) {
     at(len++) = c;
 }
 
-void String::__append_nullbyte() {
+void String::_append_nullbyte() {
     // '\0' requires one byte, but doesnt increase the length of the string
-    __maybe_resize(len + 1);
+    _maybe_resize(len + 1);
 
     // using at() would result in a loop, so we use the data directly
     used_data[len] = '\0';
 }
 
 String& String::append(char c) {
-    __maybe_resize(len + 1);
-    __append(c);
+    _maybe_resize(len + 1);
+    _append(c);
     return *this;
 }
 
 String& String::append(const String& str) {
-    __maybe_resize(len + str.length());
+    _maybe_resize(len + str.length());
     for (size_t i = 0; i < str.length(); i++) {
-        __append(str[i]);
+        _append(str[i]);
     }
     return *this;
 }

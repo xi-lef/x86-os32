@@ -24,7 +24,6 @@ class Watch
 	Watch(const Watch&)            = delete;
 	Watch& operator=(const Watch&) = delete;
 
-private:
     uint32_t irq_interval;
     uint32_t initial_count;
     uint8_t divide;

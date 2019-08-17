@@ -53,20 +53,7 @@ public:
 	 */
 	void plugin();
 
-	/*! \brief Bearbeitung der Tastaturunterbrechung.
-	 *
-	 * Hier soll die Bearbeitung des von der Tastatur ausgelösten Interrupts
-	 * erfolgen. trigger gibt dazu entsprechend gültige Zeichen auf einer
-	 * eigenen Zeile auf dem Bildschirm aus. Wird die Tastenkombination
-	 * Ctrl-Alt-Delete gedrückt, soll ein Reboot ausgelöst werden.
-	 *
-	 *  \todo Methode implementieren
-	 *
-	 */
-	void trigger();
-
     bool prologue() override;
-
     void epilogue() override;
 
     Key getkey();

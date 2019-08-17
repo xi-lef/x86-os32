@@ -25,6 +25,7 @@ void Scheduler::ready(Thread *that) {
 }
 
 void Scheduler::exit() {
+    active()->Thread::~Thread();
     dispatch_next();
 }
 

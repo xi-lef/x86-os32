@@ -187,14 +187,6 @@ public:
 
     // necessary because c++
     virtual O_Stream& operator <<(CGA_Screen::Attribute& attr);
-
-private:
-    /*!
-     * Hilfsmethoden für die Ausgabe.
-     */
-    void put_signed(long ival);
-
-    void put_unsigned(unsigned long ival);
 };
 
 /*! \brief Löst explizit ein Leeren (Flush) des Puffers aus.

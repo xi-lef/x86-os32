@@ -16,9 +16,9 @@ Guarded_Keyboard& Guarded_Keyboard::operator >>(char &c) {
     return *this;
 }
 
-Guarded_Keyboard& Guarded_Keyboard::operator >>(String &s) {
-    Secure se;
-    Keyboard::operator>>(s);
+Guarded_Keyboard& Guarded_Keyboard::operator >>(String &str) {
+    Secure s;
+    Keyboard::operator>>(str);
     return *this;
 }
 

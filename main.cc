@@ -44,7 +44,7 @@ extern "C" int main() {
     keyboard.plugin();
     GDB_Stub gdb; // must be before console.listen (or IRQs are disabled)
     console.listen();
-    rtc.init_RTC();
+    rtc.init();
     watch.windup(1000); // 1 irq per ms
     wakeup.activate();
     assassin.hire();

@@ -22,16 +22,14 @@ extern CGA_Stream kout;
 bool Keyboard::prologue() {
     bool ret = false; // in case of spurious interrupts, dont request epilogue
 
-    for (Key k = key_hit(); k.valid(); k = key_hit()) {
-        ret = true;
+    Key k;
+    while (k = key_hit(), k.valid()) {
         if (k.ctrl() && k.alt() && (k.scancode() == Key::scan::del)) {
             reboot();
         }
 
-        if (!prebuf.produce(k)) {
-            DBG << "KB: prebuf full :( " << flush;
-            while (key_hit().valid()) ;
-            break;
+        if (prebuf.produce(k)) {
+            ret = true;
         }
     }
  

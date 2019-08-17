@@ -18,7 +18,6 @@ bool Assassin::prologue() {
 void Assassin::epilogue() {
     Thread *active = scheduler.active();
     if (active->dying()) {
-        active->mutex_release_all();
         scheduler.exit();
     }
 }

@@ -42,7 +42,7 @@ void IOAPIC::init() {
         rte_l.IOREDTBL_L.trigger_mode     = TRIGGER_MODE_EDGE;
         rte_l.IOREDTBL_L.mask             = MASK_DISABLED;
 
-        IOAPICRegister_t rte_h = read_reg(i);
+        IOAPICRegister_t rte_h = read_reg(i + 1);
         rte_h.IOREDTBL_H.logical_destination = cpu_bitmask;
 
         write_reg(i, rte_l);

@@ -5,7 +5,6 @@
 void Guarded_Scheduler::exit() {
     Secure s;
     status.thread_dec();
-    scheduler.active()->Thread::~Thread();
     scheduler.exit();
 }
 

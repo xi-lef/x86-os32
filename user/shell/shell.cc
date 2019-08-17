@@ -109,6 +109,10 @@ size_t Shell::read(String *str, size_t count) {
         case Key::scan::up: {
             hist = true;
             if (!cur) {
+                // if history_tail is 0, it means theres nothing in the history.
+                if (!history_tail) {
+                    break;
+                }
                 // back up the currently typed command in tmp.
                 tmp = new History_Entry(str);
                 cur = history_tail;
@@ -196,7 +200,9 @@ size_t Shell::read(String *str, size_t count) {
         }
 
         // change str if a different command was selected from shell history.
-        if (hist) {
+        // if cur is 0, it means history_tail was 0, i.e. theres no entry in
+        // the history and thus nothing to be done here.
+        if (hist && cur) {
             *str = *cur->str;
             cursor = str->length();
 

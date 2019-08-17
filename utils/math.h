@@ -1,25 +1,16 @@
 // vim: set et ts=4 sw=4:
 
-/*! \file
- *  \brief Enthält die Klasse Math
- */
-
 #pragma once
 
 #include "types.h"
 
-/*! \brief Die Klasse Math implementiert mathematische Hilfsfunktionen.
- */
-class Math
-{
-	public:
+namespace Math {
 	/*! \brief Berechnet die Ganzzahl-Division von \b num durch \b den mit
 	 * 64-Bit-Genauigkeit und schreibt den Rest der Division in \b rem_p, falls
 	 * \b rem_p nicht \b NULL ist.
 	 *
 	 */
-	static uint64_t div64(uint64_t num, uint64_t den, uint64_t *rem_p = 0)
-	{
+	inline uint64_t div64(uint64_t num, uint64_t den, uint64_t *rem_p = 0) {
 		uint64_t quot = 0, qbit = 1;
 		
 		while((int64_t)den >= 0) {
@@ -43,18 +34,18 @@ class Math
 	}
 
 	template <typename T, typename U>
-	static T min(T a, U b)
+	inline T min(T a, U b)
 	{
 		return a > b ? b : a;
 	}
 
 	template <typename T, typename U>
-	static T max(T a, U b)
+	inline T max(T a, U b)
 	{
 		return a > b ? a : b;
 	}
 
-    static uint32_t pow(uint32_t base, uint32_t exp) {
+    inline uint32_t pow(uint32_t base, uint32_t exp) {
         uint32_t result = 1;
         for (;;) {
             if (exp & 1) {
@@ -67,6 +58,18 @@ class Math
             base *= base;
         }
         return result;
+    }
+
+    /*
+     * Binary Coded Decimal to Integer conversion (and vice versa).
+     * Assume an 8 bit BCD, so only values from 0 to 99 are supported.
+     */
+    inline uint16_t bcd_to_int(uint8_t bcd) {
+        return (bcd >> 4) * 10 + (bcd & 0xf);
+    }
+
+    inline uint16_t int_to_bcd(uint8_t i) {
+        return (i / 10 << 4) + i % 10;
     }
 };
 

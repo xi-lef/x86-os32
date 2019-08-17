@@ -5,7 +5,7 @@
 #include "guard/gate.h"
 #include "types.h"
 
-class RTC : public CMOS, public Gate, public Time {
+class RTC : public CMOS, public Time, public Gate {
 private:
 	// Disallow copies and assignments.
 	RTC(const RTC&)            = delete;
@@ -18,7 +18,7 @@ public:
 
     int32_t get_freq() const;
 
-	void init_RTC(bool enable_update_irq = true, CMOS_irq_freq periodic_irq_freq = freq_0hz);
+	void init(bool enable_update_irq = true, CMOS::IRQ_freq periodic_irq_freq = freq_0hz);
 
     bool prologue() override;
     void epilogue() override;
@@ -52,10 +52,15 @@ public:
     };
 
     /*
+     * Return wether or not the RTC is currently updating its values.
+     */
+    bool is_updating();
+
+    /*
      * These methods read the corresponding values from the CMOS.
      * "get_second" etc. are for more convenient use, but internally use "get_value".
      */
-    uint16_t get_value(CMOS_offset offset);
+    uint16_t get_value(CMOS::Offset offset);
     uint16_t get_second();
     uint16_t get_minute();
     uint16_t get_hour();
@@ -69,7 +74,7 @@ public:
     /*
      * "update_time" should be called after using any of these methods.
      */
-    void set_value(CMOS_offset offset, uint16_t value);
+    void set_value(CMOS::Offset offset, uint16_t value);
     void set_second(uint16_t value);
     void set_minute(uint16_t value);
     void set_hour(uint16_t value);
@@ -83,7 +88,7 @@ public:
     void set_real_year(uint16_t year);
 
     /*
-     * Sets the member "time" to the current time by reading from the CMOS.
+     * Set the member "time" to the current time by reading from the CMOS.
      */
     void update_time();
 };

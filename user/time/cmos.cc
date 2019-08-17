@@ -1,74 +1,70 @@
 #include "cmos.h"
+#include "machine/io_port.h"
 #include "debug/output.h"
 
-uint32_t CMOS::init_CMOS(bool enable_update_irq, CMOS_irq_freq periodic_irq_freq) {
-    uint8_t statusB_flags = 0;
+static const IO_Port ctrl_port(0x70);
+static const IO_Port data_port(0x71);
+
+uint32_t CMOS::init(bool enable_update_irq, IRQ_freq periodic_irq_freq) {
     uint32_t irqs_per_second = 0;
+    Status_B b { .value = read_port(Offset::statusB) };
 
     // set up periodic interrupt
     if (periodic_irq_freq != freq_0hz) {
-        statusB_flags |= irq_periodic;
-        // set frequency of periodic interrupt to periodic_irq_freq
-        uint8_t statusA_old = read_port(offset_statusA);
-        // the top four bits should not be changed
-        write_port(offset_statusA, (statusA_old & 0xf0) | periodic_irq_freq);
+        b.periodic_irq = true;
 
-        irqs_per_second += CMOS_CALC_FREQ(periodic_irq_freq);
+        // set frequency of periodic interrupt to periodic_irq_freq
+        Status_A a = { .value = read_port(Offset::statusA) };
+        a.freq = periodic_irq_freq;
+        write_port(Offset::statusA, a.value);
+
+        irqs_per_second += calc_freq(periodic_irq_freq);
     }
 
     // set up update interrupt
     if (enable_update_irq) {
-        statusB_flags |= irq_update;
+        b.update_irq = true;
         irqs_per_second++;
     }
 
-    uint8_t statusB_old = read_port(offset_statusB);
-    write_port(offset_statusB, statusB_old | statusB_flags);
+    write_port(Offset::statusB, b.value);
 
     DBG_VERBOSE << "CMOS: init done" << endl;
     return irqs_per_second;
 }
 
-void CMOS::select_offset(CMOS_offset offset) {
-    uint8_t ctrl_orig = CMOS_ctrl_port.inb();
-    // bit 7 (nmi_bit) must NOT be changed!
-    uint8_t ctrl_new = (ctrl_orig & nmi_bit) | (offset & ~nmi_bit);
-
-    CMOS_ctrl_port.outb(ctrl_new);
+void CMOS::select_offset(Offset offset) {
+    uint8_t val = ctrl_port.inb();
+    // the NMI-bit must NOT be changed!
+    val = (val & nmi_bitmask) | (offset & ~nmi_bitmask);
+    ctrl_port.outb(val);
 }
 
-uint8_t CMOS::read_port(CMOS_offset offset) {
+uint8_t CMOS::read_port(Offset offset) {
     select_offset(offset);
-    return CMOS_data_port.inb();
+    return data_port.inb();
 }
 
-uint8_t CMOS::write_port(CMOS_offset offset, uint8_t value) {
+uint8_t CMOS::write_port(Offset offset, uint8_t value) {
     uint8_t data_old = read_port(offset);
-    select_offset(offset); // see "Note1" at https://wiki.osdev.org/CMOS#Accessing_CMOS_Registers
-    CMOS_data_port.outb(value);
+    // see "Note1" at https://wiki.osdev.org/CMOS#Accessing_CMOS_Registers
+    select_offset(offset);
+    data_port.outb(value);
     return data_old;
 }
 
-void CMOS::clear_statusC() {
-    read_port(offset_statusC);
+void CMOS::clear_status_c() {
+    read_port(Offset::statusC);
 }
 
 bool CMOS::is_update_irq() {
-    return (read_port(offset_statusC) & irq_update);
+    return (read_port(Offset::statusC) & irq_update);
 }
 
 bool CMOS::is_alarm_irq() {
-    return (read_port(offset_statusC) & irq_alarm);
+    return (read_port(Offset::statusC) & irq_alarm);
 }
 
 bool CMOS::is_periodic_irq() {
-    return (read_port(offset_statusC) & irq_periodic);
-}
-
-uint16_t CMOS::bcd_to_int(uint8_t bcd) {
-    return (bcd >> 4) * 10 + (bcd & 0xf);
-}
-
-uint16_t CMOS::int_to_bcd(uint8_t i) {
-    return (i / 10 << 4) + i % 10;
+    return (read_port(Offset::statusC) & irq_periodic);
 }

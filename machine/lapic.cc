@@ -225,8 +225,7 @@ void LAPIC::setTimer(uint32_t counter, uint8_t divide, uint8_t vector, bool peri
 }
 
 void LAPIC::setTimerMasked(bool masked) {
-    LAPICRegister_t lr;
-    lr = read(timerctrl_reg);
+    LAPICRegister_t lr = read(timerctrl_reg);
     lr.timer_ctrl.masked = masked;
     write(timerctrl_reg, lr);
 }

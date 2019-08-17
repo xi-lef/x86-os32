@@ -50,10 +50,12 @@ void Console::setAttribute(Console::attrib a) {
 }
 
 void Console::reset() {
+    flush();
     print("\ec", 2);
 }
 
 void Console::setpos(int x, int y) {
+    flush();
     print("\e[", 2);
     write_number(y);
     print(";", 1);
@@ -62,30 +64,33 @@ void Console::setpos(int x, int y) {
 }
 
 bool Console::getpos(int& x, int& y) {
-    int tmp_x = 0;
-    int tmp_y = 0;
+    flush();
+    x = 0;
+    y = 0;
 
     print("\e[6n", 4);
-    if (read(true) != '\e' || read(true) != '[') {
+    if (read() != '\e' || read() != '[') {
         return false;
     }
 
-    while (read(true) != ';') {
-        tmp_y *= 10 + int(read(true) - '0');
+    int r;
+    while ((r = read()) != ';') {
+        y = y * 10 + r - '0';
     }
-    while (read(true) != 'R') {
-        tmp_x *= 10 + int(read(true) - '0');
+    y--;
+
+    while (read() != 'R') {
+        x = x * 10 + r - '0';
     }
-    x = tmp_x;
-    y = tmp_y;
+    x--;
 
     return true;
 }
 
 void Console::print(char* string, int length) {
     for (int i = 0; i < length; i++) {
-        if (string[i] == '\r') {
-            write('\n', true);
+		if (string[i] == '\n' && i > 0 && string[i - 1] != '\r' ) {
+			write('\r');
         }
         write(string[i], true);
     }

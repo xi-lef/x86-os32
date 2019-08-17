@@ -156,7 +156,6 @@ public:
 	void print (char* string, int length);
 
     bool prologue() override;
-
     void epilogue() override;
 
     void listen();

@@ -7,9 +7,6 @@
  */
 
 #include "guard/gate.h"
-#include "machine/plugbox.h"
-
-extern Plugbox plugbox;
 
 /*! \brief Interruptbehandlungsobjekt, um in MPStuBS schlafende Prozessoren
  *  mit einem IPI zu wecken, falls neue Threads aktiv wurden. Diese Interruptbehandlung

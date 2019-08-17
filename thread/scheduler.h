@@ -28,7 +28,6 @@ class Scheduler
 	Scheduler(const Scheduler&)            = delete;
 	Scheduler& operator=(const Scheduler&) = delete;
 
-private:
     Queue<Thread> ready_list;
     Thread *idlethread[CPU_MAX];
 

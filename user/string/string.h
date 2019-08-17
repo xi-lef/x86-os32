@@ -8,15 +8,17 @@ private:
     struct long_data {
         char *data;
         size_t capacity;
+        char filler[12]; // Short strings will be 20 bytes long.
     };
-    static const size_t long_data_size = sizeof(long_data);
+    static constexpr size_t long_data_size = sizeof(long_data);
 
     union {
         struct {
-            char   *data;
+            char *data;
             size_t capacity;
+            char filler[12];
         };
-        mutable char short_data[long_data_size];
+        char short_data[long_data_size];
     };
     bool use_heap;
     size_t len;
@@ -26,7 +28,7 @@ private:
 
     // (At least) doubles the capacity of the "data" array.
     // "cap" is the minimum for the newly required capacity.
-    void __maybe_resize(size_t cap);
+    void _maybe_resize(size_t cap);
 
 public:
     static const size_t npos = (size_t) -1;
@@ -63,8 +65,8 @@ public:
 
     /// String manipulation.
 private:
-    void __append(char c);
-    void __append_nullbyte();
+    void _append(char c);
+    void _append_nullbyte();
 public:
     String& append(char c);
     String& append(const String& str);

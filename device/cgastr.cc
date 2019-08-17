@@ -70,7 +70,7 @@ void CGA_Stream::backspace(String *str, size_t pos) {
 
 O_Stream& CGA_Stream::operator <<(Attribute& attr) {
     flush();
-    attrib = (attr == COLOR_RESET) ? orig_attrib : attr;
+    attrib = (&attr == &COLOR_RESET) ? orig_attrib : attr;
     return *this;
 }
 

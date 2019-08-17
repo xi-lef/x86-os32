@@ -17,10 +17,10 @@ CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool 
 void CGA_Screen::setpos(int x, int y) {
     // account for negative x and y
 	if (x < 0) {
-		x += COLUMNS;
+		x += to_col + 1;
 	}
 	if (y < 0) {
-		y += ROWS;
+		y += to_row + 1;
 	}
 
     // sanity checks
@@ -68,7 +68,7 @@ void CGA_Screen::move_up_one_line(Attribute attrib) {
 		    CGA_BASE[y * COLUMNS + x] = CGA_BASE[(y + 1) * COLUMNS + x];
         }
         // set last (new) row to nothing with correct Attribute
-        CGA_BASE[to_row * COLUMNS + x] = {{' ', attrib}};
+        CGA_BASE[to_row * COLUMNS + x] = {' ', attrib};
 	}
 }
 
@@ -128,5 +128,5 @@ void CGA_Screen::show(int x, int y, char character, Attribute attrib) {
         return;
     }
 
-    CGA_BASE[y * COLUMNS + x] = {{character, attrib}};
+    CGA_BASE[y * COLUMNS + x] = {character, attrib};
 }
