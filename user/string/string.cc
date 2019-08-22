@@ -6,32 +6,6 @@
 
 #define used_data (use_heap ? data : short_data)
 
-void String::_maybe_resize(size_t cap) {
-    assert(cap >= len);
-
-    if ((!use_heap && cap <= long_data_size) // !use_heap => long_data_size == capacity
-        || (use_heap && cap <= capacity)) {
-        return;
-    }
-
-    if (!use_heap) {
-        // initial switch from "short string" to "long string".
-        // use "tmp" so we can copy the string content.
-        size_t new_capacity = 2 * long_data_size; // 16
-        char *tmp = (char *) malloc(new_capacity);
-        copy(tmp, new_capacity);
-
-        data = tmp;
-        capacity = new_capacity;
-        use_heap = true;
-    }
-
-    while (capacity < cap) {
-        capacity *= 2;
-        data = (char *) realloc(data, capacity);
-    }
-}
-
 String::String() : use_heap(false), len(0), save_index(0) {}
 
 String::String(char *s) : use_heap(false), len(0), save_index(0) {
@@ -64,10 +38,10 @@ String::operator const char*() {
 
 char& String::at(int i) {
     assert(i >= 0);
-    size_t index = (size_t) i;
-    assert(index <= len);
+    size_t index = (size_t)i;
+    assert(index <= length());
 
-    if (index == len) {
+    if (index == length()) {
         _append_nullbyte();
     }
 
@@ -76,10 +50,11 @@ char& String::at(int i) {
 
 const char& String::at(int i) const {
     assert(i >= 0);
-    size_t index = (size_t) i;
-    assert(index <= len);
+    size_t index = (size_t)i;
+    assert(index <= length());
 
-    if (index == len) {
+    if (index == length()) {
+        assert(!"TODO");
         //_append_nullbyte(); // TODO
     }
 
@@ -103,24 +78,53 @@ size_t String::length() const {
     return len;
 }
 
+size_t String::capacity() const {
+    return use_heap ? cap : sizeof(short_data);
+}
+
 void String::clear() {
     len = 0;
     save_index = 0;
 }
 
 bool String::empty() const {
-    return len == 0;
+    return length() == 0;
 }
 
 void String::resize(size_t n, char c) {
-    if (n <= len) {
+    if (n <= length()) {
         len = n;
         return;
     }
 
-    _maybe_resize(n);
-    for (size_t i = len; i < n; i++) {
+    reserve(n);
+    for (size_t i = length(); i < n; i++) {
         append(c);
+    }
+}
+
+void String::reserve(size_t n) {
+    if (n <= capacity()) {
+        return;
+    }
+
+    if (!use_heap) {
+        // initial switch from "short string" to "long string".
+        // use "tmp" so we can copy the string content.
+        size_t new_cap = 2 * sizeof(short_data);
+        char *tmp = (char*)malloc(new_cap);
+        assert(tmp);
+        copy(tmp, new_cap);
+
+        data = tmp;
+        cap = new_cap;
+        use_heap = true;
+    }
+
+    while (cap < n) {
+        cap *= 2;
+        data = (char*)realloc(data, cap);
+        assert(data);
     }
 }
 
@@ -129,15 +133,16 @@ void String::shrink_to_fit() {
         return;
     }
 
-    if (len <= 8) {
+    if (length() <= SHORT_STRING_LENGTH) {
         char *tmp = data;
         strcpy(short_data, tmp);
 
         use_heap = false;
         free(tmp);
     } else {
-        capacity = len;
-        data = (char *) realloc(data, capacity);
+        cap = length();
+        data = (char*)realloc(data, cap);
+        assert(data);
     }
 }
 
@@ -165,20 +170,20 @@ void String::_append(char c) {
 
 void String::_append_nullbyte() {
     // '\0' requires one byte, but doesnt increase the length of the string
-    _maybe_resize(len + 1);
+    reserve(length() + 1);
 
     // using at() would result in a loop, so we use the data directly
-    used_data[len] = '\0';
+    used_data[length()] = '\0';
 }
 
 String& String::append(char c) {
-    _maybe_resize(len + 1);
+    reserve(length() + 1);
     _append(c);
     return *this;
 }
 
 String& String::append(const String& str) {
-    _maybe_resize(len + str.length());
+    reserve(length() + str.length());
     for (size_t i = 0; i < str.length(); i++) {
         _append(str[i]);
     }
@@ -196,7 +201,7 @@ String& String::operator +=(const String& str) {
 }
 
 String& String::insert(size_t pos, char c) {
-    if (pos > len) {
+    if (pos > length()) {
         return *this;
     }
     String end = substr(pos);
@@ -207,7 +212,7 @@ String& String::insert(size_t pos, char c) {
 }
 
 String& String::insert(size_t pos, const String& str) {
-    if (pos > len) {
+    if (pos > length()) {
         return *this;
     }
     String end = substr(pos);
@@ -241,31 +246,31 @@ void String::push_back(char c) {
 }
 
 void String::pop_back() {
-    if (len > 0) {
-        resize(len - 1);
+    if (length() > 0) {
+        resize(length() - 1);
     }
 }
 
 String String::without_lf() const {
     String new_str(*this);
-    if (new_str[len - 1] == '\n') {
+    if (new_str[length() - 1] == '\n') {
         new_str.pop_back();
     }
     return new_str;
 }
 
 void String::remove_lf() {
-    if (at(len - 1) == '\n') {
+    if (at(length() - 1) == '\n') {
         pop_back();
     }
 }
 
 bool String::compare(size_t pos, const String& str) const {
-    if (pos + str.length() > len) {
+    if (pos + str.length() > length()) {
         return false;
     }
 
-    for (size_t i = pos; i < Math::min(len, str.length() + pos); i++) {
+    for (size_t i = pos; i < Math::min(length(), str.length() + pos); i++) {
         if (at(i) != str[i - pos]) {
             return false;
         }
@@ -274,7 +279,7 @@ bool String::compare(size_t pos, const String& str) const {
 }
 
 size_t String::find(const String& str, size_t pos) const {
-    for (size_t i = pos; i < len; i++) {
+    for (size_t i = pos; i < length(); i++) {
         if (compare(i, str)) {
             return i;
         }
@@ -283,7 +288,7 @@ size_t String::find(const String& str, size_t pos) const {
 }
 
 size_t String::find_first_of(char c, size_t pos) const {
-    for (size_t i = pos; i < len; i++) {
+    for (size_t i = pos; i < length(); i++) {
         if (at(i) == c) {
             return i;
         }
@@ -292,7 +297,7 @@ size_t String::find_first_of(char c, size_t pos) const {
 }
 
 size_t String::find_first_of(const String& str, size_t pos) const {
-    for (size_t i = pos; i < len; i++) {
+    for (size_t i = pos; i < length(); i++) {
         for (size_t j = 0; j < str.length(); j++) {
             if (at(i) == str[j]) {
                 return i;
@@ -332,19 +337,24 @@ char *strcpy(char *dest, const char *src) {
 }
 
 char *strncpy(char *dest, const char *src, size_t size) {
-    return (char *) memcpy(dest, src, size);
+    return (char*)memcpy(dest, src, size);
+}
+
+int strcmp(const String& str1, const String& str2) {
+    for (size_t i = 0; i < Math::min(str1.length(), str2.length()); i++) {
+        if (str1[i] != str2[i]) {
+            return str1[i] - str2[i];
+        }
+    }
+
+    if (str1.length() != str2.length()) {
+        return (str1.length() > str2.length()) ? 1 : -1;
+    }
+    return 0;
 }
 
 bool streq(const String& str1, const String& str2) {
-    if (str1.length() != str2.length()) {
-        return false;
-    }
-    for (size_t i = 0; i < str1.length(); i++) {
-        if (str1[i] != str2[i]) {
-            return false;
-        }
-    }
-    return true;
+    return strcmp(str1, str2) == 0;
 }
 
 String strtok(String& str, const String& delim) {
@@ -432,7 +442,7 @@ long strtol(const String& str, bool *error, int base) {
     if (res > SSIZE_MAX) {
         goto overflow;
     }
-    return negative ? (long) res * -1 : res;
+    return negative ? (long)res * -1 : res;
 
 overflow:
     if (error) {

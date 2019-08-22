@@ -297,6 +297,14 @@ void Shell::process_input(String *str) {
         while (!(arg = str->tok(" ")).empty()) {
             out << arg << endl;
         }
+    } else if (streq(cmd, "strcmp")) {
+        String str1 = str->tok(" ");
+        String str2 = str->tok(" ");
+        if (str1.empty() || str2.empty()) {
+            perror(cmd, "usage: strcmp <str1> <str2>");
+            return;
+        }
+        out << "result of comparison: " << strcmp(str1, str2) << endl;
     } else if (streq(cmd, "insert")) {
         String s     = str->tok(" ");
         String ins   = str->tok(" ");

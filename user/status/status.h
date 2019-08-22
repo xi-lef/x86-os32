@@ -1,11 +1,8 @@
 #pragma once
 
 #include "machine/apicsystem.h"
-#include "syscall/guarded_semaphore.h"
-#include "debug/output.h"
 
 class Status {
-private:
     bool cpu_idle[CPU_MAX];
     unsigned int thread_counter;
 

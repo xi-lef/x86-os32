@@ -53,4 +53,6 @@ extern "C" void *calloc(size_t nmemb, size_t size);
 extern "C" void *realloc(void *ptr, size_t size);
 
 void *operator new(size_t size);
-void operator delete(void *ptr);
+void *operator new[](size_t size);
+void operator delete(void *ptr) noexcept;
+void operator delete[](void *ptr) noexcept;

@@ -3,22 +3,14 @@
 #include "types.h"
 
 class String {
-private:
-    // Pseudo-struct for use in sizeof.
-    struct long_data {
-        char *data;
-        size_t capacity;
-        char filler[12]; // Short strings will be 20 bytes long.
-    };
-    static constexpr size_t long_data_size = sizeof(long_data);
+    static constexpr size_t SHORT_STRING_LENGTH = 20;
 
     union {
         struct {
             char *data;
-            size_t capacity;
-            char filler[12];
+            size_t cap;
         };
-        char short_data[long_data_size];
+        char short_data[SHORT_STRING_LENGTH];
     };
     bool use_heap;
     size_t len;
@@ -26,12 +18,8 @@ private:
     size_t save_index; // For strtok.
     friend String strtok(String& str, const String& delim);
 
-    // (At least) doubles the capacity of the "data" array.
-    // "cap" is the minimum for the newly required capacity.
-    void _maybe_resize(size_t cap);
-
 public:
-    static const size_t npos = (size_t) -1;
+    static const size_t npos = (size_t)-1;
 
     /// Constructors etc.
     String();
@@ -55,10 +43,12 @@ public:
 
     /// Size manipulation.
     size_t length() const;
+    size_t capacity() const;
     void clear();
     bool empty() const;
     void resize(size_t n, char c = ' ');
 
+    void reserve(size_t n);
     void shrink_to_fit();
 
     String substr(size_t pos = 0, size_t len = npos) const;
@@ -98,7 +88,6 @@ public:
     size_t copy(char *s, size_t len, size_t pos = 0) const;
 
     class Iterator {
-    private:
         String *str;
         size_t pos;
 
@@ -106,9 +95,7 @@ public:
         Iterator() : str(nullptr), pos(0) {}
         Iterator(String *str) : str(str), pos(0) {}
 
-        char& operator *() const {
-            return str->at(pos);
-        }
+        char& operator *() const { return str->at(pos); }
 
         // Prefix
         Iterator& operator ++() {
@@ -130,22 +117,12 @@ public:
             return ans;
         }
 
-        bool operator ==(const Iterator& it) const {
-            return str == it.str && pos == it.pos;
-        }
-
-        bool operator !=(const Iterator& it) const {
-            return !(*this == it);
-        }
+        bool operator ==(const Iterator& it) const { return str == it.str && pos == it.pos; }
+        bool operator !=(const Iterator& it) const { return !(*this == it); }
     }; // class Iterator
 
-    Iterator begin() {
-        return Iterator(this);
-    }
-
-    Iterator end() {
-        return Iterator();
-    }
+    Iterator begin() { return Iterator(this); }
+    Iterator end() { return Iterator(); }
 };
 
 size_t strlen(const char *s);
@@ -153,6 +130,7 @@ size_t strlen(const char *s);
 char *strcpy(char *dest, const char *src);
 char *strncpy(char *dest, const char *src, size_t size);
 
+int strcmp(const String& str1, const String& str2);
 bool streq(const String& str1, const String& str2);
 
 // Returns an empty String at the end.
