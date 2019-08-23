@@ -59,7 +59,7 @@ const char& String::at(int i) const {
     }
 
     return used_data[index];
-    //return ((String) *this).at(i); // TODO hm
+    //return ((String*)this)->at(i); // TODO hm
 }
 
 char& String::operator [](int i) {

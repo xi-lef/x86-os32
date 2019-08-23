@@ -6,7 +6,6 @@
 #include "types.h"
 
 class RTC : public CMOS, public Time, public Gate {
-private:
 	// Disallow copies and assignments.
 	RTC(const RTC&)            = delete;
 	RTC& operator=(const RTC&) = delete;

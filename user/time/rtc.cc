@@ -22,7 +22,7 @@ void RTC::init(bool enable_update_irq, CMOS::IRQ_freq periodic_irq_freq) {
     Plugbox::Vector rtc_vector = Plugbox::Vector::rtc;
     unsigned char   rtc_slot   = system.getIOAPICSlot(APICSystem::Device::rtc);
 
-    plugbox.assign(rtc_vector, &rtc);
+    plugbox.assign(rtc_vector, this);
     ioapic.config(rtc_slot, rtc_vector, TRIGGER_MODE_LEVEL);
     ioapic.allow(rtc_slot);
 
