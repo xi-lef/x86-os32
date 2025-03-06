@@ -80,7 +80,7 @@ extern "C" void debug_handler(struct debug_context *context){
 	mutex.lock();
 
 	// Lösche den vorherigen Inhalt
-	memset(&state->registers, 0, sizeof(state->registers));
+	memset(&state->registers, 0, 0);
 
 	// Setze den Interrupt Vektor
 	state->signum = context->vector;

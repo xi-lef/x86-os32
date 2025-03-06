@@ -40,14 +40,14 @@ QEMU = qemu-system-i386
 
 PROJECT="MPStuBS"
 
-MAKEFLAGS = -j
+#MAKEFLAGS = -j
 WARNFLAGS = -Wall -Wextra -Werror -Wno-error=unused-parameter
 OPTFLAGS = -O3 -fomit-frame-pointer
 FLOATINGPOINT = -mno-mmx -mno-sse
 STANDALONEFLAGS = -ffreestanding -fno-builtin -nodefaultlibs -nostdlib -nostdinc
 
 ifeq ($(CXX),g++)
-	STANDALONEFLAGS += -fno-tree-loop-distribute-patterns -nostartfiles
+	STANDALONEFLAGS += -fno-tree-loop-distribute-patterns -nostartfiles --param=min-pagesize=0
 	WARNFLAGS += -Wstack-usage=1024 -Wno-error=stack-usage=
 else ifeq ($(CXX),clang++)
 	WARNFLAGS += -Wno-error=unused-private-field -Wno-implicit-exception-spec-mismatch  -Wno-error=unused-const-variable

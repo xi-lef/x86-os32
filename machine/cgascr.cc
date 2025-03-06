@@ -8,7 +8,7 @@
 static IO_Port index(0x3d4);
 static IO_Port data(0x3d5);
 
-CGA_Screen::Pixel * const CGA_Screen::CGA_BASE = (Pixel * const) 0xb8000;
+CGA_Screen::Pixel * const CGA_Screen::CGA_BASE = (Pixel *) 0xb8000;
 
 CGA_Screen::CGA_Screen(int from_col, int to_col, int from_row, int to_row, bool use_cursor) :
     cur_x(from_col), cur_y(from_row), from_col(from_col), to_col(to_col), from_row(from_row),

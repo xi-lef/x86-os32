@@ -6,3 +6,5 @@ dep/
 dep-noopt/
 dep-verbose/
 *.swp
+.cache/
+compile_commands.json

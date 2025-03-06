@@ -180,13 +180,13 @@ public:
 	 *
 	 */
 	bool alt ()         {
-		return alt_left ()  | alt_right ();
+		return alt_left ()  || alt_right ();
 	}
 	/*! \brief Zeigt an, ob Modifier ctrl vorhanden ist
 	 *
 	 */
 	bool ctrl ()        {
-		return ctrl_left () | ctrl_right ();
+		return ctrl_left () || ctrl_right ();
 	}
 
 	/*! \brief Liefert ASCII-Wert

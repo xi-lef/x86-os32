@@ -29,7 +29,7 @@ private:
 	T *next;
 
 public:
-	QueueLink<T>() : next(nullptr) {}
+	QueueLink() : next(nullptr) {}
 
 };
 
